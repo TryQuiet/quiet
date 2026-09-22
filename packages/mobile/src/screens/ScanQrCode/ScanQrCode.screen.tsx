@@ -16,7 +16,14 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
 import { createLogger } from '../../utils/logger'
 import { ScanQrCodeScreenProps } from './ScanQrCode.types'
-import { JOIN_WITH_QR_CODE_HEADING, SCAN_QR_CODE_HEADING, SCAN_QR_CODE_INTRO } from '@quiet/common'
+import {
+  AlreadyBelongToCommunityWarning,
+  JOIN_WITH_QR_CODE_HEADING,
+  SCAN_QR_CODE_HEADING,
+  SCAN_QR_CODE_INTRO,
+} from '@quiet/common'
+import { icons } from '../../assets'
+import { replaceScreen } from '../../RootNavigation'
 
 const logger = createLogger('ScanQrCodeScreen')
 
@@ -54,9 +61,29 @@ export const ScanQrCodeScreen: FC<ScanQrCodeScreenProps> = ({ route }) => {
 
   const [deviceLinkInvite, setDeviceLinkInvite] = useState<DeviceInvitationData | undefined>(undefined)
 
+  // A camera frame is not a field, so a code scanned while this device already belongs to a
+  // community is reported the way the deep link reports it: on the designed error screen,
+  // whose Continue returns to the community that is already open. Scanning again would only
+  // reach the same refusal, so the scanner gives way rather than staying up.
+  const reportAlreadyInCommunity = useCallback(() => {
+    logger.info('Refusing a scanned invitation: this device already belongs to a community')
+    dispatch(communities.actions.clearJoinCommunityError())
+    dispatch(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ErrorScreen,
+        params: {
+          onPress: () => replaceScreen(ScreenNames.AppHomeScreen),
+          icon: icons.quiet_icon_round,
+          title: AlreadyBelongToCommunityWarning.TITLE,
+          message: AlreadyBelongToCommunityWarning.MESSAGE,
+        },
+      })
+    )
+  }, [dispatch])
+
   // A scanned device link goes through the same consent screen a pasted one
   // does: scanning is not a shortcut around it.
-  const onDecoded = useInvitationAction(setDeviceLinkInvite)
+  const onDecoded = useInvitationAction(setDeviceLinkInvite, reportAlreadyInCommunity)
 
   const linkDevice = useCallback(
     (data: DeviceInvitationData) => {

@@ -22,7 +22,8 @@ import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { QrScannerComponent } from '../../Onboarding/qrScanner/QrScannerComponent'
 import { createLogger } from '../../../logger'
-import { PASTE_LINK_HEADING } from '@quiet/common'
+import { AlreadyBelongToCommunityWarning, PASTE_LINK_HEADING } from '@quiet/common'
+import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 const logger = createLogger('JoinCommunity')
 
@@ -63,6 +64,10 @@ const joinErrorMessage = (error: JoinCommunityError | null): string | undefined 
     // says about a link it could not read itself.
     case 'refused':
       return InviteLinkErrors.InvalidCode
+    // Quiet is one community at a time. The designed copy is the warning modal's, said here
+    // on the field the link was typed into when that field is the surface in front.
+    case 'alreadyMember':
+      return AlreadyBelongToCommunityWarning.MESSAGE
     default: {
       const unreported: never = error
       return unreported
@@ -142,9 +147,37 @@ const JoinCommunity = () => {
     }
   }, [isConnected, currentCommunity, joinCommunityModal.open])
 
+  // Inside a community this flow closes itself, so there is no invite field left to report on.
+  // "You already belong to a community" then goes where the deep link already puts it: the
+  // warning modal. The error is spent on the way, or the modal would reopen on every render.
+  useEffect(() => {
+    if (joinCommunityError?.type !== 'alreadyMember' || !currentCommunity) return
+    logger.info('Reporting that this app already belongs to a community')
+    dispatch(communities.actions.clearJoinCommunityError())
+    dispatch(
+      modalsActions.openModal({
+        name: ModalName.warningModal,
+        args: {
+          title: AlreadyBelongToCommunityWarning.TITLE,
+          subtitle: AlreadyBelongToCommunityWarning.MESSAGE,
+        },
+      })
+    )
+  }, [joinCommunityError, currentCommunity, dispatch])
+
   const go = (next: Step) => setTrail(visited => [...visited, next])
 
   const handleCommunityAction = (data: InvitationData) => {
+    // Quiet is one community at a time, and the backend refuses both a join and a device link
+    // while this app already has one. Refuse it here instead, with the reason: the refusal by
+    // itself carries none. This is the rule the deep link has always applied
+    // (customProtocolSaga), now applied wherever an invitation arrives.
+    if (currentCommunity) {
+      clearJoinCommunityError()
+      dispatch(communities.actions.setJoinCommunityError({ type: 'alreadyMember' }))
+      return
+    }
+
     if (isDeviceInvitationData(data)) {
       // Linking a device hands the other device this account, so it is never done without consent.
       setPendingDeviceInvite(data)

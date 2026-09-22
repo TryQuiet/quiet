@@ -2,6 +2,7 @@ import React from 'react'
 import { act, fireEvent, waitFor } from '@testing-library/react-native'
 
 import {
+  AlreadyBelongToCommunityWarning,
   LINK_DEVICES_HEADING,
   PASTE_LINK_HEADING,
   PASTE_LINK_PLACEHOLDER,
@@ -9,7 +10,13 @@ import {
   validInvitationDatav4,
 } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
-import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
+import {
+  CommunityOwnership,
+  ErrorMessages,
+  type DeviceInvitationDataV4,
+  InvitationKind,
+  type InvitationDataV4,
+} from '@quiet/types'
 
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { initActions } from '../../store/init/init.slice'
@@ -38,7 +45,10 @@ describe('PasteInviteLinkScreen', () => {
     params: {},
   }
 
-  const renderReadyScreen = async (screenRoute: PasteInviteLinkScreenProps['route'] = route) => {
+  const renderReadyScreen = async (
+    screenRoute: PasteInviteLinkScreenProps['route'] = route,
+    { joined = false }: { joined?: boolean } = {}
+  ) => {
     const { store } = await prepareStore()
     store.dispatch(
       initActions.setWebsocketConnected({
@@ -46,6 +56,17 @@ describe('PasteInviteLinkScreen', () => {
         socketIOSecret: 'secret',
       })
     )
+    if (joined) {
+      store.dispatch(
+        communities.actions.addNewCommunity({
+          id: 'already-joined',
+          name: 'rockets',
+          teamId: 'rockets-team',
+          ownership: CommunityOwnership.User,
+        })
+      )
+      store.dispatch(communities.actions.setCurrentCommunity('already-joined'))
+    }
     const dispatchSpy = jest.spyOn(store, 'dispatch')
     const result = renderComponent(<PasteInviteLinkScreen route={screenRoute} />, store)
     return { dispatchSpy, result, store }
@@ -212,6 +233,56 @@ describe('PasteInviteLinkScreen', () => {
   })
 
   /**
+   * Quiet is one community at a time. An invitation pasted while this device already has a
+   * community is refused before anything is dispatched, and the reason is said on the field
+   * the link was typed into rather than left to the backend's bare refusal.
+   */
+  describe('while this device already belongs to a community', () => {
+    it('refuses a member link on the field instead of starting a join', async () => {
+      const { dispatchSpy, result } = await renderReadyScreen(route, { joined: true })
+
+      fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(memberInvite))
+      fireEvent.press(result.getByTestId('paste-link-continue'))
+
+      const error = await result.findByText(AlreadyBelongToCommunityWarning.MESSAGE)
+      expect(result.getByTestId('paste-link-input')).toContainElement(error)
+
+      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.setJoinCommunityError({ type: 'alreadyMember' }))
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        communities.actions.joinCommunity({ inviteData: parsedMemberInvite })
+      )
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        navigationActions.navigation({ screen: ScreenNames.UsernameRegistrationScreen })
+      )
+      // The message replaces the join, it does not follow it: the user stays on the paste step.
+      expect(result.getByText(PASTE_LINK_HEADING)).toBeTruthy()
+    })
+
+    it('refuses a device link the same way, without raising consent', async () => {
+      const { dispatchSpy, result } = await renderReadyScreen(route, { joined: true })
+
+      fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(deviceInvite))
+      fireEvent.press(result.getByTestId('paste-link-continue'))
+
+      expect(await result.findByText(AlreadyBelongToCommunityWarning.MESSAGE)).toBeTruthy()
+      expect(result.queryByTestId('device-link-consent')).toBeNull()
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: communities.actions.linkDevice.type })
+      )
+    })
+
+    it('still joins normally once there is no community', async () => {
+      const { dispatchSpy, result } = await renderReadyScreen()
+
+      fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(memberInvite))
+      fireEvent.press(result.getByTestId('paste-link-continue'))
+
+      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.joinCommunity({ inviteData: parsedMemberInvite }))
+      expect(result.queryByText(AlreadyBelongToCommunityWarning.MESSAGE)).toBeNull()
+    })
+  })
+
+  /**
    * A join that fails is reported where the link was typed. Every kind the backend
    * reports lands under this screen's input, and the screen keeps the window: nothing
    * navigates away to Join community or Get started to say it.
@@ -239,6 +310,11 @@ describe('PasteInviteLinkScreen', () => {
       // The backend refused and said nothing about why, so the field says no more than it
       // says about a link it could not read itself.
       ['a request the backend refused outright', { type: 'refused' }, INVALID_INVITATION_ERROR],
+      [
+        'a device that already belongs to a community',
+        { type: 'alreadyMember' },
+        AlreadyBelongToCommunityWarning.MESSAGE,
+      ],
     ]
 
     describe.each(errorKinds)('%s', (_kind, joinCommunityError, message) => {
