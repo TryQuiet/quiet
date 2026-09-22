@@ -4,9 +4,9 @@ import { Image, View } from 'react-native'
 import { icons } from '../../assets'
 import { InfoIcon, InviteLinkIcon, QrCodeIcon } from '../../assets/icons/svg/onboarding-icons'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { spacing } from '../../styles/const/spacing'
 import { ActionRow } from '../ActionRow/ActionRow.component'
 import { Appbar } from '../Appbar/Appbar.component'
+import { OnboardingBody } from '../OnboardingBody/OnboardingBody.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { JoinCommunityOptionsProps } from './JoinCommunityOptions.types'
@@ -21,15 +21,16 @@ import {
 export const GRAPHIC_SIZE = { width: 219, height: 160 } as const
 
 /**
- * Join community · Figma 2811:2562: the heart-chat illustration directly under
- * the bar zone, the title, then the three-way choice — top-anchored, 24 apart,
- * as in the frame (graphic at y 60, title at 244, rows from 302). The frame
- * hides its bar title ("Quiet"): the back glyph alone, and the heading is the
- * title. The illustration is what sits 24 above the title, so it is flush under
- * the bar zone rather than 24 below it, matching the desktop column's
- * flushLeading. "Recover account" opens the Account recovery screen
- * (2811:2535), whose routes are the existing Link devices and Join with invite
- * link flows.
+ * Join community · Figma 2811:2562: the heart-chat illustration, the title, then
+ * the three-way choice — top-anchored, 24 apart. The frame hides its bar title
+ * ("Quiet"): the back glyph alone, and the heading is the title. "Recover
+ * account" opens the Account recovery screen (2811:2535), whose routes are the
+ * existing Link devices and Join with invite link flows.
+ *
+ * The frame draws the graphic flush under the bar zone (y 60) where the eight
+ * other full-screen stages put their first element at y 84. That lone deviation
+ * is what made Get started → Join community jump, so this screen takes the
+ * class's inset like the rest (styles/const/onboarding.ts).
  */
 export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
   onJoinWithInviteLink,
@@ -42,7 +43,7 @@ export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
     testID={'join-community-options-component'}
   >
     <Appbar withoutTitle back={handleBackButton} />
-    <View style={{ flex: 1, paddingHorizontal: spacing.lg, gap: spacing.xl }}>
+    <OnboardingBody>
       <Image
         source={icons.graphic_heart_chat}
         style={{ ...GRAPHIC_SIZE, alignSelf: 'center' }}
@@ -72,6 +73,6 @@ export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
           testID={'recover-account'}
         />
       </View>
-    </View>
+    </OnboardingBody>
   </View>
 )

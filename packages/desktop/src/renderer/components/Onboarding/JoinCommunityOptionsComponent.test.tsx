@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { JoinCommunityOptionsComponent } from './JoinCommunityOptionsComponent'
+import { ONBOARDING_STAGE_INSET } from './onboardingRhythm'
 import { JOIN_COMMUNITY_HEADING } from '@quiet/common'
 
 describe('Join community', () => {
@@ -31,8 +32,10 @@ describe('Join community', () => {
     expect(
       heading.compareDocumentPosition(screen.getByTestId('join-with-invite-link')) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
-    // The graphic sits directly under the bar: no padding above it
-    expect(screen.getByTestId('join-community-options')).toHaveClass('OnboardingBodyflushLeading')
+    // The graphic takes the class's inset like every other stage, not the frame's flush y 60
+    expect(getComputedStyle(screen.getByTestId('join-community-options')).paddingTop).toBe(
+      `${ONBOARDING_STAGE_INSET}px`
+    )
 
     await userEvent.click(screen.getByTestId('join-with-invite-link'))
     await userEvent.click(screen.getByTestId('join-with-qr-code'))

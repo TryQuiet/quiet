@@ -3,6 +3,8 @@ import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { Appbar } from '../Appbar/Appbar.component'
+import { onboardingStageBody } from '../../styles/const/onboarding'
+import { ONBOARDING_BODY_TEST_ID } from '../OnboardingBody/OnboardingBody.component'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
@@ -130,12 +132,8 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           <Appbar title={copy.title} withoutTitle={copy.titleHidden} back={handleBackButton} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
-            style={{
-              flex: 1,
-              paddingTop: spacing.xl,
-              paddingHorizontal: spacing.lg,
-              gap: spacing.xl,
-            }}
+            style={onboardingStageBody}
+            testID={ONBOARDING_BODY_TEST_ID}
           >
             <View style={{ gap: spacing.sm }}>
               <Typography variant={'h3'} horizontalTextAlign={'center'}>

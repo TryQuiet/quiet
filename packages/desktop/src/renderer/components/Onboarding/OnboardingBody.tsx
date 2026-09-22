@@ -5,6 +5,7 @@ import WarningIcon from '@mui/icons-material/Warning'
 import classNames from 'classnames'
 
 import { tokens } from '../../design-system/tokens'
+import { ONBOARDING_BLOCK_GAP, ONBOARDING_STAGE_INSET } from './onboardingRhythm'
 
 const PREFIX = 'OnboardingBody'
 
@@ -16,7 +17,6 @@ const classes = {
   bordered: `${PREFIX}bordered`,
   betaWarning: `${PREFIX}betaWarning`,
   betaIcon: `${PREFIX}betaIcon`,
-  flushLeading: `${PREFIX}flushLeading`,
 }
 
 /**
@@ -31,15 +31,15 @@ const Root = styled('div')(({ theme }) => ({
   maxWidth: CONTENT_COLUMN_WIDTH,
   margin: '0 auto',
   boxSizing: 'border-box',
-  padding: `${theme.space.xl}px ${theme.space.lg}px ${theme.space.xxl}px`,
-  // A screen whose illustration sits directly under the bar (Join community, 2811:2562: graphic at y 60).
-  [`&.${classes.flushLeading}`]: {
-    paddingTop: 0,
-  },
+  // One vertical rhythm for every full-screen stage: the first content element
+  // sits ONBOARDING_STAGE_INSET below the bar zone, and the blocks under it are
+  // ONBOARDING_BLOCK_GAP apart. No screen overrides either — that is what makes
+  // moving between stages land the block in the same place every time.
+  padding: `${ONBOARDING_STAGE_INSET}px ${theme.space.lg}px ${theme.space.xxl}px`,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
-  gap: theme.space.xl,
+  gap: ONBOARDING_BLOCK_GAP,
   backgroundColor: theme.palette.background.default,
   [`& .${classes.heading}`]: {
     margin: 0,
@@ -91,8 +91,6 @@ export interface OnboardingBodyProps {
   intro?: React.ReactNode
   /** Rendered above the heading (illustrations). */
   leading?: React.ReactNode
-  /** The leading illustration starts at the top of the column, no padding above it (as the frame draws it). */
-  flushLeading?: boolean
   betaWarning?: boolean
   dataTestId?: string
   children?: React.ReactNode
@@ -121,12 +119,14 @@ export const OnboardingBody: React.FC<OnboardingBodyProps> = ({
   heading,
   intro,
   leading,
-  flushLeading,
   betaWarning,
   dataTestId,
   children,
 }) => (
-  <Root data-testid={dataTestId} className={flushLeading ? classes.flushLeading : undefined}>
+  // `data-onboarding-body` marks the column for onboardingRhythm.test.tsx, which sweeps
+  // every Screens/Onboarding story and fails if any stage's column does not carry the
+  // class's inset and gap. A new screen is covered the moment it renders this.
+  <Root data-testid={dataTestId} data-onboarding-body=''>
     {leading ? <div className={classes.leading}>{leading}</div> : null}
     {heading || intro ? (
       <div>

@@ -12,6 +12,7 @@ import {
   validInvitationDatav4,
 } from '@quiet/common'
 import { renderComponent } from '../../testUtils/renderComponent'
+import { ONBOARDING_BAR_ZONE_HEIGHT } from './onboardingRhythm'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { SocketState } from '../../sagas/socket/socket.slice'
@@ -44,11 +45,16 @@ describe('Get started', () => {
 
     expect(await findEntry()).toBeVisible()
     expect(screen.getByTestId('onboardingBetaWarning')).toBeVisible()
-    // No title bar: the window chrome carries the app's name (a deliberate departure from the frame's "Quiet" bar)
+    // No bar title: the window chrome carries the app's name (a deliberate departure from the frame's "Quiet" bar)
     expect(screen.queryByText('Quiet')).not.toBeInTheDocument()
-    expect(screen.getByTestId('getStartedModalActions').closest('.Modalheader')).toHaveClass('Modalnone')
-    // There is nothing to close it into: no community yet
+    // There is nothing to close it into: no community yet, so the zone holds no glyph either
     expect(screen.queryByTestId('getStartedModalClose')).not.toBeInTheDocument()
+    // The 60 bar zone itself is kept, as on every stage this screen leads to: dropping it is
+    // what put Get started's block 60 above theirs (components/Onboarding/onboardingRhythm.ts)
+    const barZone = screen.getByTestId('getStartedModalActions').closest('.Modalheader')
+    expect(barZone).not.toHaveClass('Modalnone')
+    expect(getComputedStyle(barZone as Element).height).toBe(`${ONBOARDING_BAR_ZONE_HEIGHT}px`)
+    expect(barZone).toHaveTextContent('')
   })
 
   it('stays out of the way while the progress screen is up, and appears once it is gone', async () => {

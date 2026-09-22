@@ -16,11 +16,12 @@ const logger = createLogger('GetStarted')
  * The onboarding entry point. Opens itself when the app is connected and has no
  * community, unless another onboarding modal is already showing.
  *
- * No title bar at all: the window chrome already carries the app's name, so
- * the frame's "Quiet" bar is left out (decided 2026-09-13). The other
- * full-screen onboarding stages keep the bar zone for their back/close glyph
- * but hide the title text (Modal's withoutTitle). The content column starts
- * under the window chrome with the frame's own rhythm.
+ * No bar title and no glyph: the window chrome already carries the app's name,
+ * so the frame's "Quiet" bar text is left out (decided 2026-09-13) and there is
+ * nothing to go back to from the entry. The 60 bar zone itself stays, as it does
+ * on every other full-screen stage, so the content column starts at the same y
+ * here as on the screens this one leads to — dropping the zone as well is what
+ * made Get started → Join community jump 76px (`onboardingRhythm.ts`).
  */
 export const GetStarted: React.FC = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
@@ -87,7 +88,7 @@ export const GetStarted: React.FC = () => {
     <Modal
       open={getStartedModal.open}
       handleClose={getStartedModal.handleClose}
-      withoutHeader
+      withoutTitle
       isCloseDisabled
       contentWidth={'100%'}
       testIdPrefix={'getStarted'}
