@@ -57,6 +57,8 @@ import {
   InitDeviceLinkPayload,
   RequestInvitePayload,
   RequestDeviceLinkPayload,
+  RequestLinkedDevicesPayload,
+  LinkedDevice,
   ResponseInvitePayload,
   DeviceLinkInvite,
   LaunchCommunityPayload,
@@ -1043,6 +1045,31 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  /**
+   * The current user's devices as the team graph records them. Read-only: device
+   * removal is gated on a later line (#3471), so nothing here can unlink a device.
+   * Returns an empty list rather than throwing when there is no chain yet, because
+   * the Link devices screen opens before a community exists.
+   */
+  public getLinkedDevices(): LinkedDevice[] {
+    const chain = this.sigChainService.getActiveChain(false)
+    if (chain?.team == null) return []
+    try {
+      const currentDeviceId = chain.context.device.deviceId
+      const devices = chain.users.getMyUser({ includeRemoved: false, throwOnMissing: false })?.devices ?? []
+      return devices.map(device => ({
+        deviceId: device.deviceId,
+        deviceName: device.deviceName,
+        created: device.created,
+        removedAt: device.removedAt,
+        isCurrent: device.deviceId === currentDeviceId,
+      }))
+    } catch (e) {
+      this.logger.warn('Could not read linked devices from the team graph', e)
+      return []
+    }
+  }
+
   private async bootstrapCommunityFromInvitation(
     id: string,
     inviteData: InvitationData,
@@ -1897,6 +1924,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           this.logger.error(`Failed to generate a device link!`, e)
           callback(undefined)
         }
+      }
+    )
+
+    this.socketService.on(
+      SocketActions.GET_LINKED_DEVICES,
+      async (_args: RequestLinkedDevicesPayload, callback: (response?: LinkedDevice[]) => void) => {
+        callback(this.getLinkedDevices())
       }
     )
 

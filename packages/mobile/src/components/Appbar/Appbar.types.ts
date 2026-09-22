@@ -23,7 +23,7 @@ export interface AppbarProps {
    */
   backAccessibilityLabel?: string
   iconColor?: string
-  textColor?: keyof (typeof defaultPalette)['typography']
+  textColor?: keyof typeof defaultPalette['typography']
   /** No back arrow and no community tile on the left (onboarding roots). */
   plain?: boolean
   /**
@@ -40,5 +40,5 @@ export interface HeaderTitleProps {
   title: string
   fontSize?: number
   fontWeight?: FontWeight
-  textColor?: keyof (typeof defaultPalette)['typography']
+  textColor?: keyof typeof defaultPalette['typography']
 }

@@ -19,7 +19,7 @@ const invite = (expiresAt: number): DeviceLinkInvite =>
     expiresAt,
     userId: 'user-id',
     userName: 'Alice',
-  }) as DeviceLinkInvite
+  } as DeviceLinkInvite)
 
 describe('LinkedDeviceQRCodeScreen', () => {
   it('shows the sheet and the generating state while there is no link yet', async () => {

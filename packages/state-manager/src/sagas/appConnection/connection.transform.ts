@@ -9,6 +9,7 @@ export const ConnectionTransform = createTransform<ConnectionState, ConnectionSt
       ...inboundState,
       deviceLinkInvite: undefined,
       deviceLinkCreationFailed: false,
+      linkedDevices: [],
     }
   },
   (outboundState: ConnectionState, _key: any) => {
@@ -23,6 +24,7 @@ export const ConnectionTransform = createTransform<ConnectionState, ConnectionSt
       socketIOSecret: null,
       deviceLinkInvite: undefined,
       deviceLinkCreationFailed: false,
+      linkedDevices: [],
       networkEndpoints: {},
       p2pEnabled: true,
     }
