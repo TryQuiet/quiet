@@ -39,12 +39,12 @@ describe('redirectionSaga', () => {
       .withState(store.getState())
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
+          screen: ScreenNames.GetStartedScreen,
         })
       )
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
+          screen: ScreenNames.AppHomeScreen,
         })
       )
       .run()
@@ -58,7 +58,7 @@ describe('redirectionSaga', () => {
       .withState(store.getState())
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
+          screen: ScreenNames.GetStartedScreen,
         })
       )
       .run()
@@ -98,7 +98,7 @@ describe('redirectionSaga', () => {
     await expectSaga(redirectionSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .put(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
+      .put(navigationActions.replaceScreen({ screen: ScreenNames.AppHomeScreen }))
       .run()
   })
 })

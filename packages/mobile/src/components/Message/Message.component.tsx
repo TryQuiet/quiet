@@ -1,5 +1,6 @@
-import React, { type FC, type ReactNode } from 'react'
-import { View, Text, Image, StyleSheet } from 'react-native'
+import React, { type FC, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { Typography } from '../Typography/Typography.component'
 import type { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
@@ -12,9 +13,19 @@ import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
 import Markdown, { MarkdownIt, type ASTNode, hasParents } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
+import { TouchableOpacity } from 'react-native'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 import { DateTime } from 'luxon'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
+import { toMarkdownSource } from './Message.utils'
+
+// How long the "Copied" confirmation stays on screen after a long press.
+const COPIED_INDICATOR_DURATION = 1500
+
+// Only user-written text messages can be copied. Image and file messages hold a filename rather
+// than author-written text and keep their existing tap-to-preview behaviour, and Info messages are
+// written by the app itself.
+const isCopyable = (message: DisplayableMessage): boolean => message.type === MessageType.Basic
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
@@ -31,32 +42,41 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
       alt={"Message author's profile image"}
     />
   ) : (
-    <Jdenticon value={message.userId} size={37} />
+    <Jdenticon value={message.userId} size={37} borderRadius={4} />
   )
 }
 
 const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
-  downloadStatus,
+  downloadStatuses,
   maxAutodownloadSizeBytes,
   downloadFile,
   cancelDownload,
   openImagePreview,
   openUrl,
+  openUserProfile,
   pendingMessages,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
 }) => {
-  const pushBr = (str: string) => {
-    const afterSplit = str
-      .split('\n')
-      .map(e => {
-        if (e === '') return '<br>'
-        return e
-      })
-      .join('\n')
-    return afterSplit
-  }
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
+  const copiedResetTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(
+    () => () => {
+      if (copiedResetTimeout.current) clearTimeout(copiedResetTimeout.current)
+    },
+    []
+  )
+
+  // Copies the message exactly as its author wrote it (markdown source), not the rendered text.
+  const copyMessage = useCallback((message: DisplayableMessage) => {
+    Clipboard.setString(message.message)
+    if (copiedResetTimeout.current) clearTimeout(copiedResetTimeout.current)
+    setCopiedMessageId(message.id)
+    copiedResetTimeout.current = setTimeout(() => setCopiedMessageId(null), COPIED_INDICATOR_DURATION)
+  }, [])
+
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: {
@@ -70,7 +90,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             ) : (
               <FileAttachment
                 message={message}
-                downloadStatus={downloadStatus}
+                downloadStatus={downloadStatuses?.[message.id]}
                 downloadFile={downloadFile}
                 cancelDownload={cancelDownload}
               />
@@ -83,7 +103,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         return (
           <FileAttachment
             message={message}
-            downloadStatus={downloadStatus}
+            downloadStatus={downloadStatuses?.[message.id]}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
           />
@@ -106,7 +126,14 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             </Text>
           ),
           link: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
-            <Text key={node.key} style={styles.link} onPress={() => openUrl(node.attributes.href)}>
+            // A link claims the touch responder, so without its own onLongPress a long press
+            // starting on a link would open the url instead of copying the message.
+            <Text
+              key={node.key}
+              style={styles.link}
+              onPress={() => openUrl(node.attributes.href)}
+              onLongPress={isCopyable(message) ? () => copyMessage(message) : undefined}
+            >
               {children}
             </Text>
           ),
@@ -137,7 +164,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         }
         return (
           <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
-            {pushBr(message.message)}
+            {toMarkdownSource(message.message)}
           </Markdown>
         )
       }
@@ -165,11 +192,11 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
   const userLabel = representativeMessage?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !representativeMessage?.isRegistered
-    ? UserLabelType.UNREGISTERED
-    : null
+      ? UserLabelType.UNREGISTERED
+      : null
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} testID={`userMessages-${representativeMessage.nickname}`} collapsable={false}>
       <View
         style={{
           flexDirection: 'row',
@@ -191,16 +218,29 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
               style={{ width: 37, height: 37 }}
             />
           ) : (
-            <MessageProfilePhoto message={representativeMessage} />
+            // A message is where you most often meet someone, so the photo and the name are the
+            // way to their profile. An Info message is from Quiet itself and has nobody behind it.
+            <TouchableOpacity
+              onPress={() => openUserProfile?.(representativeMessage.userId)}
+              disabled={openUserProfile == null}
+              testID={`message-author-photo-${representativeMessage.id}`}
+            >
+              <MessageProfilePhoto message={representativeMessage} />
+            </TouchableOpacity>
           )}
         </View>
         <View style={{ flex: 8 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
-            <View style={{ alignSelf: 'flex-start' }}>
+            <TouchableOpacity
+              style={{ alignSelf: 'flex-start' }}
+              onPress={() => openUserProfile?.(representativeMessage.userId)}
+              disabled={info || openUserProfile == null}
+              testID={`message-author-name-${representativeMessage.id}`}
+            >
               <Typography fontSize={16} fontWeight={'medium'} color={pending ? 'lightGray' : 'main'}>
                 {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
-            </View>
+            </TouchableOpacity>
 
             {userLabel && !info && (
               <View>
@@ -227,10 +267,39 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
           </View>
           <View style={{ flexShrink: 1 }}>
             {data.map((message: DisplayableMessage, index: number) => {
+              if (message.type === MessageType.Empty) {
+                return <></>
+              }
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
+              const rendered = renderMessage(message, pending)
               return (
-                <View style={outerDivStyle} key={index}>
-                  {renderMessage(message, pending)}
+                <View
+                  style={outerDivStyle}
+                  key={index}
+                  // Fabric must keep this message's content under its own status marker.
+                  collapsable={false}
+                  testID={pendingMessages?.[message.id] !== undefined ? 'message-pending' : 'message-stored'}
+                >
+                  {isCopyable(message) ? (
+                    // No pressed-state styling on purpose: a press-in highlight flickers when a
+                    // scroll gesture starts on a message. The "Copied" badge is the feedback.
+                    <Pressable onLongPress={() => copyMessage(message)} testID={`message-copy-${message.id}`}>
+                      {rendered}
+                      {copiedMessageId === message.id && (
+                        <View
+                          style={classes.copiedIndicator}
+                          pointerEvents='none'
+                          testID={`message-copied-${message.id}`}
+                        >
+                          <Typography fontSize={12} color={'white'}>
+                            Copied
+                          </Typography>
+                        </View>
+                      )}
+                    </Pressable>
+                  ) : (
+                    rendered
+                  )}
                 </View>
               )
             })}
@@ -247,6 +316,17 @@ const classes = StyleSheet.create({
   },
   nextMessage: {
     paddingTop: 4,
+  },
+  // Absolutely positioned so showing it never changes the message height, which would make the
+  // inverted message list jump.
+  copiedIndicator: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: defaultTheme.palette.background.gray70,
   },
 })
 

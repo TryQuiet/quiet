@@ -1,35 +1,18 @@
 /* eslint-disable */
-import { setEngine, CryptoEngine } from 'pkijs'
+import { setEngine } from 'pkijs'
 import { setEngine as setIdentityEngine } from '../../identity/node_modules/pkijs'
 import React from 'react'
 
 import { io } from 'socket.io-client'
 import { saveChannelMetadataInKeychainSaga } from './store/channelMetadata/saveChannelMetadataInKeychain/saveChannelMetadataInKeychain.saga'
 
-setEngine(
-  'newEngine',
-  global.crypto,
-  new CryptoEngine({
-    name: '',
-    crypto: global.crypto,
-    subtle: global.crypto.subtle,
-  })
-)
-
-setIdentityEngine(
-  'newEngine',
-  global.crypto,
-  new CryptoEngine({
-    name: '',
-    crypto: global.crypto,
-    subtle: global.crypto.subtle,
-  })
-)
+// Each installed PKI.js version creates its own compatible CryptoEngine.
+setEngine('newEngine', global.crypto, global.crypto.subtle)
+setIdentityEngine('newEngine', global.crypto, global.crypto.subtle)
 
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
   QSS_ALLOWED: 'true',
-  PRIVATE_CHANNEL_CREATION_ALLOWED: 'false',
   FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED: 'true',
 }))
 
@@ -43,11 +26,13 @@ jest.mock('redux-persist', () => {
   }
 })
 
-jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')
-
 jest.mock('react-native', () => {
   const rn = jest.requireActual('react-native')
+  // Keep NativeEventEmitter's real JavaScript subscriptions so Keyboard and
+  // KeyboardAvoidingView can receive events and remove listeners on unmount.
   rn.NativeModules.CommunicationModule = {
+    addListener: jest.fn(),
+    removeListeners: jest.fn(),
     requestNotificationPermission: jest.fn(),
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
@@ -60,6 +45,7 @@ jest.mock('react-native', () => {
     setTeamQssEnabled: jest.fn(),
     setUserBackgroundTorEnabled: jest.fn(),
     clearSensitiveData: jest.fn(),
+    clearAdmissionCredentials: jest.fn(),
     completeAppPause: jest.fn(),
     setPauseListenerReady: jest.fn(),
     setLifecycleListenerReady: jest.fn(),
@@ -87,6 +73,9 @@ jest.mock('react-native-mathjax-html-to-svg', () => {})
 
 jest.mock('react-native-qrcode-svg', () => jest.fn())
 
+// Native camera; tests drive it through src/tests/mocks/reactNativeVisionCamera.tsx.
+jest.mock('react-native-vision-camera', () => require('./tests/mocks/reactNativeVisionCamera'))
+
 jest.mock('react-native-progress', () => ({
   CircleSnail: jest.fn(),
 }))
@@ -102,12 +91,6 @@ jest.mock('@ronradtke/react-native-markdown-display', () => ({
 jest.mock('socket.io-client', () => ({
   io: jest.fn(),
 }))
-
-// Mocked because of:
-//
-// "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNDocumentPicker'
-// could not be found. Verify that a module by this name is registered in the native binary."
-jest.mock('react-native-document-picker', () => {})
 
 // Mocked because of:
 //
@@ -198,6 +181,25 @@ jest.mock('react-native-zip-archive', () => ({
 
 jest.mock('react-native-share', () => ({ default: { open: jest.fn() } }))
 
+// Mocked because of:
+//
+// "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNCClipboard' could not be found.
+// Verify that a module by this name is registered in the native binary."
+jest.mock('@react-native-clipboard/clipboard', () => ({
+  __esModule: true,
+  default: {
+    setString: jest.fn(),
+    getString: jest.fn(),
+  },
+}))
+
 export const ioMock = io as jest.Mock
 
 jest.resetAllMocks()
+
+// @react-native-clipboard/clipboard is a TurboModule with no jest binding; every screen that
+// copies (Link devices, the device-link QR screen, the invitation menu) would otherwise fail to load.
+jest.mock('@react-native-clipboard/clipboard', () => ({
+  setString: jest.fn(),
+  getString: jest.fn(async () => ''),
+}))

@@ -1,35 +1,20 @@
 import React, { ReactElement, ReactFragment } from 'react'
-import { styled, Theme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip'
 
+// The tooltip's look (ink fill, radius 8, 8/16 padding, 14/20 white text) is the
+// theme's MuiTooltip override, from the library's Tooltip-content (3490:10102).
 // Styling mui tooltip requires workaround: https://mui.com/material-ui/guides/interoperability/#portals
 const StyledTooltip = styled(
   ({ className, ...props }: TooltipProps) => <MuiTooltip {...props} classes={{ popper: className }} />,
   {}
-)(({ theme }) => ({
+)(() => ({
   '& .MuiTooltip-tooltip': {
-    marginBottom: 5,
-    background: theme.palette.colors.trueBlack,
-    color: theme.typography.body1.color,
-    paddingTop: 12,
-    paddingBottom: 12,
-    paddingLeft: 16,
-    paddingRight: 16,
-    borderRadius: 8,
-    fontSize: 12,
-    fontWeight: 500,
-
     '&:first-letter': {
       textTransform: 'capitalize',
     },
-  },
-  '& .MuiTooltip-arrow': {
-    '&:before': {
-      border: `1px solid ${theme.palette.colors.trueBlack}`,
-    },
-    color: theme.palette.colors.trueBlack,
   },
 }))
 

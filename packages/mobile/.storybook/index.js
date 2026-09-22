@@ -1,3 +1,5 @@
+import './preserve-native-promise'
+
 import { LogBox } from 'react-native'
 
 import { configure, addDecorator, getStorybookUI } from '@storybook/react-native'
@@ -9,7 +11,11 @@ LogBox.ignoreAllLogs()
 addDecorator(withNavigation)
 
 configure(() => {
+  require('../src/components/AndroidCompatibility/AndroidCompatibility.stories')
+  require('../src/components/RuntimeCompatibility/RuntimeCompatibility.stories')
+  require('../src/components/AndroidCompatibility/AndroidDrawer.stories')
   require('../src/components/JoinCommunity/JoinCommunity.stories')
+  require('../src/components/JoinCommunityOptions/JoinCommunityOptions.stories')
   require('../src/components/LeaveCommunity/LeaveCommunity.stories')
   require('../src/components/ConnectionProcess/ConnectionProcess.stories')
   require('../src/components/ContextMenu/ContextMenu.stories')
@@ -19,15 +25,18 @@ configure(() => {
   require('../src/components/ServerOffer/JoiningOptIn/JoiningOptIn.stories')
   require('../src/components/TermsOfService/TermsOfService.stories')
   require('../src/components/Appbar/Appbar.stories')
+  require('../src/components/Appbar/StatusBarTreatment.stories')
   require('../src/components/Registration/UsernameRegistration.stories')
-  require('../src/components/ChannelTile/ChannelTile.stories')
-  require('../src/components/ChannelList/ChannelList.stories')
+  require('../src/components/CommunityHome/CommunityHome.stories')
   require('../src/components/CreateChannel/CreateChannel.stories')
   require('../src/components/DeleteChannel/DeleteChannel.stories')
   require('../src/components/QRCode/QRCode.stories')
+  require('../src/components/QrScanner/QrScanner.stories')
   require('../src/components/Message/Message.stories')
   require('../src/components/Notifier/Notifier.stories')
   require('../src/components/Chat/Chat.stories')
+  require('../src/components/Chat/NewMessage.stories')
+  require('../src/components/RecipientField/RecipientField.stories')
   require('../src/components/TextWithLink/TextWithLink.stories')
   require('../src/components/Typography/Typography.stories')
   require('../src/components/Button/Button.stories')
@@ -41,7 +50,6 @@ configure(() => {
   require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
   require('../src/components/FileAttachmentPreview/FileAttachmentPreview.stories')
   require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
-  require('../src/components/ModalBottomDrawer/drawers/ServerOffer.drawer.stories')
   require('../src/utils/sendLogs.stories')
   require('../src/utils/shareAllData.stories')
 }, module)

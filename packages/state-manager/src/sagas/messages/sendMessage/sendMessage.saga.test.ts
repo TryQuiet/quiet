@@ -2,7 +2,7 @@ import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
-import { combineReducers } from '@reduxjs/toolkit'
+import { combineReducers, type AnyAction } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { applyEmitParams, type Socket } from '../../../types'
@@ -20,17 +20,19 @@ import {
   type Community,
   type FileMetadata,
   type Identity,
-  MessageType,
   type PublicChannel,
   SocketActions,
   type SendMessagePayload,
   ChannelMessage,
+  MessageType,
 } from '@quiet/types'
-import { currentChannelId, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 import { getSocketFactory, getReduxStoreFactory, getBaseTypesFactory } from '../../../utils/tests/factories'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { createLogger } from '../../../utils/logger'
+import { runSaga, stdChannel } from 'redux-saga'
+import * as messageUtils from '../utils/message.utils'
 
 describe('sendMessageSaga', () => {
   let store: Store
@@ -81,6 +83,7 @@ describe('sendMessageSaga', () => {
     const logger = createLogger('sendMessageSaga-test1')
     // Get the current channel ID from the state
     const currentChannel = currentChannelId(store.getState())
+    if (!currentChannel) throw new Error('no current channel')
     const channelMessage = await baseTypesFactory.build<ChannelMessage>('ChannelMessage', {
       userId: alice.userId,
       channelId: currentChannel,
@@ -90,7 +93,7 @@ describe('sendMessageSaga', () => {
     await expectSaga(
       sendMessageSaga,
       socket as unknown as Socket,
-      messagesActions.sendMessage({ message: channelMessage.message })
+      messagesActions.sendMessage({ message: channelMessage.message, channelId: currentChannel })
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -100,9 +103,74 @@ describe('sendMessageSaga', () => {
       ])
       .not.take(identityActions.updateIdentity)
       .select(identitySelectors.currentIdentity)
-      .select(publicChannelsSelectors.currentChannelId)
       .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, channelMessage))
       .run()
+  })
+
+  test('does not infer a target from the current channel when the send has no channel', async () => {
+    const emit = jest.spyOn(socket, 'emit')
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: 'private', channelId: '' })
+    )
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .run()
+    expect(emit).not.toHaveBeenCalled()
+  })
+
+  test('keeps the submitted channel through message ID, identity and subscription waits', async () => {
+    const reducer = combineReducers(testReducers)
+    let state: ReturnType<typeof reducer> = {
+      ...reducer(undefined, { type: '@@INIT' }),
+      ...store.getState(),
+      Identity: { ...store.getState().Identity, identities: { ids: [], entities: {} } },
+      PublicChannels: {
+        ...store.getState().PublicChannels,
+        channelsSubscriptions: { ids: [], entities: {} },
+      },
+    }
+    const input = stdChannel()
+    const dispatch = (action: AnyAction) => {
+      state = reducer(state, action)
+      input.put(action)
+    }
+    let releaseId!: (id: string) => void
+    const generatedId = new Promise<string>(resolve => {
+      releaseId = resolve
+    })
+    // Suspend this call effect to exercise a channel switch before the send resumes.
+    const idSpy = jest.spyOn(messageUtils, 'generateMessageId').mockReturnValueOnce(generatedId as unknown as string)
+    const emit = jest.spyOn(socket, 'emit')
+    const task = runSaga(
+      { channel: input, dispatch, getState: () => state },
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: 'private', channelId: sailingChannel.id })
+    )
+    try {
+      dispatch(publicChannelsActions.setCurrentChannel({ channelId: generateTestChannelId('public') }))
+      releaseId('fixed-send-id')
+      await Promise.resolve()
+      expect(emit).not.toHaveBeenCalled()
+      dispatch(identityActions.addNewIdentity(alice))
+      dispatch(identityActions.updateIdentity(alice))
+      expect(emit).not.toHaveBeenCalled()
+      dispatch(publicChannelsActions.setChannelSubscribed({ channelId: sailingChannel.id }))
+      await task.toPromise()
+      expect(emit).toHaveBeenCalledWith(
+        SocketActions.SEND_MESSAGE,
+        expect.objectContaining({
+          id: 'fixed-send-id',
+          message: 'private',
+          channelId: sailingChannel.id,
+        })
+      )
+    } finally {
+      task.cancel()
+      idSpy.mockRestore()
+    }
   })
 
   test('sign and send message in specific channel', async () => {
@@ -172,8 +240,8 @@ describe('sendMessageSaga', () => {
     }
 
     const media: FileMetadata = {
-      cid: 'cid',
-      path: `attaching_${messageId}`,
+      cid: `attaching_${messageId}`,
+      path: 'path/to/file',
       name: 'file',
       ext: 'ext',
       message: {
@@ -182,30 +250,147 @@ describe('sendMessageSaga', () => {
       },
     }
 
+    const emit = jest.spyOn(socket, 'emit')
     const reducer = combineReducers(testReducers)
-    await expectSaga(sendMessageSaga, socket as unknown as Socket, messagesActions.sendMessage({ message: '', media }))
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: '', media, channelId: currentChannel })
+    )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
         [call.fn(generateMessageId), 4],
         [call.fn(getCurrentTime), 8],
       ])
-      .not.apply(socket, socket.emit, [
-        SocketActions.SEND_MESSAGE,
-        {
-          peerId: alice.networkInfo.peerId.id,
-          message: {
-            id: 4,
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: 8,
-            channelId: currentChannel,
-            signature: 'signature',
-            pubKey: 'publicKey',
-            media: undefined,
-          },
-        },
+      .run()
+    expect(emit).not.toHaveBeenCalled()
+  })
+
+  // https://github.com/TryQuiet/quiet/issues/2778 - a text message that is only
+  // whitespace must never be broadcast or shown in the channel.
+  test('drops a whitespace-only text message', async () => {
+    // A real channel id matters: the saga now bails out first when one is missing, so
+    // without it this would pass without ever reaching the blank-message check.
+    const currentChannel = currentChannelId(store.getState())
+    if (!currentChannel) {
+      throw new Error('no currentChannel')
+    }
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: ' ', channelId: currentChannel })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), 'whitespace-only'],
+        [call.fn(getCurrentTime), 1],
       ])
+      // The saga bails out before it does any work at all
+      .not.call.fn(generateMessageId)
+      .not.put.actionType(messagesActions.addMessagesSendingStatus.type)
+      .not.put.actionType(messagesActions.addMessages.type)
+      .run()
+  })
+
+  test('drops a text message made only of newlines and tabs', async () => {
+    const currentChannel = currentChannelId(store.getState())
+    if (!currentChannel) {
+      throw new Error('no currentChannel')
+    }
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: '\n\t  \n', channelId: currentChannel })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), 'whitespace-only-2'],
+        [call.fn(getCurrentTime), 1],
+      ])
+      .not.call.fn(generateMessageId)
+      .not.put.actionType(messagesActions.addMessages.type)
+      .run()
+  })
+
+  test('sends surrounding whitespace verbatim when the message has content', async () => {
+    // Leading whitespace is markdown-significant (four spaces open a code block),
+    // so message content is never trimmed - only fully blank messages are dropped.
+    const currentChannel = currentChannelId(store.getState())
+    if (!currentChannel) {
+      throw new Error('no currentChannel')
+    }
+
+    const message = '    const x = 1  '
+    const channelMessage = await baseTypesFactory.build<ChannelMessage>('ChannelMessage', {
+      userId: alice.userId,
+      channelId: currentChannel,
+      message,
+    })
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message, channelId: currentChannel })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), channelMessage.id],
+        [call.fn(getCurrentTime), channelMessage.createdAt],
+      ])
+      .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, channelMessage))
+      .run()
+  })
+
+  test('sends an uploaded file message even though its text is empty', async () => {
+    const currentChannel = currentChannelId(store.getState())
+    if (!currentChannel) {
+      throw new Error('no currentChannel')
+    }
+
+    const messageId = 'uploaded-file-message'
+    const media: FileMetadata = {
+      cid: 'QmUploadedFileCid',
+      path: null,
+      name: 'file',
+      ext: '.ext',
+      message: {
+        id: messageId,
+        channelId: currentChannel,
+      },
+    }
+
+    const expectedMessage: ChannelMessage = {
+      id: messageId,
+      userId: alice.userId,
+      type: MessageType.Basic,
+      message: '',
+      createdAt: 8,
+      channelId: currentChannel,
+      media,
+    }
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: '', id: messageId, media, channelId: currentChannel })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), messageId],
+        [call.fn(getCurrentTime), 8],
+      ])
+      .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, expectedMessage))
       .run()
   })
 })

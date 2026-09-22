@@ -22,7 +22,8 @@
     ],
   },
   "include": [
-    "src"
+    "src",
+    "manual-tests"
   ],
   "exclude": [
     "node_modules",

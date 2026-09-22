@@ -17,9 +17,10 @@ const classes = {
 
 const StyledButton = styled(Button)(({ theme }) => ({
   [`&.${classes.button}`]: {
-    marginTop: 8,
+    marginTop: theme.space.sm,
     padding: 0,
-    marginLeft: 16,
+    marginLeft: theme.space.lg,
+    gap: theme.space.xs,
     textTransform: 'none',
     '&:hover': {
       backgroundColor: 'inherit',
@@ -29,16 +30,13 @@ const StyledButton = styled(Button)(({ theme }) => ({
     color: theme.palette.colors.white,
   },
 
+  // The row's glyph is 12x12 in the design's 'List item' (library 3797:16037).
   [`& .${classes.icon}`]: {
     fontSize: 12,
-    marginRight: 2,
-    marginLeft: -2,
-    marginBottom: 2,
   },
 
   [`& .${classes.iconDiv}`]: {
-    marginRight: 5,
-    marginBottom: 2,
+    display: 'flex',
   },
 }))
 

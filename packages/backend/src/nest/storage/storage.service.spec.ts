@@ -23,6 +23,7 @@ import { ORBIT_DB_DIR } from '../const'
 import { createLogger } from '../common/logger'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { NotificationTokensStore } from './notifications/notificationTokens.store'
+import { NetworkEndpointsStore } from './networkEndpoints/networkEndpoints.store'
 import { SigChainService } from '../auth/sigchain.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import waitForExpect from 'wait-for-expect'
@@ -40,6 +41,7 @@ describe('StorageService', () => {
   let localDbService: LocalDbService
   let userProfileStore: UserProfileStore
   let notificationTokensStore: NotificationTokensStore
+  let networkEndpointsStore: NetworkEndpointsStore
   let sigchainService: SigChainService
 
   let store: Store
@@ -93,6 +95,7 @@ describe('StorageService', () => {
     ipfsService = await module.resolve(IpfsService)
     userProfileStore = await module.resolve(UserProfileStore)
     notificationTokensStore = await module.resolve(NotificationTokensStore)
+    networkEndpointsStore = await module.resolve(NetworkEndpointsStore)
     sigchainService = await module.resolve(SigChainService)
 
     await sigchainService.createChain(true)
@@ -185,6 +188,23 @@ describe('StorageService', () => {
       expect(startSyncSpy).toHaveBeenCalled()
     })
 
+    it('init should publish the local device network endpoint', async () => {
+      await localDbService.setIdentity(alice)
+      const setEntrySpy = jest.spyOn(networkEndpointsStore, 'setEntry')
+
+      await storageService.init()
+
+      const chain = sigchainService.getActiveChain()
+      expect(chain.team).not.toBeNull()
+      expect(setEntrySpy).toHaveBeenCalledWith(chain.device.deviceId, {
+        teamId: chain.team!.id,
+        userId: chain.user.userId,
+        deviceId: chain.device.deviceId,
+        onionAddress: alice.networkInfo.hiddenService.onionAddress.replace(/\.onion$/, ''),
+        peerId: alice.networkInfo.peerId.id,
+      })
+    })
+
     it('init should apply team metadata before starting sync', async () => {
       const teamId = 'team-id'
       const addTeamIdToDbMetasSpy = jest.spyOn(storageService, 'addTeamIdToDbMetas').mockImplementation(() => {})
@@ -210,7 +230,7 @@ describe('StorageService', () => {
 
     it('addUserProfile should delegate to userProfileStore.setEntry', async () => {
       await storageService.init()
-      const profile = { userId: sigchainService.user.userId, userData: null } as unknown as UserProfile
+      const profile = { userId: sigchainService.user.userId, nickname: 'Alice' } as UserProfile
       const setEntrySpy = jest.spyOn(userProfileStore, 'setEntry').mockResolvedValueOnce({} as unknown as any)
       await storageService.addUserProfile(profile)
       await waitForExpect(async () => expect(setEntrySpy).toHaveBeenCalledWith(profile.userId, profile), 10_000)
@@ -218,7 +238,7 @@ describe('StorageService', () => {
 
     it('addUserProfile should log and not throw when setEntry rejects', async () => {
       await storageService.init()
-      const profile = { userId: 'charlie', userData: null } as unknown as UserProfile
+      const profile = { userId: 'charlie', nickname: 'Charlie' } as UserProfile
       jest.spyOn(userProfileStore, 'setEntry').mockRejectedValueOnce(new Error('deferred'))
       await expect(storageService.addUserProfile(profile)).resolves.not.toThrow()
     })
@@ -314,16 +334,20 @@ describe('StorageService', () => {
       jest.spyOn(sigchainService, 'getActiveChain').mockReturnValue({
         team: {
           members: () => members,
+          hasDevice: (deviceId: string) => deviceId === 'device1',
         },
       } as any)
 
-      const userProfiles = [
+      const endpoints = [
         {
+          teamId: 'team1',
           userId,
-          userData: { onionAddress: 'addr1.onion', peerId: 'peer1' },
+          deviceId: 'device1',
+          onionAddress: 'addr1.onion',
+          peerId: 'peer1',
         },
-      ] as any
-      jest.spyOn(userProfileStore, 'getUserProfiles').mockResolvedValue(userProfiles)
+      ]
+      jest.spyOn(networkEndpointsStore, 'getNetworkEndpoints').mockResolvedValue(endpoints)
 
       const setPeerStatsSpy = jest.spyOn(localDbService, 'setPeerStats')
 

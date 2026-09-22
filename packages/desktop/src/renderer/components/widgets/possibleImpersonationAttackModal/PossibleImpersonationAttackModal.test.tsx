@@ -21,7 +21,7 @@ describe('PossibleImpersonationAttackModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -47,8 +47,8 @@ describe('PossibleImpersonationAttackModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-jxzupi-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
+                    style="margin-left: 56px;"
                   >
                     Warning!
                   </h6>
@@ -61,7 +61,8 @@ describe('PossibleImpersonationAttackModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      aria-label="Close"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ModalClose"
                       tabindex="0"
                       type="button"
@@ -77,9 +78,6 @@ describe('PossibleImpersonationAttackModal', () => {
                           d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                         />
                       </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
                     </button>
                   </div>
                 </div>
@@ -93,7 +91,7 @@ describe('PossibleImpersonationAttackModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-e4g1qd-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-wyu7bv-MuiGrid-root"
                   data-testid="possible-impersonation-attack-modal-component"
                 >
                   <img
@@ -101,12 +99,12 @@ describe('PossibleImpersonationAttackModal', () => {
                     src="test-file-stub"
                   />
                   <h4
-                    class="MuiTypography-root MuiTypography-h4 css-ajdqea-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-h4 css-1inrl58-MuiTypography-root"
                   >
                     Possible impersonation attack
                   </h4>
                   <p
-                    class="MuiTypography-root MuiTypography-body2 PossibleImpersonationAttackModalComponent-bodyText css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 PossibleImpersonationAttackModalComponent-bodyText css-1t82dwi-MuiTypography-root"
                   >
                     The owner of 
                     <strong>

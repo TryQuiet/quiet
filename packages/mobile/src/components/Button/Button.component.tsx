@@ -6,6 +6,9 @@ import * as Progress from 'react-native-progress'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
+const BUTTON_RADIUS = 16
+const BUTTON_HEIGHT = 50
+
 export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negative, disabled, newDesign, testID }) => {
   return (
     <TouchableWithoutFeedback
@@ -20,10 +23,12 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
           paddingVertical: 12,
           paddingHorizontal: 20,
           backgroundColor: disabled ? 'grey' : !negative ? defaultTheme.palette.main.brand : 'transparent',
-          borderRadius: 8,
+          // The design library draws every Button at radius 16 and 50 tall (e.g. "Create channel /
+          // Version=3" 5055:16131); the component was drawing an 8-radius, 45-tall box by default.
+          borderRadius: BUTTON_RADIUS,
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: newDesign ? 50 : 45,
+          minHeight: BUTTON_HEIGHT,
           width,
         }}
       >

@@ -55,7 +55,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.margin}`]: {
     '& .MuiFormHelperText-contained': {
-      margin: '5px 0px',
+      margin: `${theme.space.xs}px 0px`,
     },
   },
 
@@ -125,7 +125,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.inputLabel}`]: {
     marginTop: 24,
-    marginBottom: 2,
+    marginBottom: 0,
     color: theme.palette.colors.gray70,
   },
 

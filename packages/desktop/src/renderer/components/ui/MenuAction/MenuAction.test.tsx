@@ -16,7 +16,7 @@ describe('MenuAction', () => {
       <body>
         <div>
           <div
-            class="css-164bpf2"
+            class="css-185e8k0"
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeLarge MenuActionbutton css-1hy0hhu-MuiButtonBase-root-MuiIconButton-root"
