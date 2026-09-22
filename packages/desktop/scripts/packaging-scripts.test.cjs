@@ -7,7 +7,9 @@
 // actually resolves, or if a packaging script stops clearing `dist/`.
 const assert = require('node:assert/strict')
 const { test } = require('node:test')
-const { scripts, devDependencies } = require('../package.json')
+const fs = require('node:fs')
+const path = require('node:path')
+const { scripts, devDependencies, build } = require('../package.json')
 
 const packagingScripts = Object.entries(scripts).filter(([, body]) => body.includes('electron-builder'))
 
@@ -39,5 +41,85 @@ test('the declared rimraf is the one that resolves', () => {
     assert.equal(installed, declared, 'the declared rimraf version must match the installed one')
   } else {
     assert.ok(installed, 'rimraf must resolve for rmDist to run')
+  }
+})
+
+// #3516 opens the camera to scan a QR code, which macOS gates twice at packaging time.
+// `NSCameraUsageDescription` is the sentence the system permission prompt shows; without it in
+// `mac.extendInfo` the packaged app inherits the placeholder string Electron's own Info.plist
+// ships ("This app needs access to the camera"). `com.apple.security.device.camera` is what the
+// hardened runtime the release build is signed with needs to reach the camera at all, and neither
+// this app's entitlements file nor electron-builder's default template carries it unless it is
+// written down. Both live in the packaging config, out of reach of every test the app itself
+// runs, so these are what notice either going missing: the alternative is finding out from a
+// packaged, signed build on a Mac.
+
+const desktopDir = path.join(__dirname, '..')
+
+/**
+ * Reads a flat `<key>x</key><true/>` entitlements plist without pulling in a plist parser.
+ *
+ * Scanned by index rather than matched by regex. The comments in that file cite entitlements by
+ * name, including in a documentation URL, so a key has to be read as markup and not from text that
+ * merely mentions it -- and a regex that strips `<!-- -->` first is the incomplete HTML
+ * sanitization CodeQL rejects, rightly, since it cannot be written correctly that way.
+ */
+const readEntitlements = relativePath => {
+  const file = path.join(desktopDir, relativePath)
+  assert.ok(fs.existsSync(file), `${relativePath} is referenced by the mac build but does not exist`)
+  const xml = fs.readFileSync(file, 'utf8')
+  const granted = new Set()
+  let at = 0
+  while (at < xml.length) {
+    const key = xml.indexOf('<key>', at)
+    if (key === -1) break
+    // A comment before the next key is skipped whole, so nothing inside one is read as markup.
+    const comment = xml.indexOf('<!--', at)
+    if (comment !== -1 && comment < key) {
+      const commentEnd = xml.indexOf('-->', comment + '<!--'.length)
+      if (commentEnd === -1) break
+      at = commentEnd + '-->'.length
+      continue
+    }
+    const keyEnd = xml.indexOf('</key>', key)
+    if (keyEnd === -1) break
+    const name = xml.slice(key + '<key>'.length, keyEnd)
+    let value = keyEnd + '</key>'.length
+    while (value < xml.length && ' \t\r\n'.includes(xml[value])) value += 1
+    if (xml.startsWith('<true/>', value)) granted.add(name)
+    at = value
+  }
+  return granted
+}
+
+test('the mac build declares why it wants the camera', () => {
+  const description = build.mac.extendInfo?.NSCameraUsageDescription
+  assert.ok(
+    typeof description === 'string' && description.trim().length > 0,
+    'mac.extendInfo.NSCameraUsageDescription must be set, or the system prompt falls back to Electron placeholder copy'
+  )
+  assert.match(description, /camera/i, 'the system prompt shows this string, so it must say what the camera is for')
+})
+
+test('the mac build writes no usage string for a device the app never opens', () => {
+  // The permission handlers in src/main/cameraPermission.ts refuse audio outright, so the
+  // app has no microphone prompt to word. Electron's own Info.plist still supplies a placeholder
+  // one; this only keeps the build from adding a second, more convincing one.
+  assert.equal(
+    build.mac.extendInfo?.NSMicrophoneUsageDescription,
+    undefined,
+    'the scanner requests video only, so no microphone usage string belongs in the mac build'
+  )
+})
+
+test('the hardened runtime is granted the camera it is signed with', () => {
+  assert.equal(build.mac.hardenedRuntime, true, 'this test exists because the mac build hardens the runtime')
+  for (const key of ['entitlements', 'entitlementsInherit']) {
+    const relativePath = build.mac[key]
+    assert.ok(relativePath, `mac.${key} must point at the entitlements plist`)
+    assert.ok(
+      readEntitlements(relativePath).has('com.apple.security.device.camera'),
+      `${relativePath} (mac.${key}) must grant com.apple.security.device.camera, or the signed app cannot open the camera`
+    )
   }
 })
