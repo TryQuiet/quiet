@@ -1518,6 +1518,12 @@ export class LinkDevicesModal {
     await (await this.findVisible('link-devices-display-qr')).click()
   }
 
+  /** The Display QR code step shows the Linked devices surface, which mints the link. */
+  async isDisplayingQrCode(timeoutMs = 10_000): Promise<boolean> {
+    await this.findVisible('link-devices-display', timeoutMs)
+    return true
+  }
+
   async typeDeviceLink(deviceLink: string) {
     const linkInput = await this.findVisible('paste-link-input')
     await linkInput.sendKeys(deviceLink)
