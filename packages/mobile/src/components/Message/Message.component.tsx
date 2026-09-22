@@ -210,8 +210,8 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
   const userLabel = representativeMessage?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !representativeMessage?.isRegistered
-      ? UserLabelType.UNREGISTERED
-      : null
+    ? UserLabelType.UNREGISTERED
+    : null
 
   return (
     <View style={{ flex: 1 }} testID={`userMessages-${representativeMessage.nickname}`} collapsable={false}>
