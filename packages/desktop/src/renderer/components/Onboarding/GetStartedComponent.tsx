@@ -2,7 +2,7 @@ import React from 'react'
 
 import { ActionRow } from './ActionRow'
 import { OnboardingBody, RowGroup } from './OnboardingBody'
-import { logoIcon, onboardingIcons } from './icons'
+import { LOGO_SIZE, logoIcon, onboardingIcons } from './icons'
 
 export interface GetStartedComponentProps {
   onJoinCommunity: () => void
@@ -17,7 +17,7 @@ export const GetStartedComponent: React.FC<GetStartedComponentProps> = ({
   onLinkDevices,
 }) => (
   <OnboardingBody
-    leading={<img src={logoIcon} alt='' aria-hidden width={100} height={100} />}
+    leading={<img src={logoIcon} alt='' aria-hidden width={LOGO_SIZE} height={LOGO_SIZE} />}
     heading={'Let’s get started...'}
     betaWarning
     dataTestId='get-started'

@@ -2,12 +2,20 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities } from '@quiet/state-manager'
-import { InvitationData, isDeviceInvitationData, JoinCommunityPayload, LinkDevicePayload } from '@quiet/types'
+import {
+  ErrorMessages,
+  InvitationData,
+  isDeviceInvitationData,
+  JoinCommunityPayload,
+  type DeviceInvitationData,
+} from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
+import DeviceLinkConsentDrawer from '../../components/ModalBottomDrawer/drawers/DeviceLinkConsent.drawer'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { PasteInviteLinkScreenProps } from './PasteInviteLink.types'
 import { initSelectors } from '../../store/init/init.selectors'
+import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('PasteInviteLinkScreen')
@@ -17,10 +25,23 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
   const dispatch = useDispatch()
 
   const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
+  const [deviceLinkInvite, setDeviceLinkInvite] = useState<DeviceInvitationData | undefined>(undefined)
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
+
+  const joinCommunityErrorMessage =
+    joinCommunityError?.type === 'invalid'
+      ? ErrorMessages.INVALID_INVITE
+      : joinCommunityError?.type === 'interrupted'
+      ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+      : joinCommunityError?.type === 'timeout'
+      ? joinCommunityError.invitationType === 'device'
+        ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+        : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+      : undefined
 
   // Handle deep linking (opening app with quiet://)
   useEffect(() => {
@@ -33,19 +54,25 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
     setInvitationCode(code)
   }, [dispatch, currentCommunity, route.params?.code])
 
+  const linkDevice = useCallback(
+    (data: DeviceInvitationData) => {
+      logger.info('Linking this device from a pasted device link')
+      dispatch(communities.actions.linkDevice(confirmedDeviceLinkPayload(data)))
+      dispatch(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ConnectionProcessScreen,
+        })
+      )
+    },
+    [dispatch]
+  )
+
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
+      dispatch(communities.actions.clearJoinCommunityError())
       if (isDeviceInvitationData(data)) {
-        const payload: LinkDevicePayload = {
-          inviteData: data,
-        }
-        logger.info('Linking this device from a pasted device link')
-        dispatch(communities.actions.linkDevice(payload))
-        dispatch(
-          navigationActions.replaceScreen({
-            screen: ScreenNames.ConnectionProcessScreen,
-          })
-        )
+        // Linking a device hands the other device this account, so it is never done without consent.
+        setDeviceLinkInvite(data)
         return
       }
 
@@ -67,13 +94,25 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
   }, [dispatch])
 
   return (
-    <JoinCommunity
-      joinCommunityAction={joinCommunityAction}
-      handleBackButton={handleBackButton}
-      hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
-      invitationCode={invitationCode}
-      variant={route.params?.variant ?? 'inviteLink'}
-      ready={isWebsocketConnected}
-    />
+    <>
+      <JoinCommunity
+        joinCommunityAction={joinCommunityAction}
+        handleBackButton={handleBackButton}
+        hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
+        invitationCode={invitationCode}
+        variant={route.params?.variant ?? 'inviteLink'}
+        ready={isWebsocketConnected}
+        inputError={joinCommunityErrorMessage}
+        onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
+      />
+      <DeviceLinkConsentDrawer
+        inviteData={deviceLinkInvite}
+        onConfirm={() => {
+          if (!deviceLinkInvite) return
+          linkDevice(deviceLinkInvite)
+        }}
+        onCancel={() => setDeviceLinkInvite(undefined)}
+      />
+    </>
   )
 }

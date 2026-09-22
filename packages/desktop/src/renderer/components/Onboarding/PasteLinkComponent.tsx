@@ -55,7 +55,6 @@ const Form = styled('form')(({ theme }) => ({
   [`& .${classes.button}`]: {
     width: '100%',
     maxWidth: 'none',
-    borderRadius: 8,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     textTransform: 'none',
@@ -79,6 +78,10 @@ export interface PasteLinkComponentProps {
   handleClickInputReveal?: () => void
   /** Receives the parsed invitation (member or device). */
   handleCommunityAction: (data: InvitationData) => void
+  /** An admission failure reported by the backend, shown on the field. */
+  fieldError?: string
+  /** Called on every keystroke, so the caller can clear `fieldError`. */
+  onFieldChange?: () => void
 }
 
 const field = inviteLinkField()
@@ -96,6 +99,8 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
   revealInputValue = false,
   handleClickInputReveal,
   handleCommunityAction,
+  fieldError,
+  onFieldChange,
 }) => {
   const {
     handleSubmit,
@@ -127,6 +132,14 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
     }
   }, [open])
 
+  useEffect(() => {
+    if (fieldError) {
+      setError('name', { message: fieldError })
+    } else {
+      clearErrors('name')
+    }
+  }, [fieldError, setError, clearErrors])
+
   return (
     <OnboardingBody heading={heading} intro={intro} dataTestId='paste-link'>
       <Form onSubmit={handleSubmit(onSubmit)}>
@@ -149,6 +162,7 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
               variant='outlined'
               onchange={event => {
                 event.persist()
+                onFieldChange?.()
                 setValue('name', event.target.value)
                 controller.onChange(event)
               }}

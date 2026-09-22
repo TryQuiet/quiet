@@ -19,7 +19,7 @@ function validateQssOnlyBundle(bundle, receiptPath = process.env.QUIET_QSS_ONLY_
 function validateDesktopQssOnlyBuild(binary, receiptPath) {
   const resources = process.platform === 'darwin' ? path.resolve(path.dirname(binary), '../Resources') : path.join(path.dirname(binary), 'resources')
   const asarPath = path.join(resources, 'app.asar')
-  const asar = require(require.resolve('asar', { paths: [path.resolve(__dirname, '../../../desktop')] }))
+  const asar = require(require.resolve('@electron/asar', { paths: [path.resolve(__dirname, '../../../desktop')] }))
   const bundle = asar.extractFile(asarPath, 'node_modules/backend-bundle/bundle.cjs')
   return validateQssOnlyBundle(bundle, receiptPath)
 }

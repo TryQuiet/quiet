@@ -42,6 +42,17 @@ const StyledRow = styled(ListItemButton)(({ theme }) => ({
     height: 24,
     flex: '0 0 24px',
   },
+  // Button row / Disabled (4776:7879): white fill, title and caret #B3B3B3, the left icon unchanged.
+  '&&.Mui-disabled': {
+    opacity: 1,
+    [`& .${classes.text}`]: {
+      color: theme.palette.colors.border02,
+    },
+    [`& .${classes.caret}`]: {
+      // The caret is the exported #222222 glyph; at this opacity it reads #B3B3B3 on white.
+      opacity: 0.34,
+    },
+  },
 }))
 
 export interface ActionRowProps {

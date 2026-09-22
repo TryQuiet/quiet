@@ -33,6 +33,16 @@ const deviceInvitationData: DeviceInvitationDataV4 = {
 }
 const deviceLink = `${QUIET_JOIN_PAGE}#${getValidInvitationUrlTestData(deviceInvitationData).code()}`
 
+/**
+ * What the app dispatches once the user has consented. `confirmedQssEndpoint` is only carried for a
+ * v5 invitation; this fixture is v4, so it is undefined.
+ */
+const consentedLinkDevice = communities.actions.linkDevice({
+  inviteData: deviceInvitationData,
+  deviceLinkConsent: true,
+  confirmedQssEndpoint: undefined,
+})
+
 let camera: ReturnType<typeof mockCamera> | undefined
 afterEach(() => {
   camera?.restore()
@@ -40,7 +50,7 @@ afterEach(() => {
 })
 
 describe('Link devices → Scan QR code', () => {
-  it('opens the camera with the sheet copy and links this device from the scanned code', async () => {
+  it('opens the camera with the sheet copy and asks for consent before linking from the scanned code', async () => {
     camera = mockCamera({ frame: qrImageData(deviceLink) })
     const { store } = await prepareStore(openState())
     const dispatchSpy = jest.spyOn(store, 'dispatch')
@@ -52,16 +62,35 @@ describe('Link devices → Scan QR code', () => {
     expect(screen.getByTestId('link-devices-scanner-viewfinder')).toBeVisible()
     expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
 
-    await waitFor(
-      () =>
-        expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData })),
-      { timeout: 5000 }
-    )
-    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined }))
+    // A camera decodes whatever is put in front of it, so the scan path is gated exactly as the
+    // paste path is: nothing is linked until the user says so.
+    expect(await screen.findByTestId('device-link-consent', {}, { timeout: 5000 })).toBeVisible()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(consentedLinkDevice)
     expect(camera.stop).toHaveBeenCalled()
+
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(consentedLinkDevice))
+    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined }))
   })
 
-  it('offers the paste field when there is no camera, and the pasted device link links the device', async () => {
+  it('links nothing when the consent for a scanned code is declined', async () => {
+    camera = mockCamera({ frame: qrImageData(deviceLink) })
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
+    expect(await screen.findByTestId('device-link-consent', {}, { timeout: 5000 })).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('cancel-device-link'))
+
+    await waitFor(() => expect(screen.queryByTestId('device-link-consent')).not.toBeInTheDocument())
+    expect(dispatchSpy).not.toHaveBeenCalledWith(consentedLinkDevice)
+  })
+
+  it('offers the paste field when there is no camera, and the pasted device link links after consent', async () => {
     camera = mockCamera({ error: cameraError('NotFoundError') })
     const { store } = await prepareStore(openState())
     const dispatchSpy = jest.spyOn(store, 'dispatch')
@@ -74,9 +103,11 @@ describe('Link devices → Scan QR code', () => {
 
     await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
-    await waitFor(() =>
-      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData }))
-    )
+
+    expect(await screen.findByTestId('device-link-consent')).toBeVisible()
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(consentedLinkDevice))
   })
 
   it('back from the paste field returns to the scanner, then to the entry screen', async () => {

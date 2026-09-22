@@ -20,14 +20,15 @@ exports[`JoinCommunity component renders component 1`] = `
         "display": "flex",
         "flexDirection": "row",
         "justifyContent": "center",
-        "maxHeight": 52,
-        "minHeight": 52,
+        "maxHeight": 64,
+        "minHeight": 60,
       }
     }
   >
     <View
       style={
         {
+          "alignSelf": "stretch",
           "flex": 1,
         }
       }
@@ -53,6 +54,14 @@ exports[`JoinCommunity component renders component 1`] = `
         accessible={true}
         collapsable={false}
         focusable={true}
+        hitSlop={
+          {
+            "bottom": 8,
+            "left": 8,
+            "right": 8,
+            "top": 8,
+          }
+        }
         onClick={[Function]}
         onResponderGrant={[Function]}
         onResponderMove={[Function]}
@@ -62,6 +71,7 @@ exports[`JoinCommunity component renders component 1`] = `
         onStartShouldSetResponder={[Function]}
         style={
           {
+            "flex": 1,
             "opacity": 1,
           }
         }
@@ -71,8 +81,9 @@ exports[`JoinCommunity component renders component 1`] = `
           style={
             {
               "alignItems": "center",
-              "height": 50,
+              "flex": 1,
               "justifyContent": "center",
+              "minHeight": 44,
               "width": 64,
             }
           }
@@ -104,7 +115,7 @@ exports[`JoinCommunity component renders component 1`] = `
               }
               verticalTextAlign="center"
             >
-              jo
+              J
             </Text>
           </View>
         </View>
@@ -140,6 +151,7 @@ exports[`JoinCommunity component renders component 1`] = `
     <View
       style={
         {
+          "alignSelf": "stretch",
           "flex": 1,
         }
       }
@@ -214,6 +226,8 @@ exports[`JoinCommunity component renders component 1`] = `
           accessible={true}
           collapsable={false}
           focusable={true}
+          focused={false}
+          invalid={false}
           onBlur={[Function]}
           onClick={[Function]}
           onFocus={[Function]}
@@ -223,25 +237,26 @@ exports[`JoinCommunity component renders component 1`] = `
           onResponderTerminate={[Function]}
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
-          round={false}
           style={
             [
               {
+                "alignItems": "center",
                 "backgroundColor": "#ffffff",
-                "borderBottomLeftRadius": 4,
-                "borderBottomRightRadius": 4,
-                "borderColor": "#C4C4C4",
-                "borderTopLeftRadius": 4,
-                "borderTopRightRadius": 4,
+                "borderBottomLeftRadius": 16,
+                "borderBottomRightRadius": 16,
+                "borderColor": "#B3B3B3",
+                "borderTopLeftRadius": 16,
+                "borderTopRightRadius": 16,
                 "borderWidth": 1,
+                "flexDirection": "row",
                 "flexGrow": 1,
-                "height": 56,
-                "justifyContent": "center",
+                "height": 48,
+                "justifyContent": "flex-start",
                 "paddingLeft": 16,
                 "paddingRight": 16,
               },
               {
-                "height": 54,
+                "height": 48,
               },
             ]
           }
@@ -251,13 +266,17 @@ exports[`JoinCommunity component renders component 1`] = `
             editable={true}
             height={54}
             keyboardType="default"
+            onBlur={[Function]}
             onChangeText={[Function]}
             onContentSizeChange={[Function]}
+            onFocus={[Function]}
             placeholder="Link"
-            placeholderTextColor="#999999"
+            placeholderTextColor="#7F7F7F"
             style={
               {
-                "height": 54,
+                "flexBasis": 0,
+                "flexGrow": 1,
+                "flexShrink": 1,
                 "paddingBottom": 12,
                 "paddingTop": 12,
                 "textAlignVertical": "center",
@@ -291,9 +310,9 @@ exports[`JoinCommunity component renders component 1`] = `
         {
           "alignItems": "center",
           "backgroundColor": "#521C74",
-          "borderRadius": 8,
+          "borderRadius": 16,
           "justifyContent": "center",
-          "minHeight": 45,
+          "minHeight": 50,
           "paddingHorizontal": 20,
           "paddingVertical": 12,
           "width": undefined,

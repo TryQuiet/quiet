@@ -85,10 +85,12 @@ describe('Create community', () => {
     const communityName = 'communityname'
     const textInput = result.queryByPlaceholderText('Community name')
     expect(textInput).not.toBeNull()
-    await userEvent.type(textInput!, communityName)
     const submitButton = result.queryByRole('button')
     expect(submitButton).not.toBeNull()
-    expect(submitButton).toBeEnabled()
+    // Create a community (2811:2451): Continue is disabled until the name is valid.
+    await waitFor(() => expect(submitButton).toBeDisabled())
+    await userEvent.type(textInput!, communityName)
+    await waitFor(() => expect(submitButton).toBeEnabled())
     await userEvent.click(submitButton!)
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(communityName))
   })
@@ -116,12 +118,14 @@ describe('Create community', () => {
     renderComponent(<CreateCommunityComponent handleCommunityAction={handleCommunityAction} />)
 
     const input = screen.getByPlaceholderText('Community name')
-    const button = screen.getByText('Continue')
+    const button = screen.getByTestId('continue-createCommunity')
 
     await userEvent.type(input, name)
-    await userEvent.click(button)
+    await userEvent.tab()
 
-    await waitFor(() => expect(handleCommunityAction).not.toBeCalled())
+    // Continue stays disabled for an invalid name; the error shows once the field is touched.
+    await waitFor(() => expect(button).toBeDisabled())
+    expect(handleCommunityAction).not.toBeCalled()
 
     const message = await screen.findByText(error)
     expect(message).toBeVisible()

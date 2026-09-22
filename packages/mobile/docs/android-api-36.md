@@ -73,8 +73,8 @@ On API 36 and API 35, verify:
   status/navigation bars and cutouts with the keyboard open and closed. Check
   both gesture and three-button navigation.
 - Rotate and resize a tablet (at least 600dp); retain navigation and unsent
-  text. Pay particular attention to bottom drawers, which currently size from
-  the physical screen rather than the available app window.
+  text. Bottom drawers now size to their measured parent; check the complete
+  CAPTCHA and server-offer content with the keyboard open and closed.
 - Select/cancel photos and documents; attach, send, and open them.
 - Background messaging and notifications, followed by reopening the app;
   inspect WorkManager stop reasons and confirm backend recovery.
@@ -115,6 +115,31 @@ actual landscape dimensions, draft retention, and full composer/image-view
 visibility. Each test relaunches the app to isolate native modal state. The
 preview uses a local bundled image and fixture-owned visibility state; these
 checks do not exercise attachment downloading or opening from a channel message.
+
+Additional focused UI checks use the same Storybook build:
+
+```sh
+npx detox test android-drawer-window -c android.att.storybook --device-name <adb-serial>
+npx detox test android-photo-picker -c android.att.storybook --device-name <adb-serial>
+```
+
+`DrawerWindow` constrains the production drawer's parent, shrinks it while open,
+and rotates the activity. It checks the drawer bounds and visibility of content
+at both ends, then closes and reopens through the real close control. This
+exercises layout responses; it does not automate Android's multi-window task UI
+or the complete CAPTCHA/server-offer flows.
+
+The photo suite opens the production channel's attachment button and operates
+the external system picker. It checks cancel/selection, draft retention, local
+image preview, and removal without a backend. It requires an English-language
+system picker and `ANDROID_HOME` or `ANDROID_SDK_ROOT` pointing to the SDK. The
+suite creates and removes its own uniquely named media fixture. Android 16's app-owned-photo
+permission-dialog change applies to partial-media permission requests; Quiet
+uses individual picker grants and declares no `READ_MEDIA_IMAGES`,
+`READ_MEDIA_VIDEO`, or `READ_MEDIA_VISUAL_USER_SELECTED` permission. See
+[app-owned photos](https://developer.android.com/about/versions/16/behavior-changes-16#app-owned-photos).
+Cloud media, videos, file transfer, and permission revocation need separate
+coverage. The document-picker handler currently has no rendered entry point.
 
 ## Validation results
 
@@ -174,10 +199,23 @@ After merging current `develop` (`e0a92300a`) in `152302980`:
   configured release workflow before uploading. Local debug/Storybook builds
   tolerate the missing configuration and do not validate push notifications.
 
+The separate UI follow-up, tested on the same updated base:
+
+- Fresh Storybook debug / AndroidTest builds, mobile TypeScript, and full mobile
+  lint passed. Seven focused tests across three unit suites and one snapshot
+  passed, including drawer layout events and fixed-height clamping.
+- The native drawer resize/rotation/close/reopen test passed on API 35 and 36,
+  with full visibility and measured bounds assertions for both parent sizes.
+- Native photo cancellation and selection/removal both passed on API 35 and 36.
+  The tests retain the draft and verify the displayed thumbnail's actual cached
+  file bytes against the seeded image. The helper supports both the older media
+  provider picker and Android 16's newer system photo-picker UI.
+
 These emulator runs used x86_64 images translating ARM64 binaries. Full backend
-onboarding and messaging, attachment selection/download/opening, drawer layouts,
-background recovery, and the iOS smoke checks remain unverified. Focused channel
-and modal tests above cover native UI dispatch without the running backend.
+onboarding and messaging, attachment transfer/download/opening from messages,
+complete CAPTCHA/server-offer flows, Android multi-window task controls,
+background recovery, and the iOS smoke checks remain unverified. The focused
+channel, modal, drawer, and local-photo tests run without the backend.
 Complete the remaining release checks above on native ARM64 Android hardware
 or a suitable ARM64 emulator before publishing.
 
@@ -187,3 +225,47 @@ Keep the staged RN upgrades in [issue #3013](https://github.com/TryQuiet/quiet/i
 React 19, compatible native modules/RNScreens, community JavaScriptCore
 integration, iOS validation, and removal of temporary Back compatibility.
 Broader Node LTS work remains a separate monorepo change.
+
+### Develop integration — September 21, 2026
+
+Refreshed onto `develop` at `0ab5e2010` in `948ee831b`. The merge preserves
+`develop`'s purple top safe area and JSC heap-pointer-tagging workaround while
+retaining the SDK change's white bottom/side safe areas and legacy Back dispatch.
+The compatibility fixture now mounts production `AppHomeScreen`; compatibility
+and starter tests use its current `channel-list` selector (`43aba1ea9`).
+
+- Mobile Jest passed 73 suites, 249 tests and 44 snapshots; three existing
+  suites/tests remain skipped. TypeScript and full mobile lint pass (14 warnings,
+  no errors).
+- Fresh standard debug and Storybook app/instrumentation APK builds pass.
+- All three native compatibility scenarios pass on both API 35 and API 36:
+  keyboard/channel Back ordering with Redux cleanup, native preview dismissal,
+  and rotation with retained draft and full composer/image visibility.
+- The standard APK targets API 36. All 19 packaged ELF binaries, including the
+  Node addon, pass 16 KB LOAD alignment; APK ZIP alignment also passes.
+- These native scenarios exercise production UI components without the backend.
+  They do not establish full community messaging, physical-device lifecycle,
+  iOS safe-area behavior, production signing, or push delivery.
+
+GitHub's Ubuntu check job on `43aba1ea9` stopped during dependency installation
+with npm `ETIMEDOUT`, before lint or tests. It was not a reported source failure.
+See the PR Checks tab for subsequent hosted validation.
+
+### Drawer and photo-picker integration — September 21, 2026
+
+Refreshed #3421 onto the current API 36 parent in `c358210c1`, including
+`develop` at `0ab5e2010`. No drawer/photo implementation changes were needed.
+
+- The 11-package bootstrap, mobile TypeScript, and full mobile lint pass
+  (14 warnings, no errors).
+- Full mobile Jest passes 74 suites, 252 tests and 44 snapshots, with three
+  existing suites/tests skipped.
+- Fresh Storybook app/instrumentation APK builds pass.
+- All three focused native scenarios pass on both API 35 and API 36: drawer
+  parent shrink/rotation and close/reopen; native photo-picker cancellation;
+  photo selection with byte-for-byte cached-image verification, thumbnail
+  display, and removal. Both photo cases retain the draft and current channel.
+
+These remain UI-component tests with the backend disabled. Full attachment
+transfer, iOS behavior and actual multi-window task controls are not established
+by this validation.

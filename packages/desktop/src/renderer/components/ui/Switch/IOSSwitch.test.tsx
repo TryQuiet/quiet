@@ -10,7 +10,7 @@ describe('IOSSwitch', () => {
       <body>
         <div>
           <span
-            class="MuiSwitch-root MuiSwitch-sizeMedium css-1lykcjg-MuiSwitch-root"
+            class="MuiSwitch-root MuiSwitch-sizeMedium css-l1g0hm-MuiSwitch-root"
           >
             <span
               class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary css-leyui1-MuiButtonBase-root-MuiSwitch-switchBase"

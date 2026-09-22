@@ -19,6 +19,7 @@ import { MobileLifecycleCoordinator } from './mobile-lifecycle-coordinator'
 import { registerMobileSystemPause } from './mobile-system-pause'
 import { registerMobileSocketRecovery } from './mobile-socket-recovery'
 import { SocketService } from './nest/socket/socket.service'
+import { startDesktopBackend } from './desktop-backend-startup'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
@@ -203,28 +204,27 @@ export const runBackendDesktop = async (secret: string) => {
     logger.error('Socket IO secret is not set. Please set SOCKET_IO_SECRET via IPC.')
     throw new Error('Socket IO secret is not set.')
   }
-  const app = await NestFactory.createApplicationContext(
-    AppModule.forOptions({
-      socketIOPort: options.socketIOPort,
-      socketIOSecret: secret,
-      torBinaryPath: torBinForPlatform(resourcesPath),
-      torResourcesPath: torDirForPlatform(resourcesPath),
-      torControlPort: await getPort(),
-      options: {
-        env: {
-          appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+  const connectionsManager = await startDesktopBackend(async () => {
+    const app = await NestFactory.createApplicationContext(
+      AppModule.forOptions({
+        socketIOPort: options.socketIOPort,
+        socketIOSecret: secret,
+        torBinaryPath: torBinForPlatform(resourcesPath),
+        torResourcesPath: torDirForPlatform(resourcesPath),
+        torControlPort: await getPort(),
+        options: {
+          env: {
+            appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+          },
         },
-      },
-    })
-  )
-  const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-  const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
+      })
+    )
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    const shutdown = setupGracefulShutdown(app, () => connectionsManager)
+    return { value: connectionsManager, close: shutdown.gracefulCloseServices }
+  }, logger)
 
   process.on('message', async message => {
-    if (message === 'close') {
-      logger.info('Received close message from parent process')
-      await shutdown.gracefulCloseServices()
-    }
     if (
       typeof message === 'object' &&
       message !== null &&

@@ -62,7 +62,8 @@ describe('OpenlinkModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-lwy161-MuiButtonBase-root-MuiIconButton-root"
+                      aria-label="Close"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ModalClose"
                       tabindex="0"
                       type="button"
@@ -262,7 +263,7 @@ describe('OpenlinkModal', () => {
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <button
-                                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge OpenlinkModalbuttonBack css-10kf9y4-MuiButtonBase-root-MuiButton-root"
+                                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge OpenlinkModalbuttonBack css-kdjva8-MuiButtonBase-root-MuiButton-root"
                                 tabindex="0"
                                 type="button"
                               >

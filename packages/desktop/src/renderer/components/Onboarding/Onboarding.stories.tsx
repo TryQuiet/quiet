@@ -100,8 +100,8 @@ const CONTROLS: { label: string; render: (disabled: boolean) => React.ReactNode 
     ),
   },
   {
-    label: 'Title-bar glyphs (IconButton)',
-    // The title-bar glyphs have no disabled prop in the app, so that column stays empty.
+    label: 'Title-bar glyphs (IconButton) — no designed hover/pressed; focus ring only',
+    // The title-bar glyphs have no disabled prop in the app, so that column stays empty; the library has no hover or pressed variant for them either.
     render: disabled =>
       disabled ? (
         <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#7F7F7F' }}>n/a</span>

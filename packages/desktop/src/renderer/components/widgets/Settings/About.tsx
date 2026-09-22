@@ -25,9 +25,7 @@ export const About: FC = () => {
   return (
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
-        <Grid item className={classes.title}>
-          <Typography variant='h3'>About Quiet</Typography>
-        </Grid>
+        <Grid item className={classes.title}></Grid>
       </Grid>
       <Grid item>
         <Grid item>

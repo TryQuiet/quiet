@@ -69,6 +69,12 @@
 		A11500000000000000000010 /* NSENetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000E /* NSENetworkClient.swift */; };
 		A11500000000000000000011 /* NSECryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000F /* NSECryptoService.swift */; };
 		A11500000000000000000013 /* NSEBackgroundNotificationOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */; };
+		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
+		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
+		A11600000000000000000008 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11700000000000000000001 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
+		A11700000000000000000002 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
 		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
 		EB4DC7EC2F5FF6AB00EFD23F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */; };
 		EB4DC8002F608A3300EFD23F /* QuietNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -77,10 +83,6 @@
 		EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */; };
 		EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */; };
 		EE51651EA363C766EA0DE07A /* Pods_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */; };
-		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
-		A11700000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
-		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
-		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
 		BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */; };
 /* End PBXBuildFile section */
 
@@ -679,6 +681,11 @@
 		A1150000000000000000000E /* NSENetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENetworkClient.swift; path = ../QuietNotificationServiceExtension/NSENetworkClient.swift; sourceTree = "<group>"; };
 		A1150000000000000000000F /* NSECryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSECryptoService.swift; path = ../QuietNotificationServiceExtension/NSECryptoService.swift; sourceTree = "<group>"; };
 		A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEBackgroundNotificationOrchestrator.swift; path = ../QuietNotificationServiceExtension/NSEBackgroundNotificationOrchestrator.swift; sourceTree = "<group>"; };
+		A11600000000000000000002 /* QuietBackgroundTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTask.m; sourceTree = "<group>"; };
+		A11600000000000000000004 /* QuietBackgroundTaskTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTaskTests.m; sourceTree = "<group>"; };
+		A11600000000000000000006 /* TorHandlerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandlerLifecycleTests.swift; sourceTree = "<group>"; };
+		A11600000000000000000007 /* QuietBackgroundTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietBackgroundTask.h; sourceTree = "<group>"; };
+		A11700000000000000000003 /* TorBackgroundTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorBackgroundTransitions.swift; sourceTree = "<group>"; };
 		D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		D48393269FBBD868224E65E9 /* Pods-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-QuietTests/Pods-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		DC03A48F321B4BE2A5339F05 /* Quiet.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -693,10 +700,6 @@
 		EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FirebaseMessagingModule.m; path = Quiet/FirebaseMessagingModule.m; sourceTree = "<group>"; };
 		EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirebaseMessagingModule.swift; path = Quiet/FirebaseMessagingModule.swift; sourceTree = "<group>"; };
 		EB5F93032F5FC50100B5C60D /* Quiet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Quiet-Bridging-Header.h"; sourceTree = "<group>"; };
-		A11600000000000000000002 /* QuietBackgroundTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTask.m; sourceTree = "<group>"; };
-		A11600000000000000000004 /* QuietBackgroundTaskTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTaskTests.m; sourceTree = "<group>"; };
-		A11600000000000000000006 /* TorHandlerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandlerLifecycleTests.swift; sourceTree = "<group>"; };
-		A11600000000000000000007 /* QuietBackgroundTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietBackgroundTask.h; sourceTree = "<group>"; };
 		D2CFF9D8BC2E46A2BA6F289C /* QuietAppTests.xctest */ = {isa = PBXFileReference; name = "QuietAppTests.xctest"; path = "QuietAppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; explicitFileType = "wrapper.cfbundle"; includeInIndex = 0; };
 		FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */ = {isa = PBXFileReference; name = "QuietFirebaseUnavailableTests.m"; path = "QuietFirebaseUnavailableTests.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; includeInIndex = 0; };
 /* End PBXFileReference section */
@@ -770,6 +773,7 @@
 			isa = PBXGroup;
 			children = (
 				A11600000000000000000004 /* QuietBackgroundTaskTests.m */,
+				A11600000000000000000006 /* TorHandlerLifecycleTests.swift */,
 				A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */,
 				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
 				A11400000000000000000006 /* SharedDefaults.swift */,
@@ -815,6 +819,7 @@
 				EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */,
 				EB5F93032F5FC50100B5C60D /* Quiet-Bridging-Header.h */,
 				189814392934CF70001F39E7 /* TorHandler.swift */,
+				A11700000000000000000003 /* TorBackgroundTransitions.swift */,
 				EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */,
 				EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */,
 				1889CA4D26E763E1004ECFBD /* Extensions.swift */,
@@ -4928,7 +4933,6 @@
 			isa = PBXGroup;
 			children = (
 				FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */,
-				A11600000000000000000006 /* TorHandlerLifecycleTests.swift */,
 			);
 			name = QuietAppTests;
 			path = QuietAppTests;
@@ -4971,6 +4975,7 @@
 				18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */,
 				1827A9E0297837FE00245FD3 /* [CUSTOM NODEJS MOBILE] Remove prebuilds */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
+				50D1A01950D1A01950D1A019 /* Embed native libsodium */,
 				EBD3273E2F5FA01F00E2CD0C /* Embed Foundation Extensions */,
 				45E8E1CED3ACB0A8578792B4 /* [CP] Embed Pods Frameworks */,
 				256DD21612F4D56D318DA3D7 /* [CP] Copy Pods Resources */,
@@ -5140,6 +5145,17 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		50D1A01950D1A01950D1A019 /* Embed native libsodium */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Embed native libsodium";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n[ ! -f \"$SRCROOT/.xcode.env\" ] || . \"$SRCROOT/.xcode.env\"\n[ ! -f \"$SRCROOT/.xcode.env.local\" ] || . \"$SRCROOT/.xcode.env.local\"\n\"${NODE_BINARY:-node}\" \"$SRCROOT/../scripts/embed-sodium-ios.cjs\"\n";
+		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5375,8 +5391,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11600000000000000000008 /* QuietBackgroundTask.m in Sources */,
 				A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */,
-				A11700000000000000000001 /* QuietBackgroundTask.m in Sources */,
+				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
+				A11700000000000000000002 /* TorBackgroundTransitions.swift in Sources */,
 				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
 				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
@@ -5401,6 +5419,7 @@
 				955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */,
 				1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */,
 				1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */,
+				A11700000000000000000001 /* TorBackgroundTransitions.swift in Sources */,
 				663DC8C12F621139005D2086 /* UserMetadataHandler.swift in Sources */,
 				1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */,
 				EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */,
@@ -5429,7 +5448,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */,
-				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -282,6 +282,31 @@ describe('LocalDbService', () => {
       expect(communities[community.id]).toEqual(community)
     })
 
+    it('does not include community credentials in persistence logs', async () => {
+      const seed = 'device-invitation-seed-that-must-not-be-logged'
+      const psk = 'network-psk-that-must-not-be-logged'
+      const info = jest.fn()
+      const originalLogger = service['logger']
+      ;(service as any).logger = { ...originalLogger, info }
+      try {
+        await service.setCommunity({
+          ...community,
+          psk,
+          inviteData: { authData: { seed } },
+        } as any)
+        await service.updateCommunity(community.id, {
+          inviteData: { authData: { seed: `${seed}-updated` } } as any,
+        })
+
+        const serializedLogs = JSON.stringify(info.mock.calls)
+        expect(serializedLogs).not.toContain(seed)
+        expect(serializedLogs).not.toContain(psk)
+        expect(serializedLogs).toContain('inviteData')
+      } finally {
+        ;(service as any).logger = originalLogger
+      }
+    })
+
     it('getCurrentCommunity returns correct community', async () => {
       await service.setCommunity(community)
       await service.setCurrentCommunityId('c1')
