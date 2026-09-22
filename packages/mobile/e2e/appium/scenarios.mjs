@@ -23,7 +23,7 @@ export async function runScenario(t, fullLoop) {
     let invite = await desktop.create()
     const metadata = parseQssInvitation(invite, names.community, fixture.endpoint)
     mobile.teamId = metadata.teamId
-    writeProof(run, { ...metadata, platform: config.platform, qssTarget: fixture.target || 'local', build, fullLoopPassed: false })
+    writeProof(run, { ...metadata, platform: config.platform, qssTarget: fixture.target || 'local', enrollmentMode: desktop.enrollmentMode, build, fullLoopPassed: false })
     progress('mobile-start')
     await mobile.start()
     progress('mobile-join')
@@ -78,7 +78,7 @@ export async function runScenario(t, fullLoop) {
     // node:test continues after failed subtests; never write a success receipt
     // unless both actual OS interactions finished.
     if (notifications.length !== 2) throw new Error('A full-loop notification scenario failed')
-    writeProof(run, { ...metadata, platform: config.platform, qssTarget: fixture.target || 'local', build, fullLoopPassed: true, notifications })
+    writeProof(run, { ...metadata, platform: config.platform, qssTarget: fixture.target || 'local', enrollmentMode: desktop.enrollmentMode, build, fullLoopPassed: true, notifications })
     progress('provider-complete')
   } catch (error) {
     await mobile.artifacts('failure').catch(() => {})

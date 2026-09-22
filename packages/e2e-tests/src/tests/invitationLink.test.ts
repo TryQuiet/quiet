@@ -77,8 +77,11 @@ describe('New user joins using invitation link while having app opened', () => {
 
     it('Owner sees general channel', async () => {
       logger.info('Invitation Link', 8)
+      const joinPanel = new JoiningLoadingPanel(ownerApp.driver)
+      await joinPanel.waitForJoinToComplete()
+
       const generalChannel = new Channel(ownerApp.driver, 'general')
-      expect(await generalChannel.isReady())
+      expect(await generalChannel.isReady()).toBeTruthy()
 
       const generalChannelText = await generalChannel.element.getText()
       expect(generalChannelText).toEqual('general')

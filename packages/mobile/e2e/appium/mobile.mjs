@@ -7,6 +7,15 @@ import { promisify } from 'node:util'
 const exec = promisify(execFile)
 export const literal = text => text.includes("'") ? `concat(${text.split("'").map(s => `'${s}'`).join(',"\'",')})` : `'${text}'`
 
+export const iosCapabilities = config => ({
+  'appium:bundleId': config.bundleId,
+  'appium:wdaLocalPort': config.wdaLocalPort || 8125,
+  ...(config.platformVersion ? { 'appium:platformVersion': config.platformVersion } : {}),
+  ...(config.xcodeOrgId ? { 'appium:xcodeOrgId': config.xcodeOrgId, 'appium:xcodeSigningId': 'Apple Development' } : {}),
+  ...(config.updatedWDABundleId ? { 'appium:updatedWDABundleId': config.updatedWDABundleId } : {}),
+  ...(config.usePreinstalledWDA ? { 'appium:usePreinstalledWDA': true } : {}),
+})
+
 export class Mobile {
   constructor(config, run) { this.config = config; this.run = run; this.driver = undefined }
   get android() { return this.config.platform === 'android' }
@@ -51,13 +60,7 @@ export class Mobile {
           'appium:systemPort': this.config.systemPort || 8225,
           'appium:uiautomator2ServerInstallTimeout': 120000,
           'appium:androidInstallTimeout': 180000,
-        } : {
-          'appium:bundleId': this.config.bundleId,
-          'appium:wdaLocalPort': this.config.wdaLocalPort || 8125,
-          ...(this.config.platformVersion ? { 'appium:platformVersion': this.config.platformVersion } : {}),
-          ...(this.config.xcodeOrgId ? { 'appium:xcodeOrgId': this.config.xcodeOrgId, 'appium:xcodeSigningId': 'Apple Development' } : {}),
-          ...(this.config.updatedWDABundleId ? { 'appium:updatedWDABundleId': this.config.updatedWDABundleId } : {}),
-        }),
+        } : iosCapabilities(this.config)),
       },
     })
     await this.driver.setOrientation('PORTRAIT')
@@ -82,9 +85,23 @@ export class Mobile {
     }
   }
   async input(placeholder, value) {
-    const selector = this.android ? '//android.widget.EditText' : `//XCUIElementTypeTextField[@value=${literal(placeholder)}]`
+    // React Native exposes Input's pressable wrapper as XCUIElementTypeOther on
+    // physical iOS devices. Focus that accessibility element, then type through
+    // the active keyboard instead of requiring a TextField node that is absent.
+    const selector = this.android
+      ? '//android.widget.EditText'
+      : `//*[@label=${literal(placeholder)} or @name=${literal(placeholder)}]`
     const input = await this.visible(selector)
-    try { await input.setValue(value) } catch { throw new Error('Could not fill the native onboarding field (input redacted)') }
+    try {
+      if (this.android) await input.setValue(value)
+      else {
+        await input.click()
+        // Appium's sendKeys uses WDA's native text-typing endpoint. browser.keys()
+        // creates incompatible grouped key actions, while mobile: keys waits for
+        // XCTest once per character and can time out on a full invitation.
+        await this.driver.sendKeys([value])
+      }
+    } catch { throw new Error('Could not fill the native onboarding field (input redacted)') }
     if (this.android && await this.driver.isKeyboardShown()) await this.driver.back()
   }
   async join(invite, username) {
