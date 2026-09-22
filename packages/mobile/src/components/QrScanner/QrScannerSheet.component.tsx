@@ -4,7 +4,7 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-nat
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { Appbar } from '../Appbar/Appbar.component'
-import { INVALID_INVITATION_ERROR } from '../JoinCommunity/JoinCommunity.component'
+import { INVALID_INVITATION_ERROR } from '../../utils/inviteLink'
 import { Typography } from '../Typography/Typography.component'
 
 import type { QrScannerSheetProps, QrScannerStatus } from './QrScanner.types'

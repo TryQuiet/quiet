@@ -57,6 +57,7 @@ import {
 } from './sagas/pushNotifications/pushNotifications.slice'
 export { LoadingPanelType } from './sagas/network/network.types'
 export type { Store } from './sagas/store.types'
+export type { AdmissionResetStatus, JoinCommunityError } from './sagas/communities/communities.types'
 export type { TestStore, TestStoreState } from './utils/tests/types'
 export { StoreKeys } from './sagas/store.keys'
 export { storeMigrations } from './sagas/store.migrations'

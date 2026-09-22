@@ -207,7 +207,9 @@ describe('Deep linking', () => {
     expect(communities.selectors.currentCommunity(store.getState())).toBeUndefined()
     expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
 
-    // An explicit negative acknowledgement clears the failed attempt.
+    // An explicit negative acknowledgement clears the failed attempt and reports it on the
+    // invite field, which is what sends the user back to the paste screen rather than to the
+    // three-way choice with nothing said.
     expect(actions).toMatchInlineSnapshot(`
       [
         "Init/deepLink",
@@ -220,6 +222,7 @@ describe('Deep linking', () => {
         "Identity/setUsername",
         "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
+        "Communities/setJoinCommunityError",
         "Network/setLoadingPanelType",
       ]
     `)
@@ -255,6 +258,7 @@ describe('Deep linking', () => {
         "Identity/setUsername",
         "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
+        "Communities/setJoinCommunityError",
         "Network/setLoadingPanelType",
         "Init/deepLink",
         "Init/resetDeepLink",
@@ -266,6 +270,7 @@ describe('Deep linking', () => {
         "Identity/setUsername",
         "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
+        "Communities/setJoinCommunityError",
         "Network/setLoadingPanelType",
       ]
     `)

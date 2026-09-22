@@ -1,6 +1,6 @@
 import { PayloadAction, Dispatch } from '@reduxjs/toolkit'
 import { call, select, delay, put } from 'typed-redux-saga'
-import { communities, getInvitationCodes } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { initSelectors } from '../init.selectors'
@@ -15,6 +15,7 @@ import {
 } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { confirmDeviceLink } from '../../../utils/deviceLinkConfirmation'
+import { parseInviteLink } from '../../../utils/inviteLink'
 
 const logger = createLogger('deepLink')
 
@@ -27,11 +28,12 @@ const CONNECTION_POLL_MS = 250
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
 
-  let data: InvitationData
-  try {
-    data = getInvitationCodes(code)
-  } catch (e) {
-    logger.error(e)
+  // The same rule the paste field applies, so a link that arrives from outside the app is
+  // judged exactly as one typed into the field. A deep link has no field to report on, so
+  // this keeps the designed error screen rather than an inline message.
+  const data = parseInviteLink(code)
+  if (!data) {
+    logger.error('Could not parse an invitation from the deep link')
     yield* put(initActions.resetDeepLink())
     yield* put(
       navigationActions.replaceScreen({

@@ -13,7 +13,7 @@ import { InvitationKind } from '@quiet/types'
 
 import { resetVisionCameraMock, visionCameraMock } from '../../tests/mocks/reactNativeVisionCamera'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
-import { INVALID_INVITATION_ERROR } from '../JoinCommunity/JoinCommunity.component'
+import { INVALID_INVITATION_ERROR } from '../../utils/inviteLink'
 import { QrScanner } from './QrScanner.component'
 import { SCANNER_COPY } from './QrScannerSheet.component'
 

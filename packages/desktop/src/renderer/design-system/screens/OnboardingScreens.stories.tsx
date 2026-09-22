@@ -37,7 +37,7 @@ import {
   composeInvitationShareUrl,
   validInvitationDatav4,
 } from '@quiet/common'
-import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
+import { ErrorMessages, InvitationKind, isDeviceInvitationData } from '@quiet/types'
 import type { InvitationData, LinkedDevice } from '@quiet/types'
 
 // The implemented onboarding screens, one story each, plus a walkthrough that
@@ -273,6 +273,48 @@ export const PasteALink = () => (
     figma='3190:10892'
     note='the WIP frame reduced to its intent: heading, one input ("Link"), Continue'
     render={() => <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={noop} />}
+  />
+)
+
+/**
+ * The same step after a join fails. No frame draws this state; the message is the
+ * field's own error line, under the input, because that is where the link was typed —
+ * the flow does not leave this screen to report it (user decision, 2026-09-22).
+ */
+const PASTE_ERROR_NOTE =
+  'no frame for this state; the message is the field’s own error line under the input — reporting a failure never takes the user off this screen'
+
+export const PasteALinkInviteError = () => (
+  <Screen
+    title='Paste a link to join · invalid invite'
+    hiddenBar='Join with invite link'
+    figma='—'
+    note={`${PASTE_ERROR_NOTE}; “Please check your invite link and try again” fills the same slot both for a link the client cannot parse and for a request the backend refused outright, which says nothing about why`}
+    render={() => (
+      <PasteLinkComponent
+        heading={PASTE_LINK_HEADING}
+        handleCommunityAction={noop}
+        fieldError={ErrorMessages.INVALID_INVITE}
+        onFieldChange={noop}
+      />
+    )}
+  />
+)
+
+export const PasteALinkAdmissionTimeout = () => (
+  <Screen
+    title='Paste a link to join · admission timed out'
+    hiddenBar='Join with invite link'
+    figma='—'
+    note={`${PASTE_ERROR_NOTE}; a device link reads “…make sure both devices have the app open”, and an interrupted join “Joining was interrupted when Quiet went to sleep. Please try again.”`}
+    render={() => (
+      <PasteLinkComponent
+        heading={PASTE_LINK_HEADING}
+        handleCommunityAction={noop}
+        fieldError={ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT}
+        onFieldChange={noop}
+      />
+    )}
   />
 )
 
