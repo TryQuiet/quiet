@@ -35,7 +35,7 @@ describe('Main', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="SidebarComponentroot css-lfb242"
+                    class="SidebarComponentroot css-zab9rn"
                     data-testid="sidebar"
                   >
                     <div

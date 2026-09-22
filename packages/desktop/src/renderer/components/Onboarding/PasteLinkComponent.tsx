@@ -66,7 +66,7 @@ interface PasteLinkFormValues {
 }
 
 export interface PasteLinkComponentProps {
-  /** "Paste a link to Join" (invite link), "Join with QR code", "Scan QR code" (device link). */
+  /** "Paste a link to join" (invite link), "Join with QR code", "Scan QR code" (device link). */
   heading: string
   intro?: React.ReactNode
   /** Whether the form is mounted; used to reset it when the modal closes. */
@@ -90,7 +90,7 @@ export interface PasteLinkComponentProps {
 const field = inviteLinkField()
 
 /**
- * "Paste a link to Join": the WIP frame's intent — heading, one input with
+ * "Paste a link to join": the WIP frame's intent — heading, one input with
  * placeholder "Link", Continue. Accepts member and device invitations alike and
  * the caller decides what to do with each kind — unless `linkKind` narrows it to
  * device links (Link devices → Paste link).

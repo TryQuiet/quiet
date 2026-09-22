@@ -21,7 +21,7 @@ describe('RecoverAccountScreen', () => {
     return { dispatchSpy, result }
   }
 
-  it("shows the frame's copy with More options inert", async () => {
+  it("shows the frame's copy and omits More options", async () => {
     const { result } = await renderScreen()
 
     // The frame hides the bar title; only the back glyph and the heading
@@ -31,7 +31,9 @@ describe('RecoverAccountScreen', () => {
     expect(
       result.getByText('Locked out? You can recover with a linked device or ask an admin to send you an invite link.')
     ).toBeTruthy()
-    expect(result.getByTestId('recover-more-options')).toBeDisabled()
+    // The frame draws a "More options" row with no target; it is omitted until the design gives it one
+    expect(result.queryByTestId('recover-more-options')).toBeNull()
+    expect(result.queryByText('More options')).toBeNull()
   })
 
   it('"Use linked device" goes to Link devices', async () => {

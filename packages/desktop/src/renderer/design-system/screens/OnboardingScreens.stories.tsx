@@ -234,7 +234,7 @@ export const RecoverAccount = () => (
     title='Recover account'
     hiddenBar='Account recovery'
     figma='2811:2535'
-    note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
+    note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); the frame’s third row, More options, goes nowhere in the design, so it is omitted until the design gives it a target (user, 2026-09-22); no recovery mechanism exists'
     render={() => <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />}
   />
 )
@@ -251,11 +251,11 @@ export const OpenInviteLink = () => (
 
 export const PasteALink = () => (
   <Screen
-    title='Paste a link to Join'
+    title='Paste a link to join'
     hiddenBar='Join with invite link'
     figma='3190:10892'
     note='the WIP frame reduced to its intent: heading, one input ("Link"), Continue'
-    render={() => <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={noop} />}
+    render={() => <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={noop} />}
   />
 )
 
@@ -336,7 +336,7 @@ const ScannerScreen: React.FC<
           <QrScannerComponent
             intro={intro}
             onDecoded={data => record(describeInvitation(data))}
-            onUsePasteLink={() => record('→ Paste a link to Join (the paste step)')}
+            onUsePasteLink={() => record('→ Paste a link to join (the paste step)')}
           />
         )}
       />
@@ -518,7 +518,7 @@ export const PasteLinkOnLinkDevices = () => (
     figma='—'
     note={PASTE_LINK_NOTE}
     render={() => (
-      <PasteLinkComponent heading={'Paste a link to Join'} linkKind='device' handleCommunityAction={noop} />
+      <PasteLinkComponent heading={'Paste a link to join'} linkKind='device' handleCommunityAction={noop} />
     )}
   />
 )
@@ -547,7 +547,7 @@ export const PasteLinkNotADeviceLink = () => (
       note={`${PASTE_LINK_NOTE}; the sample member link was pasted and submitted — the error copy is undesigned`}
       render={() => (
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           linkKind='device'
           revealInputValue
           handleCommunityAction={noop}
@@ -704,7 +704,7 @@ export const InviteLinkPath = () => (
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
           Figma <span style={{ fontFamily: mono }}>2811:2562 → 2811:2455 → 2811:2371</span> · the link is the path:
           opening it hands the app a quiet:// URL and customProtocol.saga.ts joins and asks for a username on top of the
-          join modal · Paste a link is the fallback (Paste a link to Join, above)
+          join modal · Paste a link is the fallback (Paste a link to join, above)
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           {INVITE_LINK_PATH.map(step => (
@@ -760,9 +760,9 @@ const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; dro
   joinCommunity: { title: 'Join community', hiddenBar: 'Quiet', left: 'back' },
   recoverAccount: { title: 'Recover account', hiddenBar: 'Account recovery', left: 'back' },
   openInviteLink: { title: 'Open invite link', hiddenBar: 'Join with invite link', left: 'back' },
-  pasteALink: { title: 'Paste a link to Join', hiddenBar: 'Join with invite link', left: 'back' },
+  pasteALink: { title: 'Paste a link to join', hiddenBar: 'Join with invite link', left: 'back' },
   joinWithQrCode: { title: 'Join with QR code', droppedBar: 'Join with QR code', left: 'back' },
-  pasteFromQrCode: { title: 'Paste a link to Join', droppedBar: 'Join with QR code', left: 'back' },
+  pasteFromQrCode: { title: 'Paste a link to join', droppedBar: 'Join with QR code', left: 'back' },
   createCommunity: { title: 'Create a community', hiddenBar: 'Create a community', left: 'back' },
   chooseUsername: { title: 'Choose username', hiddenBar: 'Create a community', left: 'close' },
   linkDevices: { title: 'Link devices', droppedBar: 'Link devices', left: 'back' },
@@ -770,7 +770,7 @@ const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; dro
   // of its own, so nothing would repeat it (LinkDevices.tsx TITLED_STEPS).
   displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'close' },
   scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
-  pasteFromScan: { title: 'Paste a link to Join', droppedBar: 'Link devices', left: 'back' },
+  pasteFromScan: { title: 'Paste a link to join', droppedBar: 'Link devices', left: 'back' },
   pasteLink: { title: 'Paste link', droppedBar: 'Link devices', left: 'back' },
 }
 
@@ -925,7 +925,7 @@ const WalkthroughStory = () => {
       case 'openInviteLink':
         return <OpenInviteLinkComponent onPasteLink={() => go('pasteALink')} />
       case 'pasteALink':
-        return <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={onInvitation} />
+        return <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={onInvitation} />
       // Keyed on the camera: the scanner asks for it once, on mount, so switching the mode
       // while looking at this step has to re-open it or the button would do nothing.
       case 'joinWithQrCode':
@@ -933,7 +933,7 @@ const WalkthroughStory = () => {
           <QrScannerComponent key={cameraMode} onDecoded={onInvitation} onUsePasteLink={() => go('pasteFromQrCode')} />
         )
       case 'pasteFromQrCode':
-        return <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={onInvitation} />
+        return <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={onInvitation} />
       case 'createCommunity':
         return <CreateCommunityComponent handleCommunityAction={onCreate} />
       case 'chooseUsername':
@@ -972,7 +972,7 @@ const WalkthroughStory = () => {
       case 'pasteFromScan':
       case 'pasteLink':
         return (
-          <PasteLinkComponent heading={'Paste a link to Join'} linkKind='device' handleCommunityAction={onInvitation} />
+          <PasteLinkComponent heading={'Paste a link to join'} linkKind='device' handleCommunityAction={onInvitation} />
         )
     }
   }

@@ -204,7 +204,7 @@ describe('Screens/Onboarding — the Link devices stories', () => {
   it('draws the Paste link step as the paste field under its own heading', () => {
     renderComponent(<PasteLinkOnLinkDevices />)
 
-    expect(screen.getAllByRole('heading', { name: 'Paste a link to Join', level: 3 })[0]).toBeVisible()
+    expect(screen.getAllByRole('heading', { name: 'Paste a link to join', level: 3 })[0]).toBeVisible()
     expect(screen.getAllByTestId('paste-link-input')[0]).toBeVisible()
     expect(barTitle()).toBe('')
   })
@@ -364,7 +364,7 @@ describe('Screens/Onboarding — the walkthrough camera', () => {
     await click(user, 'qr-scanner-paste-link')
 
     expect(screen.getAllByTestId('paste-link-input')[0]).toBeVisible()
-    expect(trail()).toContain('Join with QR code › Paste a link to Join')
+    expect(trail()).toContain('Join with QR code › Paste a link to join')
   })
 
   it('reaches the Link devices scanner through the direction toggle, and a device link asks for consent', async () => {

@@ -106,7 +106,7 @@ describe('Link devices → Scan QR code', () => {
 
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
     await userEvent.click(await screen.findByTestId('link-devices-scanner-paste-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
 
     await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
@@ -143,7 +143,7 @@ describe('Link devices → Paste link', () => {
     renderComponent(<LinkDevices />, store)
 
     await userEvent.click(screen.getByTestId('link-devices-paste-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
     expect(screen.queryByText('Link devices')).not.toBeInTheDocument() // no bar title: the h1 is the title
     expect(screen.queryByTestId('link-devices-scanner-viewfinder')).not.toBeInTheDocument()
 
@@ -345,7 +345,7 @@ describe('Link devices — no bar title above a heading', () => {
     // back to entry, then the Paste link step: the bar would have said "Link devices"
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
     await userEvent.click(await screen.findByTestId('link-devices-paste-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
     expect(screen.queryByText('Link devices')).not.toBeInTheDocument()
     expect(header()).not.toHaveClass('ModalheaderBorder')
     expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()

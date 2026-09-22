@@ -12,9 +12,11 @@ export interface RecoverAccountComponentProps {
 /**
  * Account recovery · Figma 2811:2535. The frame's illustration is the
  * library's "Icon=Vpn key" glyph at 64px. The prototype wires "Use linked
- * device" to Link devices and "Use invite link" to Open invite link; "More
- * options" is drawn but goes nowhere, so its row is present and inert. There
- * is no separate recovery mechanism: both routes are the existing flows.
+ * device" to Link devices and "Use invite link" to Open invite link. The
+ * frame also draws a "More options" row, but it has no target anywhere in
+ * the prototype, so it is omitted until the design gives it one (user,
+ * 2026-09-22). There is no separate recovery mechanism: both routes are the
+ * existing flows.
  */
 export const RecoverAccountComponent: React.FC<RecoverAccountComponentProps> = ({
   onUseLinkedDevice,
@@ -39,7 +41,6 @@ export const RecoverAccountComponent: React.FC<RecoverAccountComponentProps> = (
         onClick={onUseInviteLink}
         dataTestId='recover-use-invite-link'
       />
-      <ActionRow icon={onboardingIcons.moreHoriz} label={'More options'} disabled dataTestId='recover-more-options' />
     </RowGroup>
   </OnboardingBody>
 )

@@ -274,7 +274,7 @@ describe('join community', () => {
     expect(screen.getAllByText('Join with invite link')).toHaveLength(1)
 
     await userEvent.click(screen.getByTestId('paste-a-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
     expect(screen.getByPlaceholderText('Link')).toBeVisible()
 
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
@@ -296,7 +296,8 @@ describe('join community', () => {
     expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
     // Account recovery (2811:2535) hides its bar title
     expect(screen.queryByText('Account recovery')).not.toBeInTheDocument()
-    expect(screen.getByTestId('recover-more-options')).toHaveAttribute('aria-disabled', 'true')
+    // The frame's targetless "More options" row is not built
+    expect(screen.queryByTestId('recover-more-options')).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByTestId('recover-use-invite-link'))
     expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
@@ -406,7 +407,7 @@ describe('join community', () => {
 
       await userEvent.click(screen.getByTestId('join-with-qr-code'))
       await userEvent.click(await screen.findByTestId('qr-scanner-paste-link'))
-      expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+      expect(await screen.findByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
       expect(screen.getByPlaceholderText('Link')).toBeVisible()
 
       await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
@@ -484,7 +485,7 @@ describe('join community', () => {
     const handleCommunityAction = jest.fn()
 
     const result = renderComponent(
-      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
+      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
       store
     )
 
@@ -509,7 +510,7 @@ describe('join community', () => {
       const handleCommunityAction = jest.fn()
 
       const result = renderComponent(
-        <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
+        <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
         store
       )
 
@@ -532,7 +533,7 @@ describe('join community', () => {
     const handleCommunityAction = jest.fn()
 
     const result = renderComponent(
-      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
+      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
       store
     )
 
@@ -564,7 +565,7 @@ describe('join community', () => {
     const handleCommunityAction = jest.fn()
 
     renderComponent(
-      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
+      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
       store
     )
 
@@ -586,7 +587,7 @@ describe('join community', () => {
 
     const result = renderComponent(
       <PasteLinkComponent
-        heading={'Paste a link to Join'}
+        heading={'Paste a link to join'}
         handleCommunityAction={handleCommunityAction}
         isConnectionReady={false}
       />,
