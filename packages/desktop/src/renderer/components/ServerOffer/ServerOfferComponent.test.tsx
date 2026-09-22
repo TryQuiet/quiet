@@ -20,7 +20,7 @@ describe('ServerOfferComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -127,7 +127,7 @@ describe('ServerOfferComponent', () => {
                     class="ServerOfferComponent-actions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-kdjva8-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-1lg8692-MuiButtonBase-root-MuiButton-root"
                       data-testid="ServerOffer-UseQuietServer"
                       tabindex="0"
                       type="button"

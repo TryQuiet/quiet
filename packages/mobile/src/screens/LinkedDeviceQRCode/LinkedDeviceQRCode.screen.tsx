@@ -1,29 +1,29 @@
 import React, { type FC, useCallback, useEffect, useRef } from 'react'
-import { View } from 'react-native'
-import Share from 'react-native-share'
-import SVG from 'react-native-svg'
+import { Platform } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { connection } from '@quiet/state-manager'
 
-import { Appbar } from '../../components/Appbar/Appbar.component'
-import { Loading } from '../../components/Loading/Loading.component'
-import { QRCode } from '../../components/QRCode/QRCode.component'
-import { Typography } from '../../components/Typography/Typography.component'
+import { LinkedDeviceQRCode } from '../../components/LinkedDeviceQRCode/LinkedDeviceQRCode.component'
+import { useConfirmationBox } from '../../hooks/useConfirmationBox'
 import { navigationActions } from '../../store/navigation/navigation.slice'
-import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('linkedDeviceQrCode:screen')
-
+/**
+ * Link devices → Display QR code. Copy link puts the link on the clipboard and confirms.
+ *
+ * A device link is reusable until it expires, so opening this screen does not throw the current
+ * one away: an unexpired invite is shown again, and a new one is minted only when there is none,
+ * when it has expired, or when the user asks for one with Reset QR code. Minting on every open
+ * would invalidate a link the user had already sent to their other device.
+ */
 export const LinkedDeviceQRCodeScreen: FC = () => {
   const dispatch = useDispatch()
-  const svgRef = useRef<SVG | undefined>(undefined)
-  const handledCurrentOpen = useRef(false)
-  const showedLinkCurrentOpen = useRef(false)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
   const deviceLinkCreationFailed = useSelector(connection.selectors.deviceLinkCreationFailed)
-  if (deviceLink) showedLinkCurrentOpen.current = true
+  const confirmationBox = useConfirmationBox('Link copied')
+  const handledCurrentOpen = useRef(false)
 
   useEffect(() => {
     if (handledCurrentOpen.current) return
@@ -37,52 +37,28 @@ export const LinkedDeviceQRCodeScreen: FC = () => {
     dispatch(navigationActions.pop())
   }, [dispatch])
 
-  const shareCode = async () => {
+  const onCopyLink = useCallback(async () => {
     if (!deviceLink) return
+    Clipboard.setString(deviceLink)
+    // Android 33+ already confirms copied content.
+    if (Platform.OS === 'android' && Platform.Version >= 33) return
+    await confirmationBox.flash()
+  }, [deviceLink, confirmationBox])
 
-    svgRef.current?.toDataURL(async base64 => {
-      try {
-        await Share.open({
-          title: 'Quiet device link',
-          message: `Link this device to my Quiet community:\n${deviceLink}`,
-          url: `data:image/png;base64,${base64}`,
-        })
-      } catch (error) {
-        logger.error(error)
-      }
-    })
-  }
-
-  if (!deviceLink) {
-    return (
-      <View style={{ flex: 1 }}>
-        <Appbar title='Link a device' back={handleBackButton} />
-        {deviceLinkCreationFailed || showedLinkCurrentOpen.current ? (
-          <View style={{ padding: 24 }}>
-            <Typography fontSize={14} horizontalTextAlign='center'>
-              {deviceLinkCreationFailed
-                ? 'Could not generate a device link. Go back and try again.'
-                : 'This device link expired. Go back and open Link a device again to generate another.'}
-            </Typography>
-          </View>
-        ) : (
-          <Loading
-            title='Generating device link'
-            caption='Keep this device online while Quiet prepares the private code.'
-          />
-        )}
-      </View>
-    )
-  }
+  // Reset QR code is the deliberate way to invalidate the current link and mint another.
+  const onReset = useCallback(() => {
+    dispatch(connection.actions.setDeviceLinkInvite(undefined))
+    dispatch(connection.actions.createDeviceLink())
+  }, [dispatch])
 
   return (
-    <QRCode
+    <LinkedDeviceQRCode
       value={deviceLink}
-      svgRef={svgRef}
-      shareCode={shareCode}
+      isLoading={!deviceLink && !deviceLinkCreationFailed}
+      failed={deviceLinkCreationFailed}
+      onCopyLink={onCopyLink}
+      onReset={onReset}
       handleBackButton={handleBackButton}
-      title='Link a device'
-      description='Anyone with this private code can link another device until it expires in 30 minutes. Keep it secret, and keep both devices online while linking. Expiry blocks new linking but does not remove keys already received by a linked device.'
     />
   )
 }

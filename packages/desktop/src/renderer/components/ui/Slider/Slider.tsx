@@ -25,7 +25,7 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.sliderContainer}`]: {
     width: 105,
-    padding: '5px 10px',
+    padding: `${theme.space.xs}px ${theme.space.sm}px`,
   },
 
   [`& .${classes.sliderRoot}`]: {
@@ -33,7 +33,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.label}`]: {
-    fontSize: '0.83rem',
+    fontSize: theme.typography.caption.fontSize,
+    lineHeight: theme.typography.caption.lineHeight,
   },
 
   [`& .${classes.title}`]: {

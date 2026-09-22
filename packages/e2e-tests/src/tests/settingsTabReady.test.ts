@@ -18,6 +18,12 @@ const panels: Array<[SettingsModalTabName, string]> = [
   ],
   [SettingsModalTabName.INVITE, '<h5 data-testid="invite-a-friend">Add Members</h5>'],
   [SettingsModalTabName.LINKED_DEVICES, '<h5 data-testid="linked-devices-title">Linked devices</h5>'],
+  // This line's tab is the Link devices content, whose body carries `link-devices` and whose
+  // heading is "Link devices"; released 11.x panels print the `linked-devices-title` above.
+  [
+    SettingsModalTabName.LINKED_DEVICES,
+    '<div data-testid="link-devices"><h1>Link devices</h1><div data-testid="link-devices-display-qr">Display QR code</div></div>',
+  ],
 ]
 
 const describeLinux = process.platform === 'linux' ? describe : describe.skip

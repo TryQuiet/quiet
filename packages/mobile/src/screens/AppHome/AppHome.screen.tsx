@@ -1,17 +1,17 @@
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { communities, connection, identity, publicChannels, users } from '@quiet/state-manager'
+import { capitalizeFirstLetter, findDmChannelWithMembers } from '@quiet/common'
 
-import { AppHome } from '../../components/AppHome/AppHome.component'
-import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
+import { CommunityHome } from '../../components/CommunityHome/CommunityHome.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
-import { ChannelType, EMPTY_CHANNEL_ID } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
-import { getUserData } from '../../components/ProfilePhoto/ProfilePhotoWithBadge.component'
+
+import type { CommunityHomeChannel, CommunityHomeUser } from '../../components/CommunityHome/CommunityHome.types'
 
 const logger = createLogger('AppHomeScreen')
 
@@ -19,9 +19,6 @@ export const AppHomeScreen: FC = () => {
   const dispatch = useDispatch()
 
   const usernameTaken = useSelector(identity.selectors.usernameTaken)
-
-  const [channelTiles, setChannelTiles] = useState<ChannelTileProps[]>([])
-  const [dmTiles, setDmTiles] = useState<ChannelTileProps[]>([])
 
   useEffect(() => {
     if (usernameTaken) {
@@ -33,16 +30,22 @@ export const AppHomeScreen: FC = () => {
     }
   }, [dispatch, usernameTaken])
 
-  const redirect = useCallback(
-    (id: string, newChat = false) => {
+  const community = useSelector(communities.selectors.currentCommunity)
+  const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+  const allChannels = useSelector(publicChannels.selectors.publicChannels)
+  const userProfiles = useSelector(users.selectors.userProfiles)
+  const me = useSelector(users.selectors.myUserProfile)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
+
+  const communityContextMenu = useContextMenu(MenuName.Community)
+  const invitationContextMenu = useContextMenu(MenuName.Invitation)
+
+  const openChannel = useCallback(
+    (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
           channelId: id,
-        })
-      )
-      dispatch(
-        publicChannels.actions.setNewMessageOpen({
-          isOpen: newChat,
         })
       )
       dispatch(
@@ -54,92 +57,80 @@ export const AppHomeScreen: FC = () => {
     [dispatch]
   )
 
-  const redirectOtherScreen = useCallback(
-    (screen: ScreenNames) => {
+  const createChannel = useCallback(() => {
+    dispatch(
+      navigationActions.navigation({
+        screen: ScreenNames.CreateChannelScreen,
+      })
+    )
+  }, [dispatch])
+
+  /**
+   * A DM is created together with its first message, so there is nothing to create here. Either the
+   * conversation already exists, in which case open it, or the composer opens with this person
+   * already chosen and the message they type is what brings the DM into being. Same path as the
+   * user profile screen's Message action.
+   */
+  const openMember = useCallback(
+    (userId: string) => {
+      if (me == null) {
+        logger.error('Cannot start a DM without knowing who I am')
+        return
+      }
+      const existing = findDmChannelWithMembers([me.userId, userId], allChannels)
       dispatch(
-        navigationActions.navigation({
-          screen,
+        publicChannels.actions.setCurrentChannel({
+          channelId: existing?.id ?? '',
         })
       )
+      dispatch(
+        publicChannels.actions.setNewMessageOpen({
+          isOpen: existing == null,
+          recipientIds: existing == null ? [userId] : undefined,
+        })
+      )
+      dispatch(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
     },
-    [dispatch]
+    [dispatch, me, allChannels]
   )
 
-  const community = useSelector(communities.selectors.currentCommunity)
+  const channels: CommunityHomeChannel[] = channelsStatusSorted.map(status => ({
+    id: status.id,
+    name: status.name,
+    isPublic: status.public ?? true,
+    unread: status.unread,
+  }))
 
-  const channelsStatus = useSelector(publicChannels.selectors.channelsStatus)
-
-  const userProfiles = useSelector(users.selectors.userProfiles)
-
-  const me = useSelector(users.selectors.myUserProfile)
-
-  const isUserConnected = useSelector(connection.selectors.isUserConnected)
-  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
-
-  const dmChannels = useSelector(publicChannels.selectors.sortedDmChannels)
-
-  const channels = useSelector(publicChannels.selectors.sortedChannels)
-
-  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
-
-  useEffect(() => {
-    const newChannelTiles: ChannelTileProps[] = []
-    const newDmTitles: ChannelTileProps[] = []
-    channels.forEach(channel => {
-      if (channel.type === ChannelType.CHANNEL) {
-        const status = channelsStatus[channel.id]
-        const tile: ChannelTileProps = {
-          name: channel.displayedName ?? channel.name,
-          isPublic: channel.public ?? true,
-          id: channel.id,
-          unread: status?.unread ?? false,
-          channelType: ChannelType.CHANNEL,
-          redirect,
-        }
-        newChannelTiles.push(tile)
-      }
-    })
-    dmChannels.forEach(channel => {
-      const status = channelsStatus[channel.id]
-      const representativeUserData = getUserData(channel, isUserConnected, isTorInitialized, userProfiles, me)
-      const tile: ChannelTileProps = {
-        name: channel.displayedName,
-        isPublic: false,
-        id: channel.id,
-        unread: status?.unread ?? false,
-        channelType: ChannelType.DM,
-        representativeUserData,
-        channel,
-        redirect,
-        me,
-      }
-      newDmTitles.push(tile)
-    })
-    setChannelTiles(newChannelTiles)
-    setDmTiles(newDmTitles)
-  }, [channelsStatus, isUserConnected, isTorInitialized, userProfiles, me, dmChannels, channels])
-
-  const communityContextMenu = useContextMenu(MenuName.Community)
-
-  const createChannel = () => {
-    redirectOtherScreen(ScreenNames.CreateChannelScreen)
-  }
-
-  const createDm = () => {
-    redirect(EMPTY_CHANNEL_ID, true)
-  }
+  /**
+   * The community's members, as the frame of record draws them. The list
+   * includes you: it is the member list, not a list of people to message.
+   */
+  const members: CommunityHomeUser[] = useMemo(
+    () =>
+      Object.values(userProfiles ?? {})
+        .map(profile => ({
+          userId: profile.userId,
+          nickname: profile.nickname,
+          photo: profile.photo,
+          profilePhoto: profile.profilePhoto,
+          connected: isUserConnected(profile.userId),
+          isMe: me != null && me.userId === profile.userId,
+        }))
+        .sort((a, b) => a.nickname.localeCompare(b.nickname)),
+    [userProfiles, isUserConnected, me]
+  )
 
   return (
-    <AppHome
-      community={community}
-      channelTiles={channelTiles}
-      dmTiles={dmTiles}
+    <CommunityHome
+      communityName={community?.name ? capitalizeFirstLetter(community.name) : '...'}
+      channels={channels}
+      users={members}
+      canCreateChannel={channelPermissions.public.create}
+      openCommunityMenu={() => communityContextMenu.handleOpen()}
+      addMembers={() => invitationContextMenu.handleOpen()}
       createChannel={createChannel}
-      canCreateChannel={channelPermissions?.public?.create ?? true}
-      createDm={createDm}
-      communityContextMenu={communityContextMenu}
-      userProfiles={userProfiles}
-      me={me}
+      openChannel={openChannel}
+      openMember={openMember}
     />
   )
 }

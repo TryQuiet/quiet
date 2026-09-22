@@ -1,6 +1,7 @@
 import { createTheme, type Theme } from '@mui/material/styles'
 import React, { useEffect, useState } from 'react'
 
+import { designComponents, overlayShadow } from './design-system/theme/components'
 import { tokens } from './design-system/tokens'
 import type { TypeStyle } from './design-system/tokens/types'
 
@@ -114,7 +115,8 @@ const buttonStyleOverrides = {
 const lightTheme = createTheme({
   typography: {
     ...typography,
-    caption: { ...typography.caption, color: '#b2b2b2' },
+    // Caption colour is the library's `Caption` fill #999999 (gray40; Input3.0 5077:43242).
+    caption: { ...typography.caption, color: '#999999' },
   },
   space,
   palette: {
@@ -155,6 +157,7 @@ const lightTheme = createTheme({
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#1B6FEC', // Used in a variety of places - likely wants to be split / consolidated
+      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link (2811:2601, 2932:3707); mobile palette `blue`
       // Reds
       red: '#FF0000', // Replace with D13135 ?
       hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
@@ -162,6 +165,8 @@ const lightTheme = createTheme({
       // Grays (including white and black)
       white: '#FFFFFF',
       trueBlack: '#000000', // To be replaced with text color and border color
+      ink: '#222222', // The library's text colour (fill of its text nodes) and the Tooltip-content fill (3490:10102)
+      error10: '#FAEAEB', // The library's 'Light/Error 10' fill style (error banners)
       gray: '#e7e7e7',
       darkGray: '#7F7F7F',
       mediumGray: '#8d8d8d',
@@ -170,6 +175,7 @@ const lightTheme = createTheme({
       gray30: '#FAFAFA', // Unused and not aligned with Figma
       gray40: '#999999',
       gray50: '#7F7F7F',
+      gray60: '#767676', // "No linked devices" (2811:2575)
       gray70: '#4C4C4C',
       // The body ink of the onboarding frames (e.g. Want a server? 2922:10009), which mobile
       // calls typography.gray90. Inverted in the dark theme below so text stays legible.
@@ -177,6 +183,7 @@ const lightTheme = createTheme({
       // Border colors
       border01: '#F0F0F0',
       border02: '#B3B3B3',
+      border04: '#E5E5E5', // The library's bordered group / card (Link devices 2811:2575)
       border03: '#D2D2D2',
       // The hairline around the library's light-purple pills (Want a server? 2922:10009).
       borderLightPurple: '#ECDCF5',
@@ -187,7 +194,7 @@ const lightTheme = createTheme({
       sidebarSelected: '#FFFFFF33',
       sidebarHover: '#FFFFFF0C',
       // Status colors
-      statusGreen: '#9BD174', // Grass Green - for online status
+      statusGreen: '#80B857', // The library's 'Core/Grass Green' - the Online indicator fill (4610:17230)
     },
   },
   componentSizes: {
@@ -227,8 +234,8 @@ const lightTheme = createTheme({
     '0px 1px 3px rgba(0, 0, 0, 0.0)',
     '0px 2px 25px rgba(0, 0, 0, 0.2)',
     '0px 1px 12px rgba(0, 0, 0, 0.09)',
-    // From here, this is just 19 repeats until we figure out shadows
-    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    overlayShadow, // [6] the library's Overlay menu (5578:43731)
+    // From here, this is just 18 repeats until we figure out shadows
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
@@ -249,16 +256,8 @@ const lightTheme = createTheme({
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
   ],
   components: {
-    // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          fontSize: '14px',
-          lineHeight: '24px',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
+    // Inputs, tooltips, menus, dialogs and the body text: design-system/theme/components.ts.
+    ...designComponents,
     MuiSnackbarContent: {
       // Replace with atomic Snackbar component. Put styling in that file.
       styleOverrides: {
@@ -344,6 +343,7 @@ const darkTheme = createTheme({
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#59c0d5', // Used in a variety of places - likely wants to be split / consolidated
+      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link (2811:2601, 2932:3707); mobile palette `blue`
       // Reds
       red: '#FF0000', // Replace with D13135 ?
       hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
@@ -351,6 +351,8 @@ const darkTheme = createTheme({
       // Grays (including white and black)
       white: '#FFFFFF',
       trueBlack: '#000000', // To be replaced with text color and border color
+      ink: '#222222', // The library's text colour (fill of its text nodes) and the Tooltip-content fill (3490:10102)
+      error10: '#FAEAEB', // The library's 'Light/Error 10' fill style (error banners)
       gray: '#e7e7e7',
       darkGray: '#7F7F7F',
       mediumGray: '#8d8d8d',
@@ -359,12 +361,14 @@ const darkTheme = createTheme({
       gray30: '#FAFAFA', // Unused and not aligned with Figma
       gray40: '#999999',
       gray50: '#7F7F7F',
+      gray60: '#767676', // "No linked devices" (2811:2575)
       gray70: '#4C4C4C',
       // The light theme's #222222 body ink, inverted: the frames only specify the light theme.
       gray90: '#FFFFFF',
       // Border colors
       border01: '#2F2F2F',
       border02: '#B3B3B3',
+      border04: '#E5E5E5', // The library's bordered group / card (Link devices 2811:2575)
       border03: '#D2D2D2',
       // The hairline around the library's light-purple pills (Want a server? 2922:10009).
       borderLightPurple: '#ECDCF5',
@@ -373,7 +377,7 @@ const darkTheme = createTheme({
       sidebarSelected: '#FFFFFF33',
       sidebarHover: '#FFFFFF0C',
       // Status colors
-      statusGreen: '#9BD174', // Grass Green - for online status
+      statusGreen: '#80B857', // The library's 'Core/Grass Green' - the Online indicator fill (4610:17230)
     },
   },
   componentSizes: {
@@ -413,8 +417,8 @@ const darkTheme = createTheme({
     '0px 1px 3px rgba(1, 1, 1, 0.0)',
     '0px 2px 25px rgba(1, 1, 1, 0.2)',
     '0px 1px 12px rgba(255, 255, 255, 0.1)', // White shadow for floating elements in dark mode
+    overlayShadow, // [6] the library's Overlay menu (5578:43731)
     // Repeats until we design our shadows
-    '0px 0px 4px rgba(1, 1, 1, 0.25)',
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
@@ -435,16 +439,8 @@ const darkTheme = createTheme({
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
   ],
   components: {
-    // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          fontSize: '14px',
-          lineHeight: '24px',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
+    // Inputs, tooltips, menus, dialogs and the body text: design-system/theme/components.ts.
+    ...designComponents,
     MuiSnackbarContent: {
       // Replace with atomic Snackbar component. Put styling in that file.
       styleOverrides: {

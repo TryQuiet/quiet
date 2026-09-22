@@ -51,12 +51,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.bold}`]: {
-    fontWeight: 600,
+    fontWeight: 500,
   },
 
   [`& .${classes.checkboxLabel}`]: {
-    fontSize: 14,
-    lineHeight: '24px',
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
     wordBreak: 'break-word',
   },
 

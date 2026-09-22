@@ -1,8 +1,8 @@
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { NativeModules, Platform } from 'react-native'
 
-import { communities, publicChannels } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import Config from 'react-native-config'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
@@ -28,13 +28,10 @@ const logger = createLogger('CommunityContextMenu')
 export const CommunityContextMenu: FC = () => {
   const dispatch = useDispatch()
 
-  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
-
   const screen = useSelector(navigationSelectors.currentScreen)
 
   const community = useSelector(communities.selectors.currentCommunity)
   const backgroundTorEnabled = useSelector(pushNotificationsSelectors.backgroundTorEnabled)
-  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
 
   let title = '...'
   if (community?.name) {
@@ -42,8 +39,6 @@ export const CommunityContextMenu: FC = () => {
   }
 
   const communityContextMenu = useContextMenu(MenuName.Community)
-  const invitationContextMenu = useContextMenu(MenuName.Invitation)
-  const linkedDevicesContextMenu = useContextMenu(MenuName.LinkedDevices)
 
   const redirect = useCallback(
     (screen: ScreenNames) => {
@@ -56,10 +51,6 @@ export const CommunityContextMenu: FC = () => {
     [dispatch]
   )
 
-  useEffect(() => {
-    setCanCreateChannel(channelPermissions.public.create)
-  }, [channelPermissions])
-
   const toggleBackgroundTor = useCallback(async () => {
     const nextValue = !backgroundTorEnabled
 
@@ -71,9 +62,18 @@ export const CommunityContextMenu: FC = () => {
     }
   }, [backgroundTorEnabled, dispatch])
 
+  // Add members and Create channel live on the Community home card now
+  // (Figma: Community home 5446:76594); this menu keeps the rest.
   const items: ContextMenuItemProps[] = [
-    { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
-    { title: 'Linked devices', action: () => linkedDevicesContextMenu.handleOpen() },
+    // The same full-screen Link devices stage Get started opens (Device-linking file, Entry points 879:14680).
+    // Add members is not here: #3529 moved it onto the Community home card.
+    {
+      title: 'Linked devices',
+      action: () => {
+        communityContextMenu.handleClose()
+        redirect(ScreenNames.LinkDevicesScreen)
+      },
+    },
     ...(Platform.OS === 'android' && Config.QSS_ALLOWED === 'true' && community?.qssEnabled === true
       ? [
           {
@@ -86,11 +86,6 @@ export const CommunityContextMenu: FC = () => {
       : []),
     { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) },
   ]
-
-  // if you have permissions to create channels add create channel to the top of the menu
-  if (canCreateChannel) {
-    items.unshift({ title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) })
-  }
 
   if (Config.NODE_ENV !== NodeEnv.Production) {
     items.push({
@@ -111,7 +106,7 @@ export const CommunityContextMenu: FC = () => {
 
   useEffect(() => {
     communityContextMenu.handleClose()
-  }, [screen, invitationContextMenu.visible, linkedDevicesContextMenu.visible])
+  }, [screen])
 
   return <ContextMenu title={title} items={items} {...communityContextMenu} />
 }

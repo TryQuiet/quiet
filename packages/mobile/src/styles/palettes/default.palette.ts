@@ -26,12 +26,23 @@ export const defaultPalette = {
     veryLightGray: '#F0F0F0',
     grayDark: '#999999',
     gray50: '#7F7F7F',
+    gray60: '#767676', // "No linked devices" (2811:2575)
     gray70: '#4C4C4C',
     gray90: '#222222',
     white: '#ffffff',
     blue: '#2373EA',
     lightGray: '#B2B2B2',
     darkPurple: '#461863',
+    // Community home list text and glyphs (Figma: Community home 5446:76594).
+    charcoal: '#222222',
+    // Letter on the community icon tile.
+    vividPurple: '#9C00FF',
+  },
+  // Desktop theme.ts: border01 / border02 / border04
+  border: {
+    hairline: '#F0F0F0',
+    card: '#E5E5E5', // The library's bordered group / card (Link devices 2811:2575)
+    qrBox: '#B3B3B3', // qr-code-box (2811:2601)
   },
   input: {
     // Field values from the design library's "Input 2.0 base": a #B3B3B3 hairline at radius 16.
@@ -59,6 +70,8 @@ export const defaultPalette = {
     // "It's free!"); desktop holds the same value as colors.lightPurple.
     lightPurple03: '#F9EFFF',
     grassGreen: '#80B857',
+    // Community icon tile behind the community's initial.
+    paleLavender: '#F9F0FF',
     hotPink: '#E42656',
     grayBadge: '#C3C3C3',
   },

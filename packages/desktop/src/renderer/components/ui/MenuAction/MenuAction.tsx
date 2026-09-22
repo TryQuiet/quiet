@@ -19,12 +19,13 @@ const classes = {
 }
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')(() => ({
+const Root = styled('div')(({ theme }) => ({
+  // 'Overlay menu' (library 5578:43731): 16 top/bottom padding, radius 16; rows are the theme's MuiMenuItem.
   [`& .${classes.menuList}`]: {
-    paddingTop: 24,
-    paddingBottom: 24,
+    paddingTop: theme.space.lg,
+    paddingBottom: theme.space.lg,
     minWidth: 136,
-    borderRadius: 8,
+    borderRadius: 16,
   },
 
   [`& .${classes.icon}`]: {},
