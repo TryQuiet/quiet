@@ -1,10 +1,49 @@
+import '@testing-library/jest-dom'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
 
 import QRCodeComponent from './QRCode.component'
+import { QR_BOX_SIZE, QR_SIZE } from '../../../Onboarding/DisplayQrCodeComponent'
+
+/**
+ * The rules emotion emitted for an element's own classes. jsdom's CSS implementation drops the
+ * flexbox longhands and reports `flex-direction: row` for anything, so getComputedStyle cannot
+ * answer "is this centred"; the stylesheet emotion wrote can.
+ */
+const cssFor = (element: Element): string =>
+  Array.from(element.classList)
+    .flatMap(
+      name =>
+        Array.from(document.querySelectorAll('style'))
+          .map(tag => tag.textContent ?? '')
+          .join('\n')
+          .match(new RegExp(`\\.${name}\\b[^{]*\\{[^}]*\\}`, 'g')) ?? []
+    )
+    .join('\n')
 
 describe('QRCode', () => {
+  it('centres the code and its copy on the panel, as the Add members QR sheet draws them', () => {
+    const result = renderComponent(
+      <QRCodeComponent value={'https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad'} />
+    )
+
+    // The column the code and the copy share is centred, not stacked against the panel's left
+    // edge as it was before (2932:3707).
+    const surface = result.getByTestId('invitation-qr-code')
+    expect(cssFor(surface)).toContain('flex-direction:column')
+    expect(cssFor(surface)).toContain('align-items:center')
+
+    // Both lines of copy are centred within it, as the sheet draws them.
+    expect(cssFor(result.getByText('Invitation QR code'))).toContain('text-align:center')
+    expect(cssFor(result.getByText(/This community QR code is private/))).toContain('text-align:center')
+
+    // The code sits in the library's qr-code-box, the same one Link devices draws.
+    const code = result.baseElement.querySelector('svg')
+    expect(code?.getAttribute('width')).toBe(String(QR_SIZE))
+    expect(code?.parentElement).toHaveStyle({ width: `${QR_BOX_SIZE}px`, height: `${QR_BOX_SIZE}px` })
+  })
+
   it('renders component', () => {
     const result = renderComponent(
       <QRCodeComponent value={'https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad'} />
@@ -13,18 +52,19 @@ describe('QRCode', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-2pwor2-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-xnllo4-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-item QRCodecentred css-13i4rnv-MuiGrid-root"
+              data-testid="invitation-qr-code"
             >
               <div
                 class="MuiGrid-root MuiGrid-item QRCodecodeWrapper css-13i4rnv-MuiGrid-root"
               >
                 <svg
-                  height="172"
+                  height="188"
                   viewBox="0 0 37 37"
-                  width="172"
+                  width="188"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
@@ -44,7 +84,7 @@ describe('QRCode', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <h5
-                    class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-h5 QRCodetext css-g8q9rb-MuiTypography-root"
                   >
                     Invitation QR code
                   </h5>
@@ -53,7 +93,7 @@ describe('QRCode', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 QRCodetext css-1t82dwi-MuiTypography-root"
                   >
                     This community QR code is private. If it is shared with someone, they can scan it with their camera to join this community.
                   </p>
@@ -72,7 +112,7 @@ describe('QRCode', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-2pwor2-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-xnllo4-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"

@@ -17,6 +17,11 @@ const panels: Array<[SettingsModalTabName, string]> = [
     '<div data-testid="community-membership-search"><input placeholder="Search for users in your community"></div><ul data-testid="community-membership-list"></ul>',
   ],
   [SettingsModalTabName.INVITE, '<h5 data-testid="invite-a-friend">Add Members</h5>'],
+  // This line's Add members panel: the bar carries the title, so the body starts at the link.
+  [
+    SettingsModalTabName.INVITE,
+    '<h5>Your community link</h5><p data-testid="invitation-link">\u2022\u2022\u2022\u2022\u2022</p>',
+  ],
   [SettingsModalTabName.LINKED_DEVICES, '<h5 data-testid="linked-devices-title">Linked devices</h5>'],
   // This line's tab is the Link devices content, whose body carries `link-devices` and whose
   // heading is "Link devices"; released 11.x panels print the `linked-devices-title` above.

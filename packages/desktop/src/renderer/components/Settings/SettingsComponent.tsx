@@ -33,9 +33,11 @@ interface SettingsRow {
   /** Id for the panel title, where something already resolves the tab by its heading. */
   titleTestId?: string
   /**
-   * The panel prints its own heading, so the bar does not repeat it. Every panel here had its
-   * heading moved into the bar except Linked devices, which arrived from develop with the heading
-   * inside it and its own tests resolving that heading.
+   * The panel prints its own heading, so the bar does not repeat it. Linked devices is the only
+   * row that does: its body is the shared Link devices stage, whose large heading is the title
+   * wherever it is drawn (the user's no-bar-title rule, design-system/ONBOARDING.md). Every other
+   * panel's heading moved into the bar - Add members and Leave community last, which drew their
+   * own h3 under a bar already carrying the same words.
    */
   titleInPanel?: boolean
   destructive?: boolean
@@ -157,7 +159,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             heading as well; now the bar carries it and they do not repeat it. */}
             <Box data-testid={'close-tab-button-box'} width={PANEL_WIDTH}>
               <PanelHeader
-                title={currentRow?.titleInPanel ? '' : (currentRow?.title ?? 'Settings')}
+                title={currentRow?.titleInPanel ? '' : currentRow?.title ?? 'Settings'}
                 titleTestId={currentRow?.titleTestId}
                 handleClose={handleCloseTab}
                 leading={'back'}

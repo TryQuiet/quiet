@@ -25,8 +25,8 @@ describe('LeaveCommunity', () => {
     expect(result.getByTestId('leave-community-progress')).toBeTruthy()
     expect(result.getByRole('progressbar')).toBeTruthy()
     expect(result.getByTestId('actionProgressStatus').textContent).toBe('Leaving community…')
-    // The modal keeps its title and its warning.
-    expect(result.getByText('Leave community?')).toBeTruthy()
+    // The panel keeps its warning; the drawer bar, not the panel, carries the title.
+    expect(result.getByText(/You will no longer have access/)).toBeTruthy()
 
     await act(async () => {
       reject(new Error('backend failed'))
@@ -43,6 +43,22 @@ describe('LeaveCommunity', () => {
     await waitFor(() => expect(result.queryByTestId('leave-community-progress')).toBeNull())
     expect(leave).toHaveBeenCalledTimes(2)
     expect(result.queryByRole('alert')).toBeNull()
+  })
+
+  it('leaves the title to the drawer bar rather than repeating it in the panel', () => {
+    const result = renderComponent(
+      <LeaveCommunityComponent communityName='Rockets' leaveCommunity={jest.fn()} open={true} handleClose={jest.fn()} />
+    )
+
+    // The drawer bar above this panel already says "Leave community", so the panel draws no
+    // heading of its own - neither the old "Leave community?" nor any other.
+    expect(result.queryByText('Leave community?')).toBeNull()
+    expect(result.queryAllByRole('heading')).toHaveLength(0)
+
+    // The warning and both actions stay.
+    expect(result.getByText(/You will no longer have access to this community/)).toBeTruthy()
+    expect(result.getByText('Go back')).toBeTruthy()
+    expect(result.getByTestId('leave-community-button')).toBeTruthy()
   })
 
   it('leaves once however many times the button is clicked', async () => {
@@ -78,17 +94,8 @@ describe('LeaveCommunity', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container css-5wsvk4-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container css-1h5wsmg-MuiGrid-root"
           >
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitytitleContainer css-s2k0j8-MuiGrid-root"
-            >
-              <h3
-                class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
-              >
-                Leave community?
-              </h3>
-            </div>
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitydescContainer css-s2k0j8-MuiGrid-root"
             >
