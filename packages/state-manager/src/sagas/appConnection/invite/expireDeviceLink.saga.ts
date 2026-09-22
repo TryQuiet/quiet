@@ -13,7 +13,8 @@ export function* expireDeviceLinkSaga(action: PayloadAction<DeviceLinkInvite | u
   yield* delay(Math.max(0, deviceLinkInvite.expiresAt - Date.now()))
 
   const activeInvite = yield* select(connectionSelectors.deviceLinkInvite)
-  if (activeInvite?.id !== deviceLinkInvite.id || activeInvite.expiresAt !== deviceLinkInvite.expiresAt) return
+  if (!activeInvite || activeInvite.id !== deviceLinkInvite.id || activeInvite.expiresAt !== deviceLinkInvite.expiresAt)
+    return
 
   yield* put(connectionActions.setDeviceLinkInvite(undefined))
 }
