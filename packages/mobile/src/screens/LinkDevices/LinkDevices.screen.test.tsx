@@ -50,14 +50,16 @@ describe('LinkDevicesScreen', () => {
       )
     })
 
-    it('Scan QR code opens the paste step as the scanner stand-in', async () => {
+    // #3520 gave mobile a real scanner, so this row opens the camera sheet rather than the
+    // paste form. Paste link (below) is what reaches the paste form directly now.
+    it('Scan QR code opens the scanner sheet', async () => {
       const { dispatchSpy, result } = await renderScreen()
 
       fireEvent.press(result.getByTestId('link-devices-scan-qr'))
 
       expect(dispatchSpy).toHaveBeenCalledWith(
         navigationActions.navigation({
-          screen: ScreenNames.PasteInviteLinkScreen,
+          screen: ScreenNames.ScanQrCodeScreen,
           params: { variant: 'deviceLink' },
         })
       )

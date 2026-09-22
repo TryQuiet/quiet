@@ -312,9 +312,12 @@ const openLinkDevices = {
 }
 
 /**
- * The prototype draws these three frames with titled bars (2811:2575, 2811:2601,
- * 2811:2587), but each one repeats that title as its own large heading, and a
- * page with a heading gets no bar title. The bar zone stays for the back glyph.
+ * The prototype draws these frames with titled bars (2811:2575, 2811:2587), but each one
+ * repeats that title as its own large heading, and a page with a heading gets no bar
+ * title. The bar zone stays for the back glyph. Two exceptions, both covered elsewhere in
+ * this file: the scanner draws the camera rather than a heading and so keeps the bar
+ * title, and Display QR code (2811:2601) is a sheet with a close glyph and a titled bar,
+ * reachable only inside a community.
  */
 describe('Link devices — no bar title above a heading', () => {
   const header = () => screen.getByTestId('linkDevicesModalActions').closest('.Modalheader')
@@ -339,11 +342,12 @@ describe('Link devices — no bar title above a heading', () => {
     expect(header()).not.toHaveClass('ModalheaderBorder')
     expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()
 
-    // back to entry, then display (2811:2601): the bar would have said "QR code"
+    // back to entry, then the Paste link step: the bar would have said "Link devices"
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
-    await userEvent.click(await screen.findByTestId('link-devices-display-qr'))
-    expect(await screen.findByTestId('link-devices-display')).toBeVisible()
-    expect(screen.queryByText('QR code')).not.toBeInTheDocument()
+    await userEvent.click(await screen.findByTestId('link-devices-paste-link'))
+    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(screen.queryByText('Link devices')).not.toBeInTheDocument()
     expect(header()).not.toHaveClass('ModalheaderBorder')
+    expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()
   })
 })
