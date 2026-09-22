@@ -5,6 +5,7 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { dragAway, hold, holdFor, holdSteadily, release } from '../../utils/functions/pressGestures/pressGestures'
 import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import { CommunityHome } from './CommunityHome.component'
+import { LIST_TEXT_OPACITY } from './ListRow.component'
 
 import type { CommunityHomeChannel, CommunityHomeProps, CommunityHomeUser } from './CommunityHome.types'
 
@@ -30,6 +31,7 @@ const setup = (overrides: Partial<CommunityHomeProps> = {}) => {
     createChannel: jest.fn(),
     openChannel: jest.fn(),
     openMember: jest.fn(),
+    startDm: jest.fn(),
     ...overrides,
   }
   return { props, ...renderComponent(<CommunityHome {...props} />) }
@@ -57,9 +59,29 @@ describe('CommunityHome component', () => {
     expect(props.openMember).toHaveBeenCalledWith('stone-jump')
   })
 
-  it('gives the section no plus — a DM is started from the member row', () => {
-    const { queryByTestId } = setup()
-    expect(queryByTestId('New direct message')).toBeNull()
+  it('starts a conversation from the Direct messages plus', () => {
+    const { props, getByTestId } = setup()
+    fireEvent.press(getByTestId('Start dm'))
+    expect(props.startDm).toHaveBeenCalled()
+  })
+
+  // The frame draws `t-add` on both `List title` instances (Channels 6220:10615, Direct messages
+  // 6220:10876). Creating a channel is permission-gated; messaging someone is not.
+  it('keeps the Direct messages plus without the channel-creation permission', () => {
+    const { props, getByTestId, queryByTestId } = setup({ canCreateChannel: false })
+    expect(queryByTestId('Create channel')).toBeNull()
+    fireEvent.press(getByTestId('Start dm'))
+    expect(props.startDm).toHaveBeenCalled()
+  })
+
+  // The row/title ink the mobile frame specifies: #222222 at 70%, which reads as #656565 over the
+  // white card. Solid ink is wrong here, and so is the dark sidebar's white.
+  it('draws list text at the frame ink, not solid', () => {
+    const { getByText } = setup()
+    for (const label of ['Add members', 'Channels', 'general', 'Direct messages', 'StoneJump']) {
+      expect(getByText(label)).toHaveStyle({ opacity: LIST_TEXT_OPACITY, color: '#222222' })
+    }
+    expect(LIST_TEXT_OPACITY).toBe(0.7)
   })
 
   it('opens a channel by id', () => {

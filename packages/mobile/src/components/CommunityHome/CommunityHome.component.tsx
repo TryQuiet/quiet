@@ -34,6 +34,11 @@ const CARD_RADIUS = 16
  * people the frame draws under it: the community's members. Quiet has direct
  * messages now, so a member row is no longer inert — tapping one opens the
  * conversation with that person, or starts it.
+ *
+ * Both section titles carry the plus the frame draws on them (`t-add` on the
+ * `List title` instances 6220:10615 and 6220:10876). The Channels plus is
+ * withheld without the create permission; the Direct messages one never is,
+ * because everyone may start a conversation.
  */
 export const CommunityHome: FC<CommunityHomeProps> = ({
   communityName,
@@ -45,6 +50,7 @@ export const CommunityHome: FC<CommunityHomeProps> = ({
   createChannel,
   openChannel,
   openMember,
+  startDm,
 }) => {
   const loading = channels.length === 0
   const unread = channels.some(channel => channel.unread)
@@ -97,7 +103,13 @@ export const CommunityHome: FC<CommunityHomeProps> = ({
             {/* The empty community (6124:9816) draws no member section at all. */}
             {users.length > 0 && (
               <View>
-                <ListSectionTitle title='Direct messages' testID={'members_section'} />
+                <ListSectionTitle
+                  title='Direct messages'
+                  testID={'members_section'}
+                  onAdd={startDm}
+                  addTestID={'Start dm'}
+                  addAccessibilityLabel='New direct message'
+                />
                 {users.map(user => (
                   <PersonRow
                     key={user.userId}

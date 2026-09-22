@@ -5,6 +5,13 @@
 ### Fixes
 
 * Fixed "Add Members > Copy Link" not copying the invite link to the clipboard on Android 13+ [#3369](https://github.com/TryQuiet/quiet/issues/3369) — thanks @JohnieWalkerCZ!
+* Sending the first message of a new direct message no longer leaves a blank screen: the conversation the message created is the one that opens, instead of being overwritten by a late sync of the composer's recipients
+* The Channel screen returns to the community home when there is no conversation to show and none being composed, rather than drawing nothing the user cannot get off without restarting
+* Start a conversation from a plus on the Community home's Direct messages heading, as the design draws it — available to everyone, unlike creating a channel
+
+### Features
+
+* Measure the chat composer's keyboard avoidance from the keyboard's own window inset on Android, so the send and attachment controls stay above the keyboard on Android 15+, where an edge-to-edge window need not resize and the overlap could read as nothing
 
 ## [11.1.0]
 

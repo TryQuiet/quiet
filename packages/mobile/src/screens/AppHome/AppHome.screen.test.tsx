@@ -97,6 +97,23 @@ describe('Community home screen', () => {
     root?.cancel()
   })
 
+  // The frame draws `t-add` on the Direct messages title (6220:10876) just as it does on Channels
+  // (6220:10615). Starting a conversation is not permission-gated the way creating a channel is.
+  it('opens an empty composer from the Direct messages plus, with or without channel permissions', async () => {
+    const { store, root } = await prepare()
+    await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+    renderComponent(<AppHomeScreen />, store)
+
+    // No ChannelPermissions factory here, so the create-channel plus is withheld.
+    expect(screen.queryByTestId('Create channel')).toBeNull()
+    fireEvent.press(screen.getByTestId('Start dm'))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(publicChannels.actions.setNewMessageOpen({ isOpen: true }))
+
+    root?.cancel()
+  })
+
   it('opens the composer with the member chosen when there is no conversation yet', async () => {
     const { store, root } = await prepare()
     await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })

@@ -52,6 +52,12 @@ export interface CommunityHomeProps {
    * already chosen when there is no conversation yet.
    */
   openMember: (userId: string) => void
+  /**
+   * Opens the composer with nobody chosen yet, for a conversation with someone not on this list —
+   * the plus on the Direct messages title. Starting a conversation is not a permission anyone can
+   * be without, so unlike `createChannel` this is never withheld.
+   */
+  startDm: () => void
 }
 
 export interface ListRowProps {
