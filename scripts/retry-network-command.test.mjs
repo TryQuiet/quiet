@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
-import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -34,10 +34,11 @@ async function fixture(t, statuses) {
   return { dir, child, requests: () => requests, url: `http://127.0.0.1:${server.address().port}/artifact` }
 }
 
-function run(args, env = {}) {
+function run(args, env = {}, cwd) {
   return new Promise((resolve, reject) => {
     const child = spawn('bash', [retry, ...args], {
       env: { ...process.env, QUIET_NETWORK_RETRY_DELAY_SECONDS: '0', ...env },
+      cwd,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     let output = ''
@@ -47,6 +48,46 @@ function run(args, env = {}) {
     child.on('exit', (code, signal) => resolve({ code, signal, output }))
   })
 }
+
+test('bootstrap retry removes incomplete package installs after a network reset', async t => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'quiet-bootstrap-retry-'))
+  t.after(() => rm(dir, { recursive: true, force: true }))
+  const script = path.join(dir, 'bootstrap.mjs')
+  await writeFile(script, `
+    import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+    const count = existsSync('attempt') ? Number(readFileSync('attempt', 'utf8')) : 0;
+    writeFileSync('attempt', String(count + 1));
+    const moduleDir = 'packages/desktop/node_modules/bluebird';
+    if (count === 0) {
+      mkdirSync(moduleDir, { recursive: true });
+      writeFileSync(moduleDir + '/package.json', '{"main":"js/release/bluebird.js"}');
+      console.error('npm error code ECONNRESET');
+      process.exit(1);
+    }
+    if (existsSync(moduleDir)) {
+      console.error('partial dependency survived retry');
+      process.exit(2);
+    }
+    mkdirSync(moduleDir + '/js/release', { recursive: true });
+    writeFileSync(moduleDir + '/js/release/bluebird.js', 'module.exports = true');
+    console.log('bootstrap completed');
+  `)
+  const result = await run([process.execPath, script], { QUIET_NETWORK_RETRY_CLEAN_PACKAGE_MODULES: 'true' }, dir)
+  assert.equal(result.code, 0, result.output)
+  assert.ok(result.output.includes('bootstrap completed'))
+  assert.equal(await readFile(path.join(dir, 'attempt'), 'utf8'), '2')
+})
+
+test('ordinary retries leave existing package installs alone', async t => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'quiet-ordinary-retry-'))
+  t.after(() => rm(dir, { recursive: true, force: true }))
+  const partial = path.join(dir, 'packages/desktop/node_modules/bluebird/package.json')
+  await mkdir(path.dirname(partial), { recursive: true })
+  await writeFile(partial, '{}')
+  const result = await run([process.execPath, '-e', 'console.error("ECONNRESET"); process.exit(1)'], {}, dir)
+  assert.equal(result.code, 1, result.output)
+  assert.equal(await readFile(partial, 'utf8'), '{}')
+})
 
 for (const status of [429, 500, 504]) {
   test(`recovers a real HTTP ${status} download without changing arguments`, async t => {

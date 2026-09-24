@@ -18,6 +18,7 @@
     },
     "mac": {
       "icon": "./build/icon.icns",
+      "notarize": false,
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -77,7 +78,9 @@
     },
     "publish": {
       "provider": "s3",
-      "bucket": "test.quiet"
+      "bucket": "test.quiet",
+      "region": "us-east-1",
+      "forcePathStyle": true
     },
     "extraResources": [
       "tor/**/*"
@@ -90,7 +93,7 @@
   },
   "homepage": "https://github.com/TryQuiet",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "11.2.0-alpha.0",
+  "version": "11.3.0-alpha.0",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -102,8 +105,8 @@
     "distMac:local": "npm run rmDist && export SOURCE_PATH=darwin IS_LOCAL=true && npm run copyBinariesDarwin && npm run build:dev:dist && electron-builder --mac -p never -c.mac.type=development -c.mac.identity=null",
     "dist": "npm run distMac",
     "distMac": "npm run rmDist && export SOURCE_PATH=darwin && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
-    "distUbuntu": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
-    "distUbuntu:qss": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
+    "distUbuntu": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux --publish never",
+    "distUbuntu:qss": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux --publish never",
     "distwin": "npm run rmDist && export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js --fix",
@@ -131,7 +134,6 @@
     "build:renderer": "webpack --config webpack/webpack.config.renderer.dev.js",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "build:prepare": "tsc -p tsconfig.build.prepare.json",
-    "postBuild": "node scripts/postBuild.js",
     "prestart": "npm run build:main",
     "start": "npm run start:renderer",
     "start:main": "electron .",

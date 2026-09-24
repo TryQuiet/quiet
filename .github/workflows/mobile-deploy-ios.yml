@@ -16,7 +16,7 @@ jobs:
         os: [macos-26]
 
     env:
-      ENVFILE: ${{ github.event.action == 'prereleased' && '../.env.staging' || '../.env.production' }}
+      ENVFILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
 
     steps:
       - name: 'Print OS'
