@@ -1,3 +1,23 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.3.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@11.2.0-alpha.0...@quiet/mobile@11.3.0-alpha.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* **common:** decode percent-encoded file names for attachment previews ([#3500](https://github.com/TryQuiet/quiet/issues/3500)) ([81b96ab](https://github.com/TryQuiet/quiet/commit/81b96ab827ceaaaca38df7f6c948f2faa572e33e)), closes [#1701](https://github.com/TryQuiet/quiet/issues/1701)
+* drop whitespace-only text messages before sending ([#2778](https://github.com/TryQuiet/quiet/issues/2778)) ([#3508](https://github.com/TryQuiet/quiet/issues/3508)) ([3b16648](https://github.com/TryQuiet/quiet/commit/3b16648f2e0f28e42e092faedea678f35263b52c))
+* **mobile:** collapse runs of blank lines in rendered messages ([#3497](https://github.com/TryQuiet/quiet/issues/3497)) ([f130af5](https://github.com/TryQuiet/quiet/commit/f130af51e29437dbf812cc3471a756b15fd18ab7)), closes [#1618](https://github.com/TryQuiet/quiet/issues/1618)
+* **mobile:** let the message entry field scale back down ([#3506](https://github.com/TryQuiet/quiet/issues/3506)) ([883847b](https://github.com/TryQuiet/quiet/commit/883847b9c499347c45565ae990aa4293dc722981)), closes [#2655](https://github.com/TryQuiet/quiet/issues/2655)
+* **mobile:** stop list rows dimming while the list is being dragged (forward-port of [#3502](https://github.com/TryQuiet/quiet/issues/3502)) ([#3653](https://github.com/TryQuiet/quiet/issues/3653)) ([d2007b0](https://github.com/TryQuiet/quiet/commit/d2007b0396b9da777efd4fe82ce66f08980c2d99))
+
+
+
+
+
 # Changelog
 
 ## [Unreleased]

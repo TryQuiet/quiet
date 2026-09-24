@@ -1,3 +1,22 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.3.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@11.2.0-alpha.0...@quiet/desktop@11.3.0-alpha.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* **desktop:** align the sidebar community name with the channel header on Windows and Linux ([#3660](https://github.com/TryQuiet/quiet/issues/3660)) ([f117cd5](https://github.com/TryQuiet/quiet/commit/f117cd5da36c12e3a063f6aa33543929b25bf437))
+* **desktop:** close Settings when a background action switches channel ([#1349](https://github.com/TryQuiet/quiet/issues/1349)) ([#3499](https://github.com/TryQuiet/quiet/issues/3499)) ([9bf9c34](https://github.com/TryQuiet/quiet/commit/9bf9c340d6034924ed34f2c20ef722fb4dd85673))
+* **desktop:** persist and restore the main window size ([#3494](https://github.com/TryQuiet/quiet/issues/3494)) ([3880b83](https://github.com/TryQuiet/quiet/commit/3880b837e8ebad8a22bbe5d53d86af5a05e0e029)), closes [#2103](https://github.com/TryQuiet/quiet/issues/2103)
+* drop whitespace-only text messages before sending ([#2778](https://github.com/TryQuiet/quiet/issues/2778)) ([#3508](https://github.com/TryQuiet/quiet/issues/3508)) ([3b16648](https://github.com/TryQuiet/quiet/commit/3b16648f2e0f28e42e092faedea678f35263b52c))
+
+
+
+
+
 # Changelog
 
 ## [11.1.0]
