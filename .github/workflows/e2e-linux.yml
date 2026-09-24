@@ -55,6 +55,9 @@ jobs:
           cachePrefix: "e2e-crossplatform-linux"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
 
+      - name: Test S3 packaging and uploads
+        run: node --test packages/desktop/scripts/s3-publish.test.cjs
+
       - name: Test bounded Windows process-query recovery
         timeout-minutes: 2
         run: node --test packages/backend/scripts/windows-tor-processes.test.cjs

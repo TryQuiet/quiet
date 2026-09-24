@@ -183,7 +183,6 @@ jobs:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
-      CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
       - uses: actions/checkout@v5
@@ -201,6 +200,9 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
+
+      - name: Test S3 packaging and uploads
+        run: node --test packages/desktop/scripts/s3-publish.test.cjs
 
       - name: Install libfuse
         run: sudo apt install libfuse2
@@ -222,17 +224,12 @@ jobs:
           ARCH: x86_64
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
-      - name: "Calculate new checksum for electron updater"
-        run: lerna run postBuild --scope @quiet/desktop
-
-      - name: "Push electron-updater new checksum to S3"
-        uses: TryQuiet/upload-s3-action@c1c7c2268c91fbbc1293455e7b4bb2292267d2bd # master
-        with:
-          aws_key_id: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
-          aws_bucket: ${{ env.S3_BUCKET }}
-          source_dir: ${{ env.CHECKSUM_PATH }}
-          destination_dir: ''
+      # afterPack customizes the launcher before electron-builder hashes and
+      # publishes the artifact. Verify those final bytes without rewriting them.
+      - name: Verify final AppImage packaging
+        env:
+          QUIET_TEST_APPIMAGE: ${{ github.workspace }}/packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage
+        run: npm run test:packaged-appimage --prefix packages/desktop
 
       - name: Get release
         id: get_release
