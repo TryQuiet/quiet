@@ -113,6 +113,7 @@ runs:
       # Lerna otherwise discards stdout/stderr when a package lifecycle fails.
       env:
         npm_config_stdio: inherit
+        QUIET_NETWORK_RETRY_CLEAN_PACKAGE_MODULES: 'true'
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then

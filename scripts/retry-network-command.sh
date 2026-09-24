@@ -33,6 +33,15 @@ for attempt in 1 2 3; do
   if ! grep -Eiq 'Response code (408|429|5[0-9][0-9])|HTTP[^[:cntrl:]]* (408|429|5[0-9][0-9])|(^|[^A-Z])(ETIMEDOUT|ECONNRESET|EAI_AGAIN|ECONNREFUSED)([^A-Z]|$)|Downloading from https?://[^[:space:]]+ failed: timeout|java.net.SocketTimeoutException' "$retry_dir/output"; then
     exit "$result"
   fi
+  if [[ "${QUIET_NETWORK_RETRY_CLEAN_PACKAGE_MODULES:-}" == 'true' ]]; then
+    # Lerna's interrupted installs can leave package.json without its module files.
+    # A second bootstrap must start with clean package dependency trees.
+    for package_modules in packages/*/node_modules; do
+      if [[ -e "$package_modules" || -L "$package_modules" ]]; then
+        rm -rf -- "$package_modules" || exit 1
+      fi
+    done
+  fi
   echo "Dependency download failed; retrying command ($((attempt + 1))/3) in $((delay * attempt)) seconds." >&2
   sleep "$((delay * attempt))"
 done
