@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [11.3.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@11.3.0-alpha.1...@quiet/desktop@11.3.0-alpha.2) (2026-09-24)
-
-
-### Bug Fixes
-
-* use release notarization hook on macOS ([b492357](https://github.com/TryQuiet/quiet/commit/b49235754f8323dc9e46b321cfdffcfc2525dd5e))
-
-
-
-
-
 # Changelog
 
 ## [11.1.0]
