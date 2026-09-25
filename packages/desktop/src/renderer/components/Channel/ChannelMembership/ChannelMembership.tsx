@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 
 import { connection, publicChannels, users } from '@quiet/state-manager'
 import { ChannelType } from '@quiet/types'
+import { getChannelMembers } from '@quiet/common'
 
 import { useModal } from '../../../containers/hooks'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
@@ -25,16 +26,7 @@ export const ChannelMembership: FC = () => {
 
   const canManage = currentChannelPermissions?.addMembers ?? false
 
-  const members = useMemo(() => {
-    if (channel == null) return []
-    // A profile carries only the private channels it belongs to, because everyone in the community
-    // is in every public one.
-    if (channel.type === ChannelType.DM) {
-      return Object.values(userProfiles).filter(profile => channel.memberIds?.includes(profile.userId))
-    }
-    if (channel.public ?? true) return Object.values(userProfiles)
-    return Object.values(userProfiles).filter(profile => (profile.channels ?? []).includes(channel.id))
-  }, [channel, userProfiles])
+  const members = useMemo(() => getChannelMembers(channel, userProfiles), [channel, userProfiles])
 
   const openAddMembers = useCallback(() => {
     modal.handleClose() // Dismiss this panel before displaying the next
