@@ -35,3 +35,15 @@ export const getChannelMembers = (
   if (channel.public ?? true) return profiles
   return profiles.filter(profile => profile.channels?.includes(channel.id))
 }
+
+/**
+ * Who could still be added to a channel — the community minus the channel's members. Derived from
+ * getChannelMembers so the two cannot disagree about what membership means.
+ */
+export const getChannelNonMembers = (
+  channel: ChannelMembership | undefined,
+  userProfiles: Record<string, UserProfile>
+): UserProfile[] => {
+  const memberIds = new Set(getChannelMembers(channel, userProfiles).map(profile => profile.userId))
+  return Object.values(userProfiles).filter(profile => !memberIds.has(profile.userId))
+}

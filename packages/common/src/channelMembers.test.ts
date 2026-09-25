@@ -1,6 +1,6 @@
 import { ChannelType, type UserProfile } from '@quiet/types'
 
-import { getChannelMembers } from './channelMembers'
+import { getChannelMembers, getChannelNonMembers } from './channelMembers'
 
 const profile = (userId: string, channels?: string[]): UserProfile => ({ userId, nickname: userId, channels })
 
@@ -54,5 +54,34 @@ describe('getChannelMembers', () => {
 
   it('is nobody without a channel', () => {
     expect(getChannelMembers(undefined, userProfiles)).toEqual([])
+  })
+})
+
+describe('getChannelNonMembers', () => {
+  const userProfiles: Record<string, UserProfile> = {
+    alice: profile('alice', ['priv']),
+    bob: profile('bob', ['priv']),
+    carol: profile('carol', ['other']),
+    dave: profile('dave'),
+  }
+
+  it("is the community minus a private channel's members", () => {
+    expect(ids(getChannelNonMembers({ id: 'priv', public: false }, userProfiles))).toEqual(['carol', 'dave'])
+  })
+
+  it('is nobody for a public channel', () => {
+    expect(getChannelNonMembers({ id: 'general', public: true }, userProfiles)).toEqual([])
+  })
+
+  it('is the whole community for a private channel nobody lists yet', () => {
+    expect(getChannelNonMembers({ id: 'fresh', public: false }, userProfiles)).toHaveLength(4)
+  })
+
+  it('partitions the community with getChannelMembers', () => {
+    const channel = { id: 'priv', public: false }
+    const members = ids(getChannelMembers(channel, userProfiles))
+    const others = ids(getChannelNonMembers(channel, userProfiles))
+    expect([...members, ...others].sort()).toEqual(Object.keys(userProfiles).sort())
+    expect(members.filter(id => others.includes(id))).toEqual([])
   })
 })

@@ -9,7 +9,7 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import { getReduxStoreFactory, publicChannels, users } from '@quiet/state-manager'
-import { ChannelType, Identity, User, UserProfile } from '@quiet/types'
+import { ChannelType, Identity, SocketActions, User, UserProfile } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -25,6 +25,12 @@ describe('Channel header member count', () => {
 
   beforeEach(() => {
     socket = new MockedSocket()
+    // setUsers kicks off the linked-devices refresh; the mock socket has no emitWithAck, so without
+    // this the saga throws and the root saga's tasks are cancelled under the test.
+    // @ts-expect-error socket.io-mock's type has no emitWithAck
+    socket.emitWithAck = jest.fn(async (action: SocketActions) =>
+      action === SocketActions.GET_LINKED_DEVICES ? [] : undefined
+    )
     ioMock.mockImplementation(() => socket)
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
