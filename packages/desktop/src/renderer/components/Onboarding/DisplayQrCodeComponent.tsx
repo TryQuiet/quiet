@@ -154,13 +154,14 @@ export const DISPLAY_QR_CODE_COPY = {
   /** No community to mint a link from (#3400's copy; the frames draw no such state). */
   unavailable: 'Device link unavailable',
   /**
-   * develop's security copy, kept verbatim. It is the only place that says what the link actually
-   * is: reusable until it expires, not a one-shot code — and that expiry does not take back keys
-   * a linked device already holds. The frames have no such paragraph, and dropping it would leave
-   * people to guess at the risk.
+   * develop's security copy. It is the only place that says what the code actually is: reusable
+   * until it expires, not a one-shot code — and that expiry does not take back keys a linked
+   * device already holds. The frames have no such paragraph, and dropping it would leave people
+   * to guess at the risk. It opens "This QR code", not "This link": the sheet shows the code and
+   * never the link (user decision, #3690).
    */
   security:
-    'This link can be used by more than one device until it expires after 30 minutes. Anyone who keeps the link and a copy of the community history may retain historical encryption keys after it expires or is revoked.',
+    'This QR code can be used by more than one device until it expires after 30 minutes. Anyone who keeps the link and a copy of the community history may retain historical encryption keys after it expires or is revoked.',
 } as const
 
 export interface DisplayQrCodeComponentProps {
