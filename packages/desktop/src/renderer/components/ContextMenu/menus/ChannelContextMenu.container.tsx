@@ -15,7 +15,7 @@ import { exportChats } from '../../../../utils/functions/exportMessages'
 import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
 import { ChannelType, PublicChannelStorage, UserProfile } from '@quiet/types'
 import DMProfilePhoto from '../../widgets/channels/DMProfilePhoto'
-import { isDefined } from '@quiet/common'
+import { getChannelMembers, isDefined } from '@quiet/common'
 import {
   MEMBERS_IN_CHANNEL_TITLE,
   MEMBERS_IN_DM_TITLE,
@@ -37,16 +37,7 @@ export const ChannelContextMenu: FC = () => {
     title = `${channel.displayedName}`
   }
 
-  // A profile carries only the private channels it belongs to, because everyone in the community
-  // is in every public one — so a public channel's membership is the whole community.
-  const memberCount = useMemo(() => {
-    if (channel == null) return 0
-    if (channel.type === ChannelType.DM) {
-      return Object.values(userProfiles).filter(profile => channel.memberIds?.includes(profile.userId)).length
-    }
-    if (channel.public ?? true) return Object.values(userProfiles).length
-    return Object.values(userProfiles).filter(profile => (profile.channels ?? []).includes(channel.id)).length
-  }, [channel, userProfiles])
+  const memberCount = useMemo(() => getChannelMembers(channel, userProfiles).length, [channel, userProfiles])
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
 
