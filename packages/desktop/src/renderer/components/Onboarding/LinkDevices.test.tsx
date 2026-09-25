@@ -23,7 +23,6 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { qrImageData } from '../../testUtils/qrImage'
 import { cameraError, mockCamera } from '../../testUtils/mockCamera'
 import { getReduxStoreFactory } from '@quiet/state-manager'
-import { DISPLAY_QR_CODE_COPY } from './DisplayQrCodeComponent'
 import { StoreKeys } from '../../store/store.keys'
 import { SocketState } from '../../sagas/socket/socket.slice'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -244,7 +243,7 @@ describe('Link devices → Paste link', () => {
   })
 })
 
-describe('Link devices → Display QR code', () => {
+describe('Link devices without a community', () => {
   it('without a community this device receives: Scan QR code and Paste link, no share rows', async () => {
     const { store } = await prepareStore(openState())
 
@@ -258,55 +257,6 @@ describe('Link devices → Display QR code', () => {
     // (TryQuiet/quiet#3636); the list belongs to the share direction.
     expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
     expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
-  })
-
-  it('inside a community it opens the QR code sheet, mints a link, and close returns to Link devices', async () => {
-    const { store } = await prepareStore(openState())
-    const factory = await getReduxStoreFactory(store)
-    const community = await factory.create('Community', { name: 'devices' })
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    const dispatchSpy = jest.spyOn(store, 'dispatch')
-
-    renderComponent(<LinkDevices />, store)
-
-    await userEvent.click(screen.getByTestId('link-devices-display-qr'))
-    expect(await screen.findByTestId('link-devices-display-box')).toBeVisible()
-    // No bar title (#3690, user decision): the bar zone keeps only the close glyph.
-    expect(screen.queryByText('QR code')).not.toBeInTheDocument()
-    expect(screen.getByText(DISPLAY_QR_CODE_COPY.scan)).toBeVisible()
-    expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
-    expect(screen.queryByTestId('linkDevicesModalBack')).not.toBeInTheDocument()
-
-    await userEvent.click(screen.getByTestId('linkDevicesModalClose'))
-    expect(await screen.findByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })).toBeVisible()
-    expect(dispatchSpy).not.toHaveBeenCalledWith(modalsActions.closeModal(ModalName.linkDevicesModal))
-  })
-
-  it('opened straight at the QR sheet (from Settings), close leaves the modal instead of showing the rows', async () => {
-    const { store } = await prepareStore({
-      ...openState(),
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.linkDevicesModal]: { open: true, args: { step: 'display' } },
-        [ModalName.loadingPanel]: { open: false },
-      },
-    })
-    const factory = await getReduxStoreFactory(store)
-    const community = await factory.create('Community', { name: 'devices' })
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    const dispatchSpy = jest.spyOn(store, 'dispatch')
-
-    renderComponent(<LinkDevices />, store)
-
-    expect(await screen.findByTestId('link-devices-display-box')).toBeVisible()
-    expect(screen.queryByText('QR code')).not.toBeInTheDocument()
-    expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
-
-    await userEvent.click(screen.getByTestId('linkDevicesModalClose'))
-    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.closeModal(ModalName.linkDevicesModal))
-    expect(dispatchSpy).not.toHaveBeenCalledWith(
-      modalsActions.openModal({ name: ModalName.getStartedModal, args: undefined })
-    )
   })
 })
 
@@ -324,10 +274,9 @@ const openLinkDevices = {
 /**
  * The prototype draws these frames with titled bars (2811:2575, 2811:2587), but each one
  * repeats that title as its own large heading, and a page with a heading gets no bar
- * title. The bar zone stays for the back glyph. Two exceptions, both covered elsewhere in
+ * title. The bar zone stays for the back glyph. One exception, covered elsewhere in
  * this file: the scanner draws the camera rather than a heading and so keeps the bar
- * title, and Display QR code (2811:2601) is a sheet with a close glyph and no bar title
- * (#3690), reachable only inside a community.
+ * title. Display QR code is not a step here: it lives in Settings → Linked devices (#3690).
  */
 describe('Link devices — no bar title above a heading', () => {
   const header = () => screen.getByTestId('linkDevicesModalActions').closest('.Modalheader')

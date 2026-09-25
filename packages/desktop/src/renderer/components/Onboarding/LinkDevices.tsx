@@ -16,7 +16,6 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
 import { ConfirmationToast } from '../ui/ConfirmationToast/ConfirmationToast'
-import { DisplayQrCode } from './DisplayQrCode'
 import { LinkDevicesComponent } from './LinkDevicesComponent'
 import { useCopyDeviceLink } from './useCopyDeviceLink'
 import { PasteLinkComponent } from './PasteLinkComponent'
@@ -27,7 +26,7 @@ import { PASTE_LINK_HEADING, SCAN_QR_CODE_HEADING, SCAN_QR_CODE_INTRO } from '@q
 const logger = createLogger('LinkDevices')
 
 /** `paste` is the scanner's fallback (back returns to the camera); `pasteLink` is the Paste link row's (back returns here). */
-export type LinkDevicesStep = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
+export type LinkDevicesStep = 'entry' | 'scan' | 'paste' | 'pasteLink'
 type Step = LinkDevicesStep
 
 /** Settings → Linked devices opens the modal straight at a row's step; back / close from there leave the modal. */
@@ -41,8 +40,7 @@ export interface LinkDevicesModalArgs {
  * Only the camera sheet keeps a titled bar (2811:2587 "Scan QR code"). Link devices and the
  * paste step are full-screen h1 stages: the frames hide the bar's title (the Device-linking
  * desktop frame 879:20987 draws dots, arrow, then the h1) — only the glyph, the h1 is the
- * title. The QR code sheet (2811:2601) is drawn titled, but the code needs no caption (user
- * decision, #3690): its bar zone keeps only the close glyph.
+ * title.
  */
 const TITLED_STEPS: Partial<Record<Step, string>> = {
   scan: SCAN_QR_CODE_HEADING,
@@ -53,9 +51,11 @@ const PASTE_STEPS: Step[] = ['paste', 'pasteLink']
 /**
  * Link devices, reached from Get started (receive: "Scan QR code" opens the camera
  * and offers the paste field when it cannot, "Paste link" opens that field directly;
- * pasted here only a device link is accepted) and, inside a community, from Settings
- * (share: "Display QR code" shows the QR code sheet 2811:2601, whose close returns
- * here; "Copy link" copies the same link and confirms).
+ * pasted here only a device link is accepted) and, inside a community, from Settings →
+ * Linked devices, which opens it at a step. The share direction — Display QR code and
+ * Copy link — lives in that Settings panel, the QR code one level down in it (#3690), so
+ * this modal never draws the QR code: showing one needs a community, and every way into
+ * the modal with a community opens it at a step.
  *
  * Whichever way a device link arrives — scanned or pasted — linking hands the other
  * device this account, so it goes through the consent sheet rather than starting on
@@ -147,18 +147,14 @@ export const LinkDevices: React.FC = () => {
     setPendingDeviceInvite(null)
   }
 
-  // The QR code sheet (2811:2601) has a close glyph, not a back arrow; closing it reveals Link devices —
-  // or, opened straight at the sheet from Settings, leaves the modal.
-  const isSheet = step === 'display'
-
   return (
     <>
       <Modal
         open={linkDevicesModal.open}
-        handleClose={isSheet && step !== initialStep ? () => setStep('entry') : leave}
+        handleClose={leave}
         title={TITLED_STEPS[step] ?? ''}
         withoutTitle={!TITLED_STEPS[step]}
-        canGoBack={!isSheet}
+        canGoBack
         handleBack={handleBack}
         alignCloseLeft
         contentWidth={'100%'}
@@ -169,7 +165,6 @@ export const LinkDevices: React.FC = () => {
           <>
             <LinkDevicesComponent
               direction={direction}
-              onDisplayQrCode={() => setStep('display')}
               deviceLink={copyLink.deviceLink}
               onCopyLink={copyLink.onCopyLink}
               onLinkCopied={copyLink.onLinkCopied}
@@ -180,7 +175,6 @@ export const LinkDevices: React.FC = () => {
             <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
           </>
         ) : null}
-        {step === 'display' ? <DisplayQrCode dataTestId='link-devices-display' /> : null}
         {step === 'scan' ? (
           <QrScannerComponent
             intro={SCAN_QR_CODE_INTRO}

@@ -78,19 +78,20 @@ describe('Settings → Linked devices', () => {
     expect(result.getByTestId('no-linked-devices')).toHaveTextContent('No linked devices')
   })
 
-  it('Display QR code opens the Link devices modal straight at the QR sheet', async () => {
+  it('Display QR code opens the QR code one level down in this panel, not a modal', async () => {
     const { store } = await prepareStore()
     const factory = await getReduxStoreFactory(store)
     const community = await factory.create('Community', { name: 'devices' })
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
     const dispatch = jest.spyOn(store, 'dispatch')
+    const openTab = jest.fn()
 
-    const result = renderComponent(<LinkedDevices />, store)
+    const result = renderComponent(<LinkedDevices openTab={openTab} />, store)
+    dispatch.mockClear()
 
     await userEvent.click(result.getByTestId('link-devices-display-qr'))
-    expect(dispatch).toHaveBeenCalledWith(
-      modalsActions.openModal({ name: ModalName.linkDevicesModal, args: { step: 'display' } })
-    )
+    expect(openTab).toHaveBeenCalledWith('linkedDevicesQr')
+    expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: modalsActions.openModal.type }))
   })
 
   it('Copy link before the link exists asks for one; with a link it copies and confirms', async () => {

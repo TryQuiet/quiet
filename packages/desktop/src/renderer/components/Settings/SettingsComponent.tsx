@@ -44,6 +44,11 @@ interface SettingsRow {
    */
   titleInPanel?: boolean
   destructive?: boolean
+  /**
+   * A page one level below another tab, with no row in the menu: it is opened from inside its
+   * parent's panel, and its back arrow returns there rather than to the menu.
+   */
+  parent?: string
 }
 
 const SETTINGS_ROWS: SettingsRow[] = [
@@ -63,6 +68,18 @@ const SETTINGS_ROWS: SettingsRow[] = [
     title: 'Linked devices',
     testId: 'linked-devices-settings-tab',
     titleInPanel: true,
+  },
+  /**
+   * Linked devices → Display QR code: the device-link QR drawn in the panel, as the invite QR
+   * code is under QR Code, rather than a full-window sheet (#3690). No bar title — the code needs
+   * no caption (user decision) — so the row's title only names the dialog.
+   */
+  {
+    tab: 'linkedDevicesQr',
+    title: 'Linked devices QR code',
+    testId: 'linked-devices-qr-settings-tab',
+    titleInPanel: true,
+    parent: 'linkedDevices',
   },
   { tab: 'leaveCommunity', title: 'Leave community', testId: 'leave-community-settings-tab', destructive: true },
 ]
@@ -102,7 +119,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   }
 
   const handleCloseTab = () => {
-    setCurrentTab('')
+    setCurrentTab(SETTINGS_ROWS.find(row => row.tab === currentTab)?.parent ?? '')
   }
 
   // Dismissing the whole panel forgets which tab was open, so it reopens at the menu.
@@ -151,7 +168,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               leading={'close'}
               closeTestId={'close-settings-button'}
             />
-            {SETTINGS_ROWS.map(row => (
+            {SETTINGS_ROWS.filter(row => !row.parent).map(row => (
               <PanelRow
                 key={row.tab}
                 title={row.title}
@@ -186,7 +203,9 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               />
             </Box>
             <Box p={2} width={375}>
-              {TabComponent && <TabComponent handleClose={handleCloseTab} currentTab={currentTab} />}
+              {TabComponent && (
+                <TabComponent handleClose={handleCloseTab} currentTab={currentTab} openTab={handleChange} />
+              )}
             </Box>
           </>
         )}

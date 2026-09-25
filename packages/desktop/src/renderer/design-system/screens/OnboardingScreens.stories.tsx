@@ -614,10 +614,10 @@ export const PasteLinkNotADeviceLink = () => (
   </SubmitOnMount>
 )
 
-// The QR code sheet: a sheet with a close glyph. It draws no heading of its own, and its
-// bar title goes too (#3690, user decision) — the code needs no caption.
+// The QR code. Drawn here in the onboarding shell for comparison with the frame; the app
+// draws it in the Settings panel (#3690). No bar title — the code needs no caption.
 const QR_CODE_NOTE =
-  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence per 2811:2601 / desktop 880:17427 (its Reset QR code link is not drawn, #3690); the box shrinks on a short window so the copy stays on screen, the code snapped to whole device pixels a module where it would otherwise stop scanning; develop’s security paragraph is below the sentence; no action — the raw link is never shown, and Link devices’ own Copy link row copies it (#3690); the generating (ActionProgress, #3518) / unavailable states have no frame'
+  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence per 2811:2601 / desktop 880:17427, and the fine print (user’s copy, #3690). On desktop this is drawn one level down in the Settings panel under Linked devices, like the invite QR code, not as a full-window sheet (#3690): the panel scrolls. No action — the raw link is never shown and Linked devices’ own Copy link row copies it; no Reset QR code; no bar title. The generating (ActionProgress, #3518) / unavailable states have no frame'
 
 export const DisplayQrCode = () => (
   <Screen
