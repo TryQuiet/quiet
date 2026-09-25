@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.3.0-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@11.3.0-alpha.2...@quiet/desktop@11.3.0-alpha.3) (2026-09-25)
+
+
+### Bug Fixes
+
+* **desktop:** Link devices QR code in the Settings panel; full-window Agree & join ([#3690](https://github.com/TryQuiet/quiet/issues/3690)) ([#3693](https://github.com/TryQuiet/quiet/issues/3693)) ([66b931c](https://github.com/TryQuiet/quiet/commit/66b931cdb9347a93ef46c8074b5203af62554821))
+
+
+
+
+
 # Changelog
 
 ## [11.1.0]
