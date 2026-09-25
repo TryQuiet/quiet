@@ -77,7 +77,7 @@ describe('Search Modal', () => {
             aria-hidden="true"
           />
           <div
-            class="MuiModal-root css-gsaxwv-MuiModal-root"
+            class="MuiModal-root css-g2hgk7-MuiModal-root"
             data-testid="searchChannelModal"
             role="presentation"
           >

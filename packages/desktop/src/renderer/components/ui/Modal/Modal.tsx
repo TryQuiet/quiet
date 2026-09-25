@@ -81,14 +81,20 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
     background: theme.palette.background.default,
   },
 
+  // The body is exactly the window under the bar, so a step taller than the window scrolls
+  // inside it rather than running off the bottom where nothing can reach it (#3690).
   [`& .${classes.fullPage}`]: {
     width: '100%',
     height: `calc(100vh - ${constants.headerHeight}px)`,
+    overflowX: 'hidden',
+    overflowY: 'auto',
   },
 
   [`& .${classes.withoutHeader}`]: {
     width: '100%',
     height: '100dvh',
+    overflowX: 'hidden',
+    overflowY: 'auto',
   },
 
   [`& .${classes.notFullPage}`]: {

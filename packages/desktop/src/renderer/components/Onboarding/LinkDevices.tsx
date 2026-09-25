@@ -38,13 +38,13 @@ export interface LinkDevicesModalArgs {
 }
 
 /**
- * Only the sheets keep a titled bar (2811:2601 "QR code", 2811:2587 "Scan QR code").
- * Link devices and the paste step are full-screen h1 stages: the frames hide the bar's
- * title (the Device-linking desktop frame 879:20987 draws dots, arrow, then the h1) —
- * only the glyph, the h1 is the title.
+ * Only the camera sheet keeps a titled bar (2811:2587 "Scan QR code"). Link devices and the
+ * paste step are full-screen h1 stages: the frames hide the bar's title (the Device-linking
+ * desktop frame 879:20987 draws dots, arrow, then the h1) — only the glyph, the h1 is the
+ * title. The QR code sheet (2811:2601) is drawn titled, but the code needs no caption (user
+ * decision, #3690): its bar zone keeps only the close glyph.
  */
 const TITLED_STEPS: Partial<Record<Step, string>> = {
-  display: 'QR code',
   scan: SCAN_QR_CODE_HEADING,
 }
 

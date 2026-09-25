@@ -270,8 +270,9 @@ describe('Link devices → Display QR code', () => {
     renderComponent(<LinkDevices />, store)
 
     await userEvent.click(screen.getByTestId('link-devices-display-qr'))
-    expect(await screen.findByText('QR code')).toBeVisible() // the title bar
-    expect(screen.getByTestId('link-devices-display-box')).toBeVisible()
+    expect(await screen.findByTestId('link-devices-display-box')).toBeVisible()
+    // No bar title (#3690, user decision): the bar zone keeps only the close glyph.
+    expect(screen.queryByText('QR code')).not.toBeInTheDocument()
     expect(screen.getByText(DISPLAY_QR_CODE_COPY.scan)).toBeVisible()
     expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
     expect(screen.queryByTestId('linkDevicesModalBack')).not.toBeInTheDocument()
@@ -297,8 +298,8 @@ describe('Link devices → Display QR code', () => {
 
     renderComponent(<LinkDevices />, store)
 
-    expect(await screen.findByText('QR code')).toBeVisible()
-    expect(screen.getByTestId('link-devices-display-box')).toBeVisible()
+    expect(await screen.findByTestId('link-devices-display-box')).toBeVisible()
+    expect(screen.queryByText('QR code')).not.toBeInTheDocument()
     expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
 
     await userEvent.click(screen.getByTestId('linkDevicesModalClose'))
@@ -325,8 +326,8 @@ const openLinkDevices = {
  * repeats that title as its own large heading, and a page with a heading gets no bar
  * title. The bar zone stays for the back glyph. Two exceptions, both covered elsewhere in
  * this file: the scanner draws the camera rather than a heading and so keeps the bar
- * title, and Display QR code (2811:2601) is a sheet with a close glyph and a titled bar,
- * reachable only inside a community.
+ * title, and Display QR code (2811:2601) is a sheet with a close glyph and no bar title
+ * (#3690), reachable only inside a community.
  */
 describe('Link devices — no bar title above a heading', () => {
   const header = () => screen.getByTestId('linkDevicesModalActions').closest('.Modalheader')

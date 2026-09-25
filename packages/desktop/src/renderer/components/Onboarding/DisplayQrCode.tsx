@@ -7,12 +7,11 @@ import { DisplayQrCodeComponent } from './DisplayQrCodeComponent'
 
 /**
  * Mints a device link when there is none to show (a link can only be minted from inside a
- * community) and again on Reset QR code. Used by Link devices → Display QR code and by
- * Settings → Linked devices.
+ * community). Used by Link devices → Display QR code and by Settings → Linked devices.
  *
  * A device link is reusable until it expires, so opening this surface does not throw the current
  * one away — that would invalidate a link the user had already sent to their other device. An
- * unexpired invite is shown again; Reset QR code is the deliberate way to mint another.
+ * unexpired invite is shown again; an expired one is replaced.
  */
 export const DisplayQrCode: React.FC<{ dataTestId?: string }> = ({ dataTestId }) => {
   const dispatch = useDispatch()
@@ -35,10 +34,6 @@ export const DisplayQrCode: React.FC<{ dataTestId?: string }> = ({ dataTestId })
     <DisplayQrCodeComponent
       deviceLink={deviceLink}
       isLoading={!deviceLinkInvite && canMintLink}
-      onReset={() => {
-        dispatch(connection.actions.setDeviceLinkInvite(undefined))
-        dispatch(connection.actions.createDeviceLink())
-      }}
       dataTestId={dataTestId}
     />
   )

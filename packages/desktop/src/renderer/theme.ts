@@ -157,7 +157,7 @@ const lightTheme = createTheme({
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#1B6FEC', // Used in a variety of places - likely wants to be split / consolidated
-      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link (2811:2601, 2932:3707); mobile palette `blue`
+      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link in the frames (2811:2601, 2932:3707; not drawn on desktop, #3690); mobile palette `blue`
       // Reds
       red: '#FF0000', // Replace with D13135 ?
       hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
@@ -343,7 +343,7 @@ const darkTheme = createTheme({
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#59c0d5', // Used in a variety of places - likely wants to be split / consolidated
-      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link (2811:2601, 2932:3707); mobile palette `blue`
+      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link in the frames (2811:2601, 2932:3707; not drawn on desktop, #3690); mobile palette `blue`
       // Reds
       red: '#FF0000', // Replace with D13135 ?
       hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
