@@ -10,7 +10,7 @@ import type { InvitationData } from '@quiet/types'
 
 import { lightTheme } from '../../theme'
 import Modal from '../ui/Modal/Modal'
-import { DisplayQrCodeComponent, QR_BOX_SIZE, QR_SHEET_COMPACT_BELOW } from './DisplayQrCodeComponent'
+import { DisplayQrCodeComponent, QR_BOX_SIZE } from './DisplayQrCodeComponent'
 import { LinkDevicesComponent } from './LinkDevicesComponent'
 import { decodeQrImage } from './qrScanner/decodeQr'
 
@@ -84,7 +84,7 @@ const decodeRenderedCode = (svg: SVGSVGElement): Promise<string | null> =>
 
 describe('Link devices QR sheet fits the window (#3690)', () => {
   WINDOWS.forEach(([width, height]) => {
-    it(`at ${width}x${height} the copy is on screen, the code still reads, and the box keeps the design size where it fits`, () => {
+    it(`at ${width}x${height} the whole sheet is on screen, the code still reads, and the box keeps the design size where it fits`, () => {
       cy.viewport(width, height)
       mount(
         <Step>
@@ -96,23 +96,15 @@ describe('Link devices QR sheet fits the window (#3690)', () => {
       bottomOf('[data-testid="sheet-security"]').should('be.at.most', height)
       cy.contains('Scan this from').should('be.visible')
 
+      // The design's box wherever it fits (the issue's 462 window included); on the 400 minimum it gives way.
       cy.get('[data-testid="sheet-box"]').then($box => {
         const box = $box[0].getBoundingClientRect().width
-        // Where the sheet fits as designed the box is the design's; on the issue's window and
-        // below it gives way. (Between the two the compact spacing may leave room for 220.)
-        if (height >= QR_SHEET_COMPACT_BELOW) expect(box).to.equal(QR_BOX_SIZE)
-        if (height <= 462) expect(box).to.be.lessThan(QR_BOX_SIZE)
+        if (height >= 462) expect(box).to.equal(QR_BOX_SIZE)
+        else expect(box).to.be.lessThan(QR_BOX_SIZE)
       })
 
-      // From the issue's window up, nothing is left below the fold: Copy link too, and no scrolling.
-      if (height >= 462) {
-        bottomOf('[data-testid="copy-device-link"]').should('be.at.most', height)
-        modalBody().should($body => expect($body[0].scrollHeight).to.be.at.most($body[0].clientHeight))
-      } else {
-        // Below that, what does not fit is reached by scrolling the Modal body.
-        modalBody().scrollTo('bottom')
-        cy.get('[data-testid="copy-device-link"]').should('be.visible')
-      }
+      // With no action under the copy, the whole sheet fits at every window size: nothing scrolls.
+      modalBody().should($body => expect($body[0].scrollHeight).to.be.at.most($body[0].clientHeight))
 
       cy.get('[data-testid="sheet-box"] svg').then($svg =>
         cy.wrap(decodeRenderedCode($svg[0] as unknown as SVGSVGElement)).should('equal', DEVICE_LINK)
@@ -120,7 +112,7 @@ describe('Link devices QR sheet fits the window (#3690)', () => {
     })
   })
 
-  it('has no bar title, only the close glyph', () => {
+  it('has no bar title, only the close glyph, and no action', () => {
     cy.viewport(800, 540)
     mount(
       <Step>
@@ -130,6 +122,7 @@ describe('Link devices QR sheet fits the window (#3690)', () => {
     cy.get('.Modalheader').should('not.contain.text', 'QR code')
     cy.get('[data-testid="fitModalClose"]').should('be.visible')
     cy.contains('Reset QR code').should('not.exist')
+    cy.contains('Copy link').should('not.exist')
   })
 })
 

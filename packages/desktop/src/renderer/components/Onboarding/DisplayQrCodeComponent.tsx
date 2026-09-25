@@ -1,12 +1,9 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import CopyToClipboard from 'react-copy-to-clipboard'
 import QR from 'react-qr-code'
 
 import { ActionProgress } from '../ui/ActionProgress/ActionProgress'
-import { ConfirmationToast } from '../ui/ConfirmationToast/ConfirmationToast'
-import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { tokens } from '../../design-system/tokens'
 import { OnboardingBody } from './OnboardingBody'
 import { ONBOARDING_BAR_ZONE_HEIGHT, ONBOARDING_STAGE_INSET } from './onboardingRhythm'
@@ -17,15 +14,12 @@ const classes = {
   box: `${PREFIX}box`,
   boxText: `${PREFIX}boxText`,
   copy: `${PREFIX}copy`,
-  button: `${PREFIX}button`,
 }
 
 /** The library's qr-code-box (5996:24052): 220 square, 1px #B3B3B3, r4, the 188 code inset 16. */
 export const QR_BOX_SIZE = 220
 export const QR_SIZE = 188
 const QR_BOX_INSET = (QR_BOX_SIZE - QR_SIZE) / 2
-/** The Add members QR sheet's primary button (2932:3707), which Copy link is drawn as. */
-const COPY_BUTTON_HEIGHT = 50
 
 /**
  * The floor for the room the sheet gives the box: the copy under the code is what must stay on
@@ -34,17 +28,16 @@ const COPY_BUTTON_HEIGHT = 50
 export const QR_BOX_MIN_SIZE = 128
 
 /**
- * Everything on the sheet but the box, top to bottom: the bar zone, the stage inset, the three
+ * Everything on the sheet but the box, top to bottom: the bar zone, the stage inset, the two
  * gaps, the two-line sentence, the four-line security copy (both at the 343 column every
- * window gets), Copy link and the column's bottom padding.
+ * window gets) and the column's bottom padding.
  */
 export const QR_SHEET_CHROME_HEIGHT =
   ONBOARDING_BAR_ZONE_HEIGHT +
   ONBOARDING_STAGE_INSET +
-  3 * tokens.semantic.lg +
+  2 * tokens.semantic.lg +
   2 * tokens.type.body.lineHeight +
   4 * tokens.type.caption.lineHeight +
-  COPY_BUTTON_HEIGHT +
   tokens.semantic.xxl
 
 /**
@@ -55,7 +48,7 @@ export const QR_SHEET_CHROME_HEIGHT =
  */
 export const QR_SHEET_COMPACT_BELOW = QR_SHEET_CHROME_HEIGHT + QR_BOX_SIZE
 const QR_SHEET_COMPACT_CHROME_HEIGHT =
-  QR_SHEET_CHROME_HEIGHT - 3 * (tokens.semantic.lg - tokens.semantic.sm) - (tokens.semantic.xxl - tokens.semantic.sm)
+  QR_SHEET_CHROME_HEIGHT - 2 * (tokens.semantic.lg - tokens.semantic.sm) - (tokens.semantic.xxl - tokens.semantic.sm)
 
 /**
  * A code drawn at a fractional number of device pixels per module aliases, and below about
@@ -77,11 +70,11 @@ export interface QrFit {
 
 /**
  * The box follows the window's height (#3690): the design's 220 wherever the whole sheet fits,
- * smaller on a shorter window so the copy and Copy link stay on screen. A shrunk code keeps at
+ * smaller on a shorter window so the copy stays on screen. A shrunk code keeps at
  * least SMOOTH_MIN_DEVICE_PX_PER_MODULE, or is snapped to whole device pixels per module: down
  * when the room allows two or more, up to two when it does not. A code that cannot be scanned is
- * no use, so on the shortest windows at 1x the box can take more than its room (170 on a 400
- * window) — the copy stays on screen and Copy link is reached by scrolling.
+ * no use, so where the room allows less than two the box takes more than its room and the Modal
+ * body scrolls for the rest.
  * `modules` is the code's side in modules; unknown, the box simply fills its room.
  */
 export const fitQrBox = (windowHeight: number, devicePixelRatio: number, modules?: number): QrFit => {
@@ -128,7 +121,7 @@ const Root = styled('div')(({ theme }) => ({
   [`@media (max-height: ${QR_SHEET_COMPACT_BELOW - 1}px)`]: {
     gap: theme.space.sm,
     // OnboardingBody's bottom padding is the column's, not this element's; the negative margin
-    // leaves `sm` of it under Copy link rather than scrolling the rest into view.
+    // leaves `sm` of it under the copy rather than scrolling the rest into view.
     marginBottom: theme.space.sm - theme.space.xxl,
   },
   [`& .${classes.box}`]: {
@@ -151,27 +144,11 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.copy}`]: {
     textAlign: 'center',
   },
-  // The Add members QR sheet's primary button (2932:3707 "Button"): 50 tall, r16, padding 20, hug width, 16/26 label.
-  [`& .${classes.button}`]: {
-    minWidth: 0,
-    maxWidth: 'none',
-    height: COPY_BUTTON_HEIGHT,
-    padding: `${theme.space.md}px 20px`,
-    borderRadius: 16,
-    backgroundColor: theme.palette.colors.quietBlue,
-    color: theme.palette.colors.white,
-    textTransform: 'none',
-    fontSize: 16,
-    fontWeight: 400,
-  },
 }))
 
 /** Sheet copy (2811:2601), verbatim. */
 export const DISPLAY_QR_CODE_COPY = {
   scan: 'Scan this from “Link devices” on another device to link the devices.',
-  copyLink: 'Copy link',
-  /** The confirmation after Copy link. Not in a frame. */
-  copied: 'Link copied',
   /** While the backend mints the link (#3400's copy; the frames draw no such state) — the ActionProgress status line. */
   generating: 'Generating device link…',
   /** No community to mint a link from (#3400's copy; the frames draw no such state). */
@@ -195,20 +172,17 @@ export interface DisplayQrCodeComponentProps {
 
 /**
  * Link devices — QR code (2811:2601; desktop 880:17427): the QR in the designed box, the
- * sheet's sentence, then — the user's decision (2026-09-13), in the slot the Add members
- * QR sheet gives its primary button — Copy link. The frame's Reset QR code link is not
- * drawn (user decision, #3690). The raw link is never shown; Copy link puts it on the
- * clipboard and confirms briefly.
- * While the link is minted the actions give way to the library's progress bar with the
- * status line (ActionProgress, #3518's rule: never a greyed-out button); without a
- * community there is nothing to act on, so the box says so and no action is drawn.
+ * sheet's sentence and the security copy, and no action. The raw link is never shown; the
+ * Link devices screen's own Copy link row is how it is copied, so the sheet does not repeat
+ * it, and the frame's Reset QR code link is not drawn either (user decisions, #3690).
+ * While the link is minted the library's progress bar shows with the status line
+ * (ActionProgress, #3518); without a community the box says there is no link.
  */
 export const DisplayQrCodeComponent: React.FC<DisplayQrCodeComponentProps> = ({
   deviceLink,
   isLoading,
   dataTestId = 'display-qr-code',
 }) => {
-  const [copied, setCopied] = useState(false)
   const ready = Boolean(deviceLink)
   const boxRef = useRef<HTMLDivElement>(null)
   // The code's side in modules is its viewBox; react-qr-code says it nowhere else.
@@ -251,25 +225,7 @@ export const DisplayQrCodeComponent: React.FC<DisplayQrCodeComponentProps> = ({
         {isLoading && !ready ? (
           <ActionProgress status={DISPLAY_QR_CODE_COPY.generating} data-testid={`${dataTestId}-progress`} />
         ) : null}
-        {ready ? (
-          <CopyToClipboard text={deviceLink} onCopy={() => setCopied(true)}>
-            <LoadingButton
-              variant='contained'
-              size='small'
-              color='primary'
-              text={DISPLAY_QR_CODE_COPY.copyLink}
-              classes={{ button: classes.button }}
-              data-testid='copy-device-link'
-            />
-          </CopyToClipboard>
-        ) : null}
       </Root>
-      <ConfirmationToast
-        open={copied}
-        message={DISPLAY_QR_CODE_COPY.copied}
-        onClose={() => setCopied(false)}
-        data-testid='link-copied'
-      />
     </OnboardingBody>
   )
 }

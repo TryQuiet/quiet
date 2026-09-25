@@ -506,7 +506,7 @@ export const LinkDevices = () => (
     title='Link devices · in a community (share)'
     droppedBar={LINK_DEVICES_HEADING}
     figma='2811:2575'
-    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same link the QR sheet shows), the receive rows are not drawn`}
+    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same link the QR sheet shows, and the only place it is copied), the receive rows are not drawn`}
     render={() => (
       <LinkDevicesComponent
         direction='share'
@@ -617,7 +617,7 @@ export const PasteLinkNotADeviceLink = () => (
 // The QR code sheet: a sheet with a close glyph. It draws no heading of its own, and its
 // bar title goes too (#3690, user decision) — the code needs no caption.
 const QR_CODE_NOTE =
-  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence per 2811:2601 / desktop 880:17427 (its Reset QR code link is not drawn, #3690); the box shrinks on a short window so the copy stays on screen, the code snapped to whole device pixels a module where it would otherwise stop scanning; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; develop’s security paragraph is below it; "Link copied" and the generating (ActionProgress, #3518) / unavailable states have no frame'
+  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence per 2811:2601 / desktop 880:17427 (its Reset QR code link is not drawn, #3690); the box shrinks on a short window so the copy stays on screen, the code snapped to whole device pixels a module where it would otherwise stop scanning; develop’s security paragraph is below the sentence; no action — the raw link is never shown, and Link devices’ own Copy link row copies it (#3690); the generating (ActionProgress, #3518) / unavailable states have no frame'
 
 export const DisplayQrCode = () => (
   <Screen
