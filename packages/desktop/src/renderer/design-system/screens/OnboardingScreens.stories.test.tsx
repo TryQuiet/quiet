@@ -16,6 +16,7 @@ import { ErrorMessages, InvitationKind } from '@quiet/types'
 
 import { renderComponent } from '../../testUtils/renderComponent'
 import { drawQr, qrImageData } from '../../testUtils/qrImage'
+import { pinPlatform } from '../../testUtils/pinPlatform'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { DISPLAY_QR_CODE_COPY } from '../../components/Onboarding/DisplayQrCodeComponent'
 import { SCANNER_COPY } from '../../components/Onboarding/qrScanner/QrScannerComponent'
@@ -291,6 +292,10 @@ describe('Screens/Onboarding — the Paste a link error states', () => {
 })
 
 describe('Screens/Onboarding — the walkthrough camera', () => {
+  // The denied case asserts Linux's copy: the walkthrough's scanner follows process.platform, and
+  // macOS and Windows name their camera setting instead.
+  pinPlatform('linux')
+
   /** Walk the walkthrough by clicking the first (shell) copy of each control. */
   const click = async (user: ReturnType<typeof userEvent.setup>, testId: string) =>
     user.click(screen.getAllByTestId(testId)[0])

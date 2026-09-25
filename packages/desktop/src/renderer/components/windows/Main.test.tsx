@@ -4,9 +4,12 @@ import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { Main } from './Main'
 import { communities, getReduxStoreFactory } from '@quiet/state-manager'
-import { prepareStore, testReducers } from '../../testUtils'
+import { pinPlatform, prepareStore, testReducers } from '../../testUtils'
 
 describe('Main', () => {
+  // The snapshot is the Linux layout: on macOS the sidebar leaves a taller strip for the window controls.
+  pinPlatform('linux')
+
   it('renders component', async () => {
     const store = (await prepareStore()).store
     const factory = await getReduxStoreFactory(store)

@@ -1,9 +1,13 @@
 import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
+import { pinPlatform } from '../../testUtils/pinPlatform'
 
 import { Index } from './Index'
 
 describe('Index', () => {
+  // The snapshots are the Linux layout: on macOS the wrapper also carries the window's drag region.
+  pinPlatform('linux')
+
   it('renders component', () => {
     const result = renderComponent(<Index bootstrapping bootstrappingMessage='Launching node' />)
     expect(result.baseElement).toMatchInlineSnapshot(`
