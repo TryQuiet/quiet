@@ -9,6 +9,7 @@ import { Attachments } from './Tabs/Attachments/Attachments'
 import { Invite } from './Tabs/Invite/Invite'
 import { QRCode } from './Tabs/QRCode/QRCode'
 import { LinkedDevices } from './Tabs/LinkedDevices/LinkedDevices'
+import { LinkedDevicesQrCode } from './Tabs/LinkedDevices/LinkedDevicesQrCode'
 import { LeaveCommunity } from './Tabs/LeaveCommunity/LeaveCommunity'
 
 import SettingsComponent from './SettingsComponent'
@@ -25,6 +26,7 @@ const Settings = () => {
     invite: Invite,
     qrcode: QRCode,
     linkedDevices: LinkedDevices,
+    linkedDevicesQr: LinkedDevicesQrCode,
     leaveCommunity: LeaveCommunity,
     communityMembership: CommunityMembership,
   }

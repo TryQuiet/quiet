@@ -225,37 +225,35 @@ describe('Screens/Onboarding — the Link devices stories', () => {
     expect(screen.getAllByTestId('paste-link-input')[0]).toHaveValue(memberLink)
   })
 
-  it('draws the QR code sheet with the code, the sheet sentence and the security copy, and keeps its bar title', () => {
+  it('draws the QR code sheet with the code, the sheet sentence and the security copy, no action and no bar title', () => {
     renderComponent(<DisplayQrCode />)
 
     expect(screen.getAllByTestId('link-devices-display-box')[0]).toBeVisible()
     expect(screen.getAllByText(DISPLAY_QR_CODE_COPY.scan)[0]).toBeVisible()
     expect(screen.getAllByTestId('link-devices-display-security')[0]).toHaveTextContent(DISPLAY_QR_CODE_COPY.security)
-    expect(screen.getAllByText(DISPLAY_QR_CODE_COPY.copyLink)[0]).toBeVisible()
-    expect(screen.getAllByText(DISPLAY_QR_CODE_COPY.reset)[0]).toBeVisible()
-    // The sheet draws no heading of its own, so it is the one Link devices step that keeps
-    // the frame's bar title — and it closes rather than going back.
-    expect(barTitle()).toBe('QR code')
+    // Link devices has its own Copy link row, so the sheet draws neither it nor Reset QR code (#3690).
+    expect(screen.queryByText('Copy link')).not.toBeInTheDocument()
+    expect(screen.queryByText('Reset QR code')).not.toBeInTheDocument()
+    // The frame's bar title is dropped (#3690, user decision); the sheet closes rather than going back.
+    expect(barTitle()).toBe('')
     expect(screen.getAllByTestId('shell-close')[0]).toBeVisible()
   })
 
-  it('draws the generating state as the progress bar with its status line, and no action', () => {
+  it('draws the generating state as the progress bar with its status line', () => {
     renderComponent(<DisplayQrCodeGenerating />)
 
     expect(screen.getAllByTestId('link-devices-display-progress')[0]).toBeVisible()
     expect(screen.getAllByText(DISPLAY_QR_CODE_COPY.generating)[0]).toBeVisible()
-    expect(screen.queryByText(DISPLAY_QR_CODE_COPY.copyLink)).not.toBeInTheDocument()
     expect(screen.queryByText(DISPLAY_QR_CODE_COPY.unavailable)).not.toBeInTheDocument()
-    expect(barTitle()).toBe('QR code')
+    expect(barTitle()).toBe('')
   })
 
-  it('draws the unavailable state in the box, with nothing to act on', () => {
+  it('draws the unavailable state in the box', () => {
     renderComponent(<DisplayQrCodeUnavailable />)
 
     expect(screen.getAllByTestId('link-devices-display-status')[0]).toHaveTextContent(DISPLAY_QR_CODE_COPY.unavailable)
-    expect(screen.queryByText(DISPLAY_QR_CODE_COPY.copyLink)).not.toBeInTheDocument()
     expect(screen.queryByTestId('link-devices-display-progress')).not.toBeInTheDocument()
-    expect(barTitle()).toBe('QR code')
+    expect(barTitle()).toBe('')
   })
 
   it('draws the in-app Settings entry as the same share content, with the row title dropped from the bar', () => {
