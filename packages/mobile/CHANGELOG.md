@@ -1,22 +1,13 @@
 # Changelog
 
-## [Unreleased]
-
-### Fixes
-
-* Fixed "Add Members > Copy Link" not copying the invite link to the clipboard on Android 13+ [#3369](https://github.com/TryQuiet/quiet/issues/3369) — thanks @JohnieWalkerCZ!
-* Sending the first message of a new direct message no longer leaves a blank screen: the conversation the message created is the one that opens, instead of being overwritten by a late sync of the composer's recipients
-* The Channel screen returns to the community home when there is no conversation to show and none being composed, rather than drawing nothing the user cannot get off without restarting
-* Start a conversation from a plus on the Community home's Direct messages heading, as the design draws it — available to everyone, unlike creating a channel
-* Direct messages no longer appear in the Community home's Channels section as rows reading "Direct message"; a conversation is listed under the person it is with, and its unread mark now sits on their row
-* The new-message composer keeps the recipients you chose, yourself included, through the profile and connection updates that arrive after every send — they used to be dropped a moment after the tap, blanking the conversation below — and its send button stays disabled until someone is chosen, so a refused send no longer leaves a stray space in the message
-* The new-message composer finds an existing conversation through the same shared lookup as the profile and Community home entry points, including a conversation replicated before its member hash was stored
-
-### Features
-
-* Measure the chat composer's keyboard avoidance from the keyboard's own window inset on Android, so the send and attachment controls stay above the keyboard on Android 15+, where an edge-to-edge window need not resize and the overlap could read as nothing
-
 ## [11.1.0]
+
+### Chores
+
+* chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
+
+* chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).
+* Declare `rimraf` in the desktop package, which every packaging script now runs to clear `dist/`, instead of relying on another dependency to hoist it
 
 ### Features
 
@@ -25,16 +16,26 @@
 
 ### Fixes
 
+* fix(desktop): a private channel's header counts only its members, rather than everyone in the community; the header, the channel menu and the members panel (and mobile) now answer membership through one shared function in @quiet/common [#3691](https://github.com/TryQuiet/quiet/issues/3691)
+* fix(desktop,mobile): every way of opening a direct message (the new-message composer, a profile's Message action, Community home's person rows) finds an existing conversation through one shared lookup keyed by user ids, which always includes you, de-duplicates and sorts before hashing. Desktop's composer also now finds a DM replicated before its member hash was stored, rather than opening a blank new one
+* fix(desktop,mobile): onboarding screens no longer jump vertically as you move between them — every full-screen stage now reserves the same 60 bar zone and starts its content 24 below it, the inset eight of the nine Figma frames share. Get started kept no bar at all and centred its block; Join community hung its graphic flush; Choose username indented only one of its two variants
+* fix(desktop): on Windows and Linux the sidebar no longer reserves the macOS window-control strip, so the community name sits in line with the channel header title
+* Stop re-scanning and re-verifying a channel's whole message history every time a new message arrives, by indexing the messages already accepted and walking only the ancestry a replicated head brings in; the index is rebuilt when membership or keys change, and a notification no longer fires for a store that was closed or re-authorized while it was being prepared [#3536](https://github.com/TryQuiet/quiet/issues/3536) [#3539](https://github.com/TryQuiet/quiet/pull/3539)
+* Show a private channel on a device that was still missing the channel's key when its metadata arrived, retrying about once a minute until the key lands, instead of waiting for unrelated community activity that may never happen [#3563](https://github.com/TryQuiet/quiet/issues/3563)
 * Ask the local Tor daemon to generate onion identities on desktop and mobile, and start communities without waiting for Tor network publication; recover detached registrations after lost replies or control connections without an onion-address collision loop, and handle fragmented or interrupted local control authentication [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 * Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from
 * Keep the backend running when an attachment fails to upload, instead of tearing the node down and leaving the app talking to a dead backend
 * Accept a direct-message descriptor naming a participant this device has not replicated yet, instead of losing that conversation permanently
 * Show an error when a chosen profile photo is too large, and compress PNG profile photos as JPEG ones already were [#2953](https://github.com/TryQuiet/quiet/issues/2953)
 * Offer Members or Add members in the channel menu according to whether you administer the channel, and resolve a public channel's membership as the whole community
+* Open Add members from the community menu on desktop, where it has always lived; the sidebar column no longer carries an Add members row of its own
+* Say "You already belong to a community" when an invitation is pasted, scanned or opened on a device that is already in one, on every entry point rather than only a cold-start deep link, and map the backend's own refusal of a second community to the same message
 * Give the mobile appbar, send and attachment controls a full-size touch target, and stop the new-message block pushing the message field off screen
 * Give the mobile Channels and Direct Messages `+` buttons a full-size touch target, and let a screen reader announce what each one does [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Give the mobile remove-attachment control a full-size touch target, and stop it hanging outside its parent where Android delivered no touch to it at all [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Build the desktop community menu from design rows in a single drawer, so choosing a tab goes deeper instead of sliding one panel out and another in
+* Draw one title per desktop Settings panel, with Add members and Leave community no longer repeating the drawer bar's heading, and centre the invitation QR code and its copy as the design draws them
+* Announce each desktop Settings panel by name to a screen reader, drawing the drawer bar's title as a heading and naming the panel dialog by it
 * Match the desktop direct-message composer, channel header and message list to the designs, including recipient names that were invisible on the dark theme
 * Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
 * Make the whole recipient row tappable on mobile rather than only the checkbox and the name
@@ -59,6 +60,21 @@
 * Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
+* Drop the greyed-out "More options" row from Recover account on desktop and mobile, since it led nowhere and its glyph failed to load
+* Write the onboarding paste-link heading in sentence case, *Paste a link to join*, on desktop and mobile
+* Draw the digits of a message at the message's own size, rather than at emoji size, on mobile and desktop; a number, `#` or `*` is only emoji as part of a full keycap like 1️⃣
+* Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
+* Let a released Mac build open the camera when you scan a QR code, by granting the signed app the camera entitlement its hardened runtime requires, and ask for the camera in Quiet's own words rather than Electron's placeholder ones
+* Point a refused camera at the setting that would allow it when scanning a QR code on desktop, naming the macOS or Windows page, opening it, and asking the camera again when you come back, instead of only saying access was denied
+
+### Tests
+
+* Make interrupted device-admission recovery tests independent of public Tor timing and local QSS servers, while retaining separate Tor device-link coverage [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3581](https://github.com/TryQuiet/quiet/issues/3581)
+
+### Chores
+
+* Run the backend unit tests in a recycled worker rather than one long-lived process, so the heap no longer climbs across the suites until it reaches the 4 GB ceiling and fails the job with "Ineffective mark-compacts near heap limit" [#3634](https://github.com/TryQuiet/quiet/issues/3634)
+* Define the shared onboarding copy once in `@quiet/common`, so a heading or placeholder the desktop app, the mobile app, the stories and the end-to-end selectors all draw is a single edit rather than dozens of literals
 
 ## [11.0.1]
 
@@ -112,6 +128,7 @@
 ### Features
 
 * Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
+* Increase font size for emoji-only messages on mobile [#2422](https://github.com/TryQuiet/quiet/issues/2422)
 
 ### Breaking
 

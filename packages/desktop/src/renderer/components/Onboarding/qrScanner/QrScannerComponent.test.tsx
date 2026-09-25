@@ -82,7 +82,8 @@ describe('QrScannerComponent', () => {
     const onDecoded = jest.fn()
     const onUsePasteLink = jest.fn()
 
-    renderComponent(<QrScannerComponent onDecoded={onDecoded} onUsePasteLink={onUsePasteLink} />)
+    // Linux's copy: macOS and Windows name their camera setting instead (covered below).
+    renderComponent(<QrScannerComponent platform='linux' onDecoded={onDecoded} onUsePasteLink={onUsePasteLink} />)
 
     expect(await screen.findByText(SCANNER_COPY.denied, {}, DECODE_TIMEOUT)).toBeVisible()
     expect(status()).toBe('denied')

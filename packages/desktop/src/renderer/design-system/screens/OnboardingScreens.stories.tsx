@@ -167,7 +167,7 @@ const Shell: React.FC<{
 /**
  * Caption for a screen's bar: a title the frame shows, a title the frame itself
  * hides (glyph only), a title dropped here because the screen carries its own
- * large heading, or no bar at all.
+ * large heading (or, the QR code sheet, needs none), or no bar at all.
  */
 const barCaption = (bar?: string, hiddenBar?: string, droppedBar?: string, emptyBar?: string) =>
   bar !== undefined ? (
@@ -175,7 +175,7 @@ const barCaption = (bar?: string, hiddenBar?: string, droppedBar?: string, empty
   ) : hiddenBar !== undefined ? (
     <>no bar title, glyph only (the frame hides &ldquo;{hiddenBar}&rdquo;)</>
   ) : droppedBar !== undefined ? (
-    <>no bar title, glyph only (the frame draws &ldquo;{droppedBar}&rdquo;; dropped — the screen has its own heading)</>
+    <>no bar title, glyph only (the frame draws &ldquo;{droppedBar}&rdquo;; dropped — the screen names itself)</>
   ) : emptyBar !== undefined ? (
     <>
       empty bar zone (the frame draws &ldquo;{emptyBar}&rdquo;; no title and nothing to go back to, the 60 kept so the
@@ -191,7 +191,7 @@ const Screen: React.FC<{
   bar?: string
   /** The frame's title text the designer hid: the bar zone shows the glyph only, no title, no hairline. */
   hiddenBar?: string
-  /** A title the frame draws but this screen drops, because it has a large heading of its own. */
+  /** A title the frame draws but this screen drops: it has a large heading of its own, or needs none (QR code). */
   droppedBar?: string
   /** A bar the frame draws that this screen empties: the 60 zone kept, no title, no glyph (Get started). */
   emptyBar?: string
@@ -506,7 +506,7 @@ export const LinkDevices = () => (
     title='Link devices · in a community (share)'
     droppedBar={LINK_DEVICES_HEADING}
     figma='2811:2575'
-    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same link the QR sheet shows), the receive rows are not drawn`}
+    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same link the QR sheet shows, and the only place it is copied), the receive rows are not drawn`}
     render={() => (
       <LinkDevicesComponent
         direction='share'
@@ -614,26 +614,20 @@ export const PasteLinkNotADeviceLink = () => (
   </SubmitOnMount>
 )
 
-// The QR code sheet. Unlike the stages above it draws no heading of its own, and it is
-// a sheet with a close glyph, so it is the one Link devices step that keeps a bar title
-// (LinkDevices.tsx TITLED_STEPS.display).
+// The QR code. Drawn here in the onboarding shell for comparison with the frame; the app
+// draws it in the Settings panel (#3690). No bar title — the code needs no caption.
 const QR_CODE_NOTE =
-  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence and Reset QR code per 2811:2601 / desktop 880:17427; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; develop’s security paragraph is below it; "Link copied" and the generating (ActionProgress, #3518) / unavailable states have no frame'
+  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence per 2811:2601 / desktop 880:17427, and the fine print (user’s copy, #3690). On desktop this is drawn one level down in the Settings panel under Linked devices, like the invite QR code, not as a full-window sheet (#3690): the panel scrolls. No action — the raw link is never shown and Linked devices’ own Copy link row copies it; no Reset QR code; no bar title. The generating (ActionProgress, #3518) / unavailable states have no frame'
 
 export const DisplayQrCode = () => (
   <Screen
     title='Display QR code'
-    bar='QR code'
+    droppedBar='QR code'
     left='close'
     figma='2811:2601'
     note={QR_CODE_NOTE}
     render={() => (
-      <DisplayQrCodeComponent
-        deviceLink={SAMPLE_DEVICE_LINK}
-        isLoading={false}
-        onReset={noop}
-        dataTestId='link-devices-display'
-      />
+      <DisplayQrCodeComponent deviceLink={SAMPLE_DEVICE_LINK} isLoading={false} dataTestId='link-devices-display' />
     )}
   />
 )
@@ -641,24 +635,22 @@ export const DisplayQrCode = () => (
 export const DisplayQrCodeGenerating = () => (
   <Screen
     title='Display QR code · generating the link'
-    bar='QR code'
+    droppedBar='QR code'
     left='close'
     figma='2811:2601'
     note='no frame for this state: while the backend mints the link the box is empty and the actions give way to the library progress bar (ActionProgress, #3518) with “Generating device link…” as its status line'
-    render={() => <DisplayQrCodeComponent deviceLink={''} isLoading onReset={noop} dataTestId='link-devices-display' />}
+    render={() => <DisplayQrCodeComponent deviceLink={''} isLoading dataTestId='link-devices-display' />}
   />
 )
 
 export const DisplayQrCodeUnavailable = () => (
   <Screen
     title='Display QR code · no community'
-    bar='QR code'
+    droppedBar='QR code'
     left='close'
     figma='2811:2601'
     note='no frame for this state: without a community no link can be minted; there is nothing to act on, so no action is drawn. Reached only from Settings → Linked devices — Link devices itself shows the receive rows without a community'
-    render={() => (
-      <DisplayQrCodeComponent deviceLink={''} isLoading={false} onReset={noop} dataTestId='link-devices-display' />
-    )}
+    render={() => <DisplayQrCodeComponent deviceLink={''} isLoading={false} dataTestId='link-devices-display' />}
   />
 )
 
@@ -828,7 +820,7 @@ const STEPS: Record<
   linkDevices: { title: LINK_DEVICES_HEADING, droppedBar: LINK_DEVICES_HEADING, left: 'back' },
   // The two sheets keep the bar title their frames give them: neither draws a heading
   // of its own, so nothing would repeat it (LinkDevices.tsx TITLED_STEPS).
-  displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'close' },
+  displayQrCode: { title: 'Display QR code', droppedBar: 'QR code', left: 'close' },
   scanQrCode: { title: SCAN_QR_CODE_HEADING, bar: SCAN_QR_CODE_HEADING, left: 'back' },
   pasteFromScan: { title: PASTE_LINK_HEADING, droppedBar: LINK_DEVICES_HEADING, left: 'back' },
   pasteLink: { title: PASTE_LINK_LABEL, droppedBar: LINK_DEVICES_HEADING, left: 'back' },
@@ -1009,12 +1001,7 @@ const WalkthroughStory = () => {
         )
       case 'displayQrCode':
         return (
-          <DisplayQrCodeComponent
-            deviceLink={SAMPLE_DEVICE_LINK}
-            isLoading={false}
-            onReset={noop}
-            dataTestId='link-devices-display'
-          />
+          <DisplayQrCodeComponent deviceLink={SAMPLE_DEVICE_LINK} isLoading={false} dataTestId='link-devices-display' />
         )
       case 'scanQrCode':
         return (

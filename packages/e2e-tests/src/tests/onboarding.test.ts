@@ -263,18 +263,11 @@ describe('Onboarding', () => {
       const getStarted = new GetStartedModal(app.driver)
       expect(await getStarted.isReady()).toBeTruthy()
 
-      // Link devices → Display QR code → back to the Link devices choice → back to Get started
+      // Link devices → back to Get started. Without a community this device can only receive
+      // a link (Scan QR code, Paste link); the QR code is shown from Settings → Linked devices,
+      // inside a community (#3690).
       await getStarted.linkDevices()
       const linkDevices = new LinkDevicesModal(app.driver)
-      expect(await linkDevices.isReady()).toBeTruthy()
-      await linkDevices.displayQrCode()
-      expect(await linkDevices.isOnDisplayQrStep()).toBeTruthy()
-      // connection.selectors.deviceLinkUrl returns '' without a current community, so
-      // this step cannot show a QR code here however long it waits: it reports why.
-      // Assert that settled copy, so the test cannot pass on a blank container, on
-      // the transient loading line, or on a QR that should be impossible here.
-      expect(await linkDevices.settledDeviceLinkStatus()).toBe('Device link unavailable')
-      await linkDevices.back()
       expect(await linkDevices.isReady()).toBeTruthy()
       await linkDevices.back()
       expect(await getStarted.isReady()).toBeTruthy()

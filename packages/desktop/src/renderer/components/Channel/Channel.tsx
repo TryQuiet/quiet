@@ -37,8 +37,8 @@ import {
   dmMemberIdsFor,
   findDmChannelWithMembers,
   getFilesData,
-  isDefined,
   isDmConnected,
+  getChannelMembers,
 } from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
@@ -103,7 +103,6 @@ const ChannelContent = () => {
 
   const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
   const [channelName, setChannelName] = useState<string>('')
-  const [members, setMembers] = useState<UserProfile[]>([])
   const [me, setMe] = useState<UserProfile | undefined>(myUserProfile)
 
   const filesRef = React.useRef<FilePreviewData>({})
@@ -113,13 +112,9 @@ const ChannelContent = () => {
     if (currentChannel) setChannelName(currentChannelName)
   }, [currentChannel, currentChannelName, currentChannelId])
 
-  useEffect(() => {
-    if (currentChannel == null || currentChannel.memberIds == null) {
-      setMembers(Object.values(userProfiles))
-      return
-    }
-    setMembers(currentChannel.memberIds.map(memberId => userProfiles[memberId]).filter(isDefined) ?? [])
-  }, [userProfiles, currentChannel, currentChannelId])
+  // A private channel has no memberIds (only a DM does), so membership must come from the shared
+  // rule rather than memberIds — reading memberIds here showed the whole community (#3691).
+  const members = useMemo(() => getChannelMembers(currentChannel, userProfiles), [currentChannel, userProfiles])
 
   const onInputChange = useCallback((_value: string) => {
     // TODO https://github.com/TryQuiet/ZbayLite/issues/442

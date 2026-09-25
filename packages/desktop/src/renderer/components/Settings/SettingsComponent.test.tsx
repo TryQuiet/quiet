@@ -9,6 +9,8 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
 import { Invite } from './Tabs/Invite/Invite'
 import { LinkedDevices } from './Tabs/LinkedDevices/LinkedDevices'
+import { LinkedDevicesQrCode } from './Tabs/LinkedDevices/LinkedDevicesQrCode'
+import { DISPLAY_QR_CODE_COPY } from '../Onboarding/DisplayQrCodeComponent'
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 
 const CommunityMembershipTab: React.FC = () => <div data-testid='community-membership-panel' />
@@ -56,6 +58,7 @@ const renderSettings = async (overrides: Partial<SettingsComponentProps> = {}, w
     tabs: {
       invite: Invite,
       linkedDevices: LinkedDevices,
+      linkedDevicesQr: LinkedDevicesQrCode,
       communityMembership: CommunityMembershipTab,
       leaveCommunity: LeaveCommunityTab,
     },
@@ -119,6 +122,35 @@ describe('SettingsComponent', () => {
     expect(result.getByTestId('link-devices-display-qr')).toBeVisible()
     expect(result.getByTestId('link-devices-copy-link')).toBeVisible()
     expect(result.queryByTestId('link-devices-scan-qr')).toBeNull()
+  })
+
+  /**
+   * #3690: the device-link QR is drawn one level down in this panel, as the invite QR code is under
+   * QR Code, not as a full-window sheet — the panel scrolls, so nothing is cut off on a short
+   * window. It has no row of its own in the menu, and its back arrow returns to Linked devices.
+   */
+  it('opens the device-link QR code in the panel from Linked devices, and back returns there', async () => {
+    const result = await renderSettings()
+    expect(result.queryByTestId('linked-devices-qr-settings-tab')).toBeNull()
+
+    fireEvent.click(result.getByTestId('linked-devices-settings-tab'))
+    fireEvent.click(result.getByTestId('link-devices-display-qr'))
+
+    expect(result.getByTestId('link-devices-display-box')).toBeVisible()
+    expect(result.getByText(DISPLAY_QR_CODE_COPY.scan)).toBeVisible()
+    expect(result.getByTestId('link-devices-display-security')).toHaveTextContent(
+      'Anyone who has this QR code can link your device and access community history.'
+    )
+    // The Link devices rows are gone: this is the next level down, not a sheet over them.
+    expect(result.queryByTestId('link-devices')).toBeNull()
+    // No bar title and no action: no "QR code" caption, no Copy link, no Reset QR code.
+    expect(result.queryByText('QR code')).toBeNull()
+    expect(result.queryByText('Copy link')).toBeNull()
+    expect(result.queryByText('Reset QR code')).toBeNull()
+
+    fireEvent.click(result.getByTestId('close-tab-button-box').querySelector('button') as HTMLElement)
+    expect(result.getByTestId('link-devices')).toBeVisible()
+    expect(result.getByTestId('link-devices-display-qr')).toBeVisible()
   })
 
   it('does not repeat the heading in the bar for a panel that prints its own', async () => {

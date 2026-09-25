@@ -23,7 +23,7 @@ describe('Agree & join', () => {
     return { handleClose, onAgree, openURL }
   }
 
-  it("is the library's titled card: bar title, back arrow, the prototype's copy and one button", async () => {
+  it("is a full-window step: bar title, back arrow, the prototype's copy and one button", async () => {
     const { handleClose, onAgree, openURL } = render()
 
     expect(screen.getByText('Agree & join')).toBeVisible()
@@ -32,9 +32,11 @@ describe('Agree & join', () => {
     expect(screen.getByTestId('agree-and-join')).toHaveTextContent(
       'This community uses a server (api.tryquiet.org) for messaging without Tor. By joining you agree to this Privacy Policy and Terms of Use.'
     )
-    // The card's height is the body's own (capped at the window), not a fixed 576px on the modal:
-    // a fixed card taller than the window pushed the titled bar above the viewport
-    expect(screen.getByTestId('agree-and-join').parentElement).not.toHaveStyle({ height: '576px' })
+    // Full window like the other onboarding stages, not the floating modal/small card (#3690).
+    const shell = header?.parentElement
+    expect(shell).toHaveClass('Modalcentered')
+    expect(shell).not.toHaveClass('Modalwindow')
+    expect(shell).not.toHaveStyle({ borderRadius: '8px' })
     expect(screen.queryByText('Leave Community')).not.toBeInTheDocument()
     expect(screen.queryByTestId('TermOfService-Abort')).not.toBeInTheDocument()
 

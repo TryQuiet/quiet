@@ -5,14 +5,14 @@ import { Checkbox, Typography } from '@mui/material'
 import Drawer from '../../ui/Drawer/Drawer'
 
 import { useModal } from '../../../containers/hooks'
-import { User, UserProfile } from '@quiet/types'
+import { ChannelType, User, UserProfile } from '@quiet/types'
 import PanelHeader, { PANEL_INSET, PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
 import PillField from '../../ui/Panel/PillField'
 import RecipientPill from '../../widgets/userSearch/RecipientPill'
 import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
 import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 import { createLogger } from '../../../logger'
-import { isMemberConnected, type IsUserConnected } from '@quiet/common'
+import { getChannelNonMembers, isMemberConnected, type IsUserConnected } from '@quiet/common'
 
 const logger = createLogger('AddMembersChannelComponent')
 
@@ -127,9 +127,12 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
     }
   }, [open])
 
-  /** Everyone who is not in the channel already. */
+  /**
+   * Everyone who is not in the channel already, by the same rule the header and members panel count
+   * with. Only a private channel is offered this panel (see AddMembersChannel).
+   */
   const candidates = useMemo(
-    () => Object.values(possibleMembers).filter(member => !(member.channels ?? []).includes(channelId)),
+    () => getChannelNonMembers({ id: channelId, type: ChannelType.CHANNEL, public: false }, possibleMembers),
     [possibleMembers, channelId]
   )
 

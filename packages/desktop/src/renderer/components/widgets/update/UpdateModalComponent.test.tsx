@@ -21,7 +21,7 @@ describe('UpdateModal', () => {
             aria-hidden="true"
           />
           <div
-            class="MuiModal-root css-1w04qul-MuiModal-root"
+            class="MuiModal-root css-l3zqp7-MuiModal-root"
             data-testid="updateAppModal"
             role="presentation"
           >

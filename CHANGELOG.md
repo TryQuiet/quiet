@@ -16,6 +16,7 @@
 
 ### Fixes
 
+* fix(desktop): a private channel's header counts only its members, rather than everyone in the community; the header, the channel menu and the members panel (and mobile) now answer membership through one shared function in @quiet/common [#3691](https://github.com/TryQuiet/quiet/issues/3691)
 * fix(desktop,mobile): every way of opening a direct message (the new-message composer, a profile's Message action, Community home's person rows) finds an existing conversation through one shared lookup keyed by user ids, which always includes you, de-duplicates and sorts before hashing. Desktop's composer also now finds a DM replicated before its member hash was stored, rather than opening a blank new one
 * fix(desktop,mobile): onboarding screens no longer jump vertically as you move between them — every full-screen stage now reserves the same 60 bar zone and starts its content 24 below it, the inset eight of the nine Figma frames share. Get started kept no bar at all and centred its block; Join community hung its graphic flush; Choose username indented only one of its two variants
 * fix(desktop): on Windows and Linux the sidebar no longer reserves the macOS window-control strip, so the community name sits in line with the channel header title

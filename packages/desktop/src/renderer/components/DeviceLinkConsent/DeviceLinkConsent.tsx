@@ -22,7 +22,7 @@ const Body = styled(Typography)({
 
 /**
  * The "use Quiet's server?" step, as the design draws it: the Agree & join card
- * (3054:4090) — the library's modal/small with a titled bar, a left-aligned
+ * (3054:4090), full-window — a titled bar, a left-aligned
  * body naming the host, and one pill. The back arrow is the way out and every
  * caller maps it to declining.
  *
