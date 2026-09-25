@@ -47,7 +47,7 @@ Eight frames agree on 24; **Join community is the one deviation**, its graphic f
 Three more classes, none of which takes the stage rhythm:
 
 - **Sheets** — a **titled bar with a hairline**, content **16** below it (`2811:2601` Display QR code, `2811:2587` Scan QR code, `2932:3707` Add members QR, `add-members-options`). The camera sheet `2811:2460` is flush, the camera filling the panel. Unchanged by this pass; desktop draws sheet content at 24 rather than the frames' 16, a known 8px gap.
-- **The Agree & join card** (`agree-and-join`, `3054:4090`) — a titled, ruled bar and a **left-aligned** block starting **16** below it, not the centred column the stages use. It is a consent card, and the left alignment is the frame's.
+- **The Agree & join card** (`agree-and-join`, `3054:4090`) — a titled, ruled bar and a **left-aligned** block starting **16** below it, not the centred column the stages use. It is a consent card, and the left alignment is the frame's. On desktop it is drawn **full window** like the stages, not as the library's floating modal/small card (user decision, #3690: the card read as a dialog over the app); the 468 column is centred in the window. The device-link consent step shares it.
 - **Joining now!** (`globe-animation`) and the other progress screens — full-bleed, no bar zone at all, the animation starting at the top edge. Desktop's loading panels keep `Modal withoutHeader` for exactly this reason.
 
 **The standard, both platforms.**

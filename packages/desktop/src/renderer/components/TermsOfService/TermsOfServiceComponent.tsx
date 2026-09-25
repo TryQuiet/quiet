@@ -6,8 +6,6 @@ import Link from '@mui/material/Link'
 
 import { AgreeAndJoinCard } from '../Onboarding/AgreeAndJoinCard'
 
-export { CARD_WIDTH, CARD_HEIGHT, WIDE_CARD_FROM } from '../Onboarding/AgreeAndJoinCard'
-
 const PREFIX = 'TermOfServiceComponent-'
 const classes = {
   info: `${PREFIX}info`,
@@ -37,8 +35,8 @@ export interface TermsOfServiceComponentProps {
 
 /**
  * Agree & join · the joiner's consent to the community's server. Mobile
- * prototype 2811:2724 / 3054:4090 (copy); the card itself is the library's
- * modal/small — see AgreeAndJoinCard, which the device-link consent step shares.
+ * prototype 2811:2724 / 3054:4090 (copy); drawn full-window by AgreeAndJoinCard,
+ * which the device-link consent step shares.
  * The prototype's copy is used; the library card's older wording adds
  * "(Note: server connection is not via Tor!)".
  */
