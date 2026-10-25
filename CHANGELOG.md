@@ -4,6 +4,8 @@
 
 ### Chores
 
+* chore(security): update Tor to 0.4.9.14, built against OpenSSL 3.5.9, on desktop (Linux, macOS, Windows) and Android (arm64-v8a and x86_64), and the iOS `Tor.framework` pod to 409.14.1 (Tor 0.4.9.14, OpenSSL 3.6.5). See Tor's [0.4.9.13](https://forum.torproject.org/t/security-release-0-4-9-13/22178/1) and [0.4.9.14](https://forum.torproject.org/t/security-release-0-4-9-14/22241) security releases. Stop shipping the unused OpenSSL 1.1 libraries (and the AppImage `LD_PRELOAD` of one), and add `npm run check:tor-binaries`, which CI runs to fail the build on a stale Tor, an older OpenSSL, or a vendored OpenSSL 1.1 library
+
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
 
 * chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).
