@@ -109,13 +109,63 @@ test('signUpdates signs installers and AppImages, never blockmaps, when the key 
       [files[0], files[2]].map(file => `${file}.sig`)
     )
     assert.ok(!fs.existsSync(`${files[1]}.sig`))
-    const stale = path.join(dir, 'Quiet-0.0.1.AppImage')
-    fs.writeFileSync(stale, 'stale')
-    await assert.rejects(signing.default({ artifactPaths: [stale] }), /not built for version/)
+    for (const name of ['Quiet-0.0.1.AppImage', `Quiet-1${version}.AppImage`]) {
+      const stale = path.join(dir, name)
+      fs.writeFileSync(stale, 'stale')
+      await assert.rejects(signing.default({ artifactPaths: [stale] }), /not built for version/)
+    }
     process.env[signing.KEY_ENV] = 'garbage'
     await assert.rejects(signing.default({ artifactPaths: files }))
   } finally {
     if (saved === undefined) delete process.env[signing.KEY_ENV]
     else process.env[signing.KEY_ENV] = saved
   }
+})
+
+test('signUpdates only lets unpublished builds go unsigned', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-signing-'))
+  const { version } = require('../package.json')
+  const file = path.join(dir, `Quiet-${version}.AppImage`)
+  fs.writeFileSync(file, 'x')
+  const saved = { ...process.env }
+  const reset = env => {
+    for (const name of ['CI', 'GITHUB_EVENT_NAME', 'IS_LOCAL', 'IS_E2E', 'E2E', signing.KEY_ENV])
+      delete process.env[name]
+    Object.assign(process.env, env)
+  }
+  try {
+    reset({})
+    assert.deepEqual(await signing.default({ artifactPaths: [file] }), [], 'local build')
+    for (const skip of [
+      { GITHUB_EVENT_NAME: 'pull_request' },
+      { IS_LOCAL: 'true' },
+      { IS_E2E: 'true' },
+      { E2E: 'true' },
+    ]) {
+      reset({ CI: 'true', ...skip })
+      assert.deepEqual(await signing.default({ artifactPaths: [file] }), [], JSON.stringify(skip))
+    }
+    reset({ CI: 'true' })
+    await assert.rejects(signing.default({ artifactPaths: [file] }), /not set/)
+  } finally {
+    for (const name of Object.keys(process.env)) if (!(name in saved)) delete process.env[name]
+    Object.assign(process.env, saved)
+  }
+})
+
+test('verifyUpdateSignatures accepts signed builds and flags missing, stale or foreign signatures', () => {
+  const { problems: verify } = require('./verifyUpdateSignatures.cjs')
+  const { version } = require('../package.json')
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-signing-'))
+  const file = path.join(dir, `Quiet Setup ${version}.exe`)
+  fs.writeFileSync(file, 'installer')
+  const key = newKey()
+  const accepted = [signing.publicKeyOf(key)]
+  assert.match(verify(dir, accepted).join(), /no \.sig/)
+  signing.signFile(file, version, key)
+  assert.deepEqual(verify(dir, accepted), [])
+  assert.match(verify(dir, [signing.publicKeyOf(newKey())]).join(), /not valid/)
+  signing.signFile(file, '0.0.1', key)
+  assert.match(verify(dir, accepted).join(), /not valid/)
+  assert.match(verify(fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-signing-')), accepted).join(), /no \.exe/)
 })

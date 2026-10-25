@@ -35,3 +35,12 @@ update and log `not signed by the Quiet release key`.
 
 The private key must not be reachable with the S3 write credentials: if one compromise yields both,
 the signature adds nothing over the feed's own sha512.
+
+## Known limits
+
+- The signature does not expire. A feed controller can replay any genuinely signed older stable release
+  that is newer than the installed version. Releases carry no revocation; rotate the key if a signed build
+  must never be installed again.
+- Alpha and stable builds share the key. A stable install refuses pre-release updates, so a signed alpha
+  cannot be pushed onto it.
+- The `.sig` is read into memory by electron-updater's HTTP executor before its 4 KB limit is applied.

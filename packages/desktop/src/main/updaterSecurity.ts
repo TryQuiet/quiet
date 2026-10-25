@@ -79,6 +79,10 @@ export const verifyUpdateSignature = async (
 ): Promise<string | null> => {
   if (publicKeys.length === 0) return 'no release signing key is configured'
   if (!download.version) return 'the announced update version is unknown'
+  // Both come from the feed. Keep the signed statement well formed whatever the feed says.
+  if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(download.version) || /[\r\n]/.test(download.fileName)) {
+    return 'the announced version or file name is malformed'
+  }
   let signature: string
   try {
     signature = (await fetchSignature(download.signatureUrl)).trim()
@@ -143,6 +147,13 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
     const signatureUrl = new URL(fileInfo.url.href)
     signatureUrl.pathname = `${signatureUrl.pathname}.sig`
     const fileName = path.posix.basename(decodeURIComponent(fileInfo.url.pathname))
+    // Alpha and stable builds are signed with the same key, so a stable install must not be moved
+    // onto a pre-release build, however genuine its signature. Refused before anything is fetched.
+    if (version?.includes('-') && updater.currentVersion.prerelease.length === 0) {
+      return Promise.reject(
+        new Error(`Pre-release ${version} is not offered to a stable ${updater.currentVersion.version} install`)
+      )
+    }
     return executeDownload({
       ...options,
       task: async (tempFile, ...rest) => {

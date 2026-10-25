@@ -75,12 +75,12 @@ afterAll(async () => {
   fs.rmSync(workDir, { recursive: true, force: true })
 })
 
-const makeAdapter = (name: string, updateConfig: string, existingDir?: string): AppAdapter => {
+const makeAdapter = (name: string, updateConfig: string, existingDir?: string, version = '1.0.0'): AppAdapter => {
   const dir = existingDir ?? fs.mkdtempSync(path.join(workDir, `${name}-`))
   const appUpdateConfigPath = path.join(dir, 'app-update.yml')
   fs.writeFileSync(appUpdateConfigPath, updateConfig)
   return {
-    version: '1.0.0',
+    version,
     name: 'Quiet',
     isPackaged: true,
     appUpdateConfigPath,
@@ -250,6 +250,22 @@ describe('verifyUpdateSignature', () => {
     await expect(verify(async () => raw.toString('base64'))).resolves.toMatch(/does not match/)
   })
 
+  it.each([
+    ['a version with a newline', '99.0.0\nfile:evil', name],
+    ['a version that is not semver', 'latest', name],
+    ['a file name with a newline', VERSION, 'Quiet\nsha512:x.exe'],
+  ])('rejects %s before verifying anything', async (_label, version, fileName) => {
+    const fetchSignature = jest.fn(async () => genuine())
+    await expect(
+      verifyUpdateSignature(
+        { filePath: file(), fileName, version, signatureUrl },
+        [releaseKey.publicKey],
+        fetchSignature
+      )
+    ).resolves.toMatch(/malformed/)
+    expect(fetchSignature).not.toHaveBeenCalled()
+  })
+
   it('tolerates surrounding whitespace in the signature file', async () => {
     await expect(verify(async () => `\n  ${genuine().trim()} \r\n`)).resolves.toBeNull()
   })
@@ -397,6 +413,36 @@ describe('update feed served from a local HTTP server', () => {
 
         release()
         await expect(downloading).resolves.toHaveLength(1)
+      })
+
+      describe('release channels', () => {
+        const prerelease = '99.0.0-alpha.1'
+        const servePrerelease = () => {
+          serveFeed(Buffer.from(feedFile(name, genuine).replace(VERSION, prerelease)), {
+            [`/${name}`]: genuine,
+            [`/${name}.sig`]: signedAs(name, genuine, prerelease),
+          })
+        }
+        const updaterAt = (installed: string) => {
+          const updater = configure(create(makeAdapter(platform, updateConfig(), undefined, installed)))
+          hardenUpdater(updater, platform, { publicKeys: [releaseKey.publicKey] })
+          return updater
+        }
+
+        it('does not move a stable install onto a genuinely signed pre-release', async () => {
+          servePrerelease()
+          const updater = updaterAt('1.0.0')
+          expect((await updater.checkForUpdates())?.updateInfo.version).toBe(prerelease)
+          await expect(updater.downloadUpdate()).rejects.toThrow(/Pre-release .* not offered to a stable/)
+          expect(installerOf(updater)).toBeNull()
+        })
+
+        it('updates a pre-release install to a signed pre-release', async () => {
+          servePrerelease()
+          const updater = updaterAt('1.0.0-alpha.1')
+          expect((await updater.checkForUpdates())?.updateInfo.version).toBe(prerelease)
+          await expect(updater.downloadUpdate()).resolves.toHaveLength(1)
+        })
       })
 
       it('without hardenUpdater the same unsigned update is accepted (the old behaviour)', async () => {

@@ -225,6 +225,10 @@ jobs:
           ARCH: x86_64
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
+      - name: "Check update signatures"
+        shell: bash
+        run: cd packages/desktop && node scripts/verifyUpdateSignatures.cjs dist
+
       # afterPack customizes the launcher before electron-builder hashes and
       # publishes the artifact. Verify those final bytes without rewriting them.
       - name: Verify final AppImage packaging
@@ -659,6 +663,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: "Check update signatures"
+        shell: bash
+        run: cd packages/desktop && node scripts/verifyUpdateSignatures.cjs dist
 
       - name: Get release
         id: get_release

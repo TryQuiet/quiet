@@ -29,9 +29,9 @@ const parsePrivateKey = value => {
   return key
 }
 
-// Local and PR builds are never published; every other build must be signed.
+// Local, PR and e2e builds are never published; every other CI build must be signed.
 const isUnsignedBuild = env =>
-  env.GITHUB_EVENT_NAME === 'pull_request' || env.IS_LOCAL === 'true' || env.IS_E2E === 'true'
+  env.GITHUB_EVENT_NAME === 'pull_request' || env.IS_LOCAL === 'true' || env.IS_E2E === 'true' || env.E2E === 'true'
 
 /** Why a build of `platform` ("win32" | "linux" | ...) cannot be signed with the configured key. */
 const signingProblems = (platform, env = process.env, publicKeys = loadPublicKeys()) => {
@@ -58,17 +58,28 @@ const signFile = (filePath, version, privateKey) => {
   return signatureFile
 }
 
-// electron-builder `afterAllArtifactBuild`: signs the build when the release key is configured and
-// returns the signature files for electron-builder to publish with it. Whether a build must be
-// signed is decided earlier, before anything is packaged or uploaded (beforePack.cjs).
+const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+// electron-builder `afterAllArtifactBuild`: signs the build and returns the signature files for
+// electron-builder to publish with it. electron-builder writes latest*.yml only after every upload,
+// the signatures included, has finished, and not at all if this hook throws, so the feed never
+// announces a release whose signature is missing.
+//
+// Without a key only builds that are never published may continue: a local build (no CI) or a PR,
+// e2e or IS_LOCAL build. beforePack has already stopped publishing builds without a usable key.
 exports.default = async function signUpdates(buildResult) {
   const files = buildResult.artifactPaths.filter(file => SIGNED_EXTENSIONS.includes(path.extname(file)))
-  if (files.length === 0 || !process.env[KEY_ENV]) return []
+  if (files.length === 0) return []
+  if (!process.env[KEY_ENV]) {
+    if (isUnsignedBuild(process.env) || !process.env.CI) return []
+    throw new Error(`Refusing to publish unsigned updates: ${KEY_ENV} is not set`)
+  }
   const privateKey = parsePrivateKey(process.env[KEY_ENV])
   const { version } = require('../package.json')
   // The signature binds the version electron-builder announces in latest.yml (package.json's). An
-  // artifact that does not carry it means the two disagree, and no client could verify the update.
-  const mismatched = files.filter(file => !path.basename(file).includes(version))
+  // artifact that is not named for it means the two disagree, and no client could verify the update.
+  const named = new RegExp(`[ -]${escapeRegExp(version)}\\.(exe|AppImage)$`)
+  const mismatched = files.filter(file => !named.test(path.basename(file)))
   if (mismatched.length > 0) {
     throw new Error(
       `Refusing to sign ${mismatched.map(file => path.basename(file)).join(', ')}: not built for version ${version}`
