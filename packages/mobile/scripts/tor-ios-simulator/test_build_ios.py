@@ -42,7 +42,7 @@ class CurrentTorBuildTests(unittest.TestCase):
         self.commands = []
         builder.guards.stop_signal = None
 
-    def run_build(self, *, fail=False, version='0.4.9.11', signing_failure=False,
+    def run_build(self, *, fail=False, version='0.4.9.14', signing_failure=False,
                   mutate_pod=False, interrupt=False):
         def popen(argv, **kwargs):
             self.commands.append(argv)
@@ -100,7 +100,7 @@ class CurrentTorBuildTests(unittest.TestCase):
         self.assertEqual(self.run_build(), 0)
         receipt = json.loads((self.output / 'result.json').read_text())
         self.assertEqual(receipt['envFile'], '.env.e2e.qss.push')
-        self.assertEqual(receipt['torVersion'], '409.11.2')
+        self.assertEqual(receipt['torVersion'], '409.14.1')
         self.assertTrue(receipt['torPodUnchanged'])
         build = next(command for command in self.commands if command[0] == 'xcodebuild')
         self.assertIn('ENVFILE=.env.e2e.qss.push', build)

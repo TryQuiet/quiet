@@ -1,4 +1,4 @@
-# Tor/CTor 409.11.2 wraps the static lowercase tor.xcframework in an Objective-C
+# Tor/CTor 409.14.1 wraps the static lowercase tor.xcframework in an Objective-C
 # Tor.framework. Case-insensitive filesystems otherwise resolve -framework tor
 # back to the wrapper itself once a previous build exists.
 module QuietTorLinkage

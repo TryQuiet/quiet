@@ -22,7 +22,7 @@ class TorRegressionProjectTest < Minitest::Test
       assert_includes tests.source_build_phase.files_references.map { |file| file.real_path.to_s },
                       File.join(__dir__, 'TorControlRegressionTests.swift')
       assert_equal ['Quiet'], tests.dependencies.map { |dependency| dependency.target.name }
-      assert_includes File.read(File.join(output, 'Podfile')), '409.11.2'
+      assert_includes File.read(File.join(output, 'Podfile')), '409.14.1'
     end
   end
 end
