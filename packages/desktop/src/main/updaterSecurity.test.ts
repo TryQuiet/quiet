@@ -53,11 +53,15 @@ let server: http.Server
 let feedUrl: string
 // path -> body; swapped per test to model a feed that was tampered with
 let served: Record<string, Buffer>
+// paths whose response is held back until the promise resolves, to overlap requests deliberately
+let held: Record<string, Promise<void>> = {}
 
 beforeAll(async () => {
   workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-updater-sec-'))
-  server = http.createServer((req, res) => {
-    const body = served[decodeURIComponent((req.url ?? '').split('?')[0])]
+  server = http.createServer(async (req, res) => {
+    const requested = decodeURIComponent((req.url ?? '').split('?')[0])
+    await held[requested]
+    const body = served[requested]
     if (!body) {
       res.writeHead(404).end()
       return
@@ -73,8 +77,8 @@ afterAll(async () => {
   fs.rmSync(workDir, { recursive: true, force: true })
 })
 
-const makeAdapter = (name: string, updateConfig: string): AppAdapter => {
-  const dir = fs.mkdtempSync(path.join(workDir, `${name}-`))
+const makeAdapter = (name: string, updateConfig: string, existingDir?: string): AppAdapter => {
+  const dir = existingDir ?? fs.mkdtempSync(path.join(workDir, `${name}-`))
   const appUpdateConfigPath = path.join(dir, 'app-update.yml')
   fs.writeFileSync(appUpdateConfigPath, updateConfig)
   return {
@@ -127,7 +131,8 @@ describe('hardenUpdater', () => {
         allowDowngrade: true,
         disableWebInstaller: false,
         verifySignature: jest.fn(),
-        verifyUpdateCodeSignature: jest.fn(),
+        doDownloadUpdate: jest.fn(),
+        getOrCreateDownloadHelper: jest.fn(),
       }
       hardenUpdater(updater as unknown as AppUpdater, platform)
       expect(updater.allowDowngrade).toBe(false)
@@ -137,7 +142,7 @@ describe('hardenUpdater', () => {
 
   it('leaves signature verification alone off Windows', () => {
     const verifySignature = jest.fn()
-    const updater = { verifySignature, verifyUpdateCodeSignature: jest.fn() }
+    const updater = { verifySignature }
     hardenUpdater(updater as unknown as AppUpdater, 'linux')
     expect(updater.verifySignature).toBe(verifySignature)
   })
@@ -153,7 +158,7 @@ describe('hardenUpdater', () => {
   })
 
   it('fails closed on Windows when electron-updater no longer exposes its signature hooks', () => {
-    expect(() => hardenUpdater({} as unknown as AppUpdater, 'win32')).toThrow(/signature hook/)
+    expect(() => hardenUpdater({} as unknown as AppUpdater, 'win32')).toThrow(/download hooks/)
   })
 })
 
@@ -214,8 +219,8 @@ describe('update feed served from a local HTTP server', () => {
       }
     )
 
-    const nsisUpdater = (config: string, harden = true) => {
-      const updater = configure(new NsisUpdater(undefined, makeAdapter('win', config)))
+    const nsisUpdater = (config: string, harden = true, existingDir?: string) => {
+      const updater = configure(new NsisUpdater(undefined, makeAdapter('win', config, existingDir)))
       if (harden) hardenUpdater(updater, 'win32', fakeAuthenticode)
       return updater
     }
@@ -226,7 +231,10 @@ describe('update feed served from a local HTTP server', () => {
     const serve = (payload: Buffer, declared = payload) =>
       serveFeed(Buffer.from(feedFile(name, declared)), { [`/${name}`]: payload })
 
-    beforeEach(() => fakeAuthenticode.mockClear())
+    beforeEach(() => {
+      fakeAuthenticode.mockClear()
+      held = {}
+    })
 
     it('installs an installer signed by the pinned publisher at the announced version (control)', async () => {
       serve(stamped(pinned))
@@ -266,6 +274,44 @@ describe('update feed served from a local HTTP server', () => {
       serve(Buffer.concat([signed, Buffer.from('x')]), signed)
       await expect(download(nsisUpdater(configWithoutPublisher()))).rejects.toThrow(/sha512 checksum mismatch|size/i)
       expect(fakeAuthenticode).not.toHaveBeenCalled()
+    })
+
+    it('does not reuse an installer cached by an earlier launch without verifying it against the new announcement', async () => {
+      const dir = fs.mkdtempSync(path.join(workDir, 'win-cache-'))
+      // Launch 1: a genuine 98.0.0 is downloaded and verified, but never installed.
+      const older = stamped(pinned, '98.0.0')
+      serveFeed(Buffer.from(feedFile(name, older).replace(VERSION, '98.0.0')), { [`/${name}`]: older })
+      const first = nsisUpdater(configWithoutPublisher(), true, dir)
+      const firstResult = await first.checkForUpdates()
+      expect(firstResult?.updateInfo.version).toBe('98.0.0')
+      await first.downloadUpdate()
+      expect(fakeAuthenticode).toHaveBeenCalledTimes(1)
+
+      // Launch 2: the feed now announces 99.0.0 but points at the very same bytes and hash.
+      serve(older)
+      await expect(download(nsisUpdater(configWithoutPublisher(), true, dir))).rejects.toThrow(
+        /not signed by the application owner.*98\.0\.0/
+      )
+      expect(fakeAuthenticode).toHaveBeenCalledTimes(2)
+    })
+
+    it('verifies a download against the version announced when it started, even if a newer check lands meanwhile', async () => {
+      serve(stamped(pinned, VERSION))
+      let release: () => void = () => undefined
+      held[`/${name}`] = new Promise<void>(resolve => (release = resolve))
+      const updater = nsisUpdater(configWithoutPublisher())
+      expect((await updater.checkForUpdates())?.updateInfo.version).toBe(VERSION)
+      const downloading = updater.downloadUpdate()
+
+      // While the installer is still in flight the feed moves on and the periodic check runs.
+      const newer = '99.1.0'
+      const newerFeed = feedFile(name, stamped(pinned, newer)).replace(VERSION, newer)
+      served['/latest.yml'] = served['/latest-linux.yml'] = served['/latest-mac.yml'] = Buffer.from(newerFeed)
+      expect((await updater.checkForUpdates())?.updateInfo.version).toBe(newer)
+
+      release()
+      await expect(downloading).resolves.toHaveLength(1)
+      expect(fakeAuthenticode).toHaveBeenCalledWith(WINDOWS_PUBLISHER_NAMES, expect.any(String), VERSION)
     })
 
     it('without hardenUpdater the same unsigned installer is accepted (the old behaviour)', async () => {

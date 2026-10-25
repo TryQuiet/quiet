@@ -96,9 +96,16 @@ export const verifyWindowsInstaller = async (
 }
 
 // NsisUpdater keeps these as protected members, so they are not part of the public typings.
+interface DownloadOptions {
+  updateInfoAndProvider?: { info?: { version?: string } } | null
+}
+interface DownloadedUpdateHelper {
+  getValidCachedUpdateFile(...args: unknown[]): Promise<string | null>
+}
 interface WindowsUpdater {
   verifySignature(filePath: string): Promise<string | null>
-  updateInfoAndProvider?: { info?: { version?: string } } | null
+  doDownloadUpdate(options: DownloadOptions): Promise<string[]>
+  getOrCreateDownloadHelper(): Promise<DownloadedUpdateHelper>
 }
 
 /**
@@ -106,14 +113,43 @@ interface WindowsUpdater {
  * carries a `publisherName`; without one `verifySignature` returns "valid" and the installer runs
  * with nothing but the feed's own sha512 as protection. Replace it so the check always runs
  * against the publisher compiled into the app, whatever app-update.yml says (or doesn't).
+ *
+ * Two further holes are closed here:
+ * - The announced version is captured when a download starts, not read from the updater's
+ *   mutable "latest check" state when it finishes, so a check that overlaps a download (the app
+ *   re-checks every 15 minutes) cannot make a genuine installer fail or a stale one pass.
+ * - An installer left in the cache by an earlier launch is never reused: electron-updater would
+ *   hand it back after comparing hashes only, skipping the signature and version checks, so a feed
+ *   could announce a new version whose hash is that of an older cached installer. Within one
+ *   launch the cached file was verified against the very same announcement, so that stays.
  */
 const pinWindowsPublisher = (updater: AppUpdater, verify: VerifyWindowsInstaller) => {
   const windowsUpdater = updater as unknown as WindowsUpdater
-  if (typeof windowsUpdater.verifySignature !== 'function') {
-    throw new Error('electron-updater no longer exposes the Windows signature hook')
+  if (
+    typeof windowsUpdater.verifySignature !== 'function' ||
+    typeof windowsUpdater.doDownloadUpdate !== 'function' ||
+    typeof windowsUpdater.getOrCreateDownloadHelper !== 'function'
+  ) {
+    throw new Error('electron-updater no longer exposes the Windows download hooks')
   }
-  windowsUpdater.verifySignature = (filePath: string) =>
-    verify(WINDOWS_PUBLISHER_NAMES, filePath, windowsUpdater.updateInfoAndProvider?.info?.version)
+
+  let announcedVersion: string | undefined
+  const doDownloadUpdate = windowsUpdater.doDownloadUpdate.bind(windowsUpdater)
+  windowsUpdater.doDownloadUpdate = options => {
+    announcedVersion = options.updateInfoAndProvider?.info?.version
+    return doDownloadUpdate(options)
+  }
+  windowsUpdater.verifySignature = (filePath: string) => verify(WINDOWS_PUBLISHER_NAMES, filePath, announcedVersion)
+
+  const getOrCreateDownloadHelper = windowsUpdater.getOrCreateDownloadHelper.bind(windowsUpdater)
+  windowsUpdater.getOrCreateDownloadHelper = async () => {
+    const helper = await getOrCreateDownloadHelper()
+    if (typeof helper.getValidCachedUpdateFile !== 'function') {
+      throw new Error('electron-updater no longer exposes its update cache hook')
+    }
+    helper.getValidCachedUpdateFile = async () => null
+    return helper
+  }
 }
 
 /**
