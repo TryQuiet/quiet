@@ -28,6 +28,11 @@ jobs:
       - name: "Validate workflow concurrency policy"
         run: node scripts/check-workflow-concurrency.test.mjs
 
+      - name: "Check runtime dependency floors (ws, socket.io-parser)"
+        run: |
+          node --test scripts/check-runtime-dependency-floors.test.mjs
+          npm run check:runtime-deps
+
       - name: Test dependency download recovery
         run: node --test scripts/retry-network-command.test.mjs
 

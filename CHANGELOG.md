@@ -4,6 +4,7 @@
 
 ### Chores
 
+* Dependency security upgrade: `ws` to 8.21+ and `socket.io`, `socket.io-client` and `socket.io-parser` to 4.8.4 / 4.2.7+ in the backend, desktop and mobile apps, resolving [GHSA-96hv-2xvq-fx4p](https://github.com/websockets/ws/security/advisories/GHSA-96hv-2xvq-fx4p) (CVE-2026-48779), [CVE-2026-33151](https://github.com/socketio/socket.io/security/advisories/GHSA-677m-j7p3-52f9) and [CVE-2026-69185](https://github.com/advisories/GHSA-2m8v-j782-fhvr), and add a CI check (`npm run check:runtime-deps`) that fails if a vulnerable runtime copy returns [#3707](https://github.com/TryQuiet/quiet/issues/3707) [#3708](https://github.com/TryQuiet/quiet/issues/3708)
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
 
 * chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).

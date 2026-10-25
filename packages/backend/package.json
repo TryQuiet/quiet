@@ -198,15 +198,15 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "secp256k1": "4.0.3",
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4",
     "string-replace-loader": "3.1.0",
     "ts-jest-resolver": "^2.0.0",
     "uint8arraylist": "^2.4.8",
     "uint8arrays": "^5.1.0",
     "utf-8-validate": "^5.0.2",
     "validator": "^13.11.0",
-    "ws": "^8.18.3"
+    "ws": "^8.21.3"
   },
   "overrides": {
     "level": "$level",
@@ -219,6 +219,16 @@
     },
     "secp256k1": {
       "elliptic": "6.6.0"
+    },
+    "socket.io-parser": "^4.2.7",
+    "engine.io": {
+      "ws": "^8.21.3"
+    },
+    "engine.io-client": {
+      "ws": "^8.21.3"
+    },
+    "socket.io-adapter": {
+      "ws": "^8.21.3"
     }
   },
   "lint-staged": {
