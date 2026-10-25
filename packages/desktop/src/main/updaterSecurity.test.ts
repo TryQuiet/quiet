@@ -11,12 +11,7 @@ import { AppImageUpdater, NsisUpdater, AppUpdater } from 'electron-updater'
 import type { AppAdapter } from 'electron-updater/out/AppAdapter'
 import { configureRequestOptions, configureRequestUrl } from 'builder-util-runtime'
 import { NodeHttpExecutor } from 'builder-util/out/nodeHttpExecutor'
-import {
-  hardenUpdater,
-  verifyWindowsInstaller,
-  VerifyWindowsInstaller,
-  WINDOWS_PUBLISHER_NAMES,
-} from './updaterSecurity'
+import { hardenUpdater, updateStatement, verifyUpdateSignature, UPDATE_SIGNING_PUBLIC_KEYS } from './updaterSecurity'
 
 /**
  * The updater's own executor is built on Electron's `net`, which a Node test cannot load. This one
@@ -43,6 +38,9 @@ class TestHttpExecutor extends NodeHttpExecutor {
     })
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const updateSigning = require('../../scripts/updateSigning.cjs')
 
 const sha512 = (data: Buffer) => crypto.createHash('sha512').update(data).digest('base64')
 
@@ -95,9 +93,21 @@ const makeAdapter = (name: string, updateConfig: string, existingDir?: string): 
   }
 }
 
-// What electron-builder writes into resources/app-update.yml today (no publisherName) and with it.
-const configWithoutPublisher = () => `provider: generic\nurl: ${feedUrl}\n`
-const configWithPublisher = () => `${configWithoutPublisher()}publisherName:\n  - CN=Attacker Ltd\n`
+const updateConfig = () => `provider: generic\nurl: ${feedUrl}\n`
+
+const newKey = () => {
+  const { privateKey } = crypto.generateKeyPairSync('ed25519')
+  return { privateKey, publicKey: updateSigning.publicKeyOf(privateKey) as string }
+}
+const releaseKey = newKey()
+
+// Signs `bytes` the way the release pipeline does (scripts/updateSigning.cjs) and returns the
+// contents of the `<name>.sig` file it publishes.
+const signedAs = (name: string, bytes: Buffer, version = VERSION, key = releaseKey) => {
+  const file = path.join(fs.mkdtempSync(path.join(workDir, 'sign-')), name)
+  fs.writeFileSync(file, bytes)
+  return fs.readFileSync(updateSigning.signFile(file, version, key.privateKey))
+}
 
 // Which channel file the updater requests depends on the host running the test (latest.yml,
 // latest-linux.yml or latest-mac.yml), whatever updater class is under test.
@@ -125,40 +135,131 @@ const download = async (updater: AppUpdater) => {
 }
 
 describe('hardenUpdater', () => {
+  const hooks = () => ({ executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn() })
+
   it('refuses downgrades and web installers on every platform', () => {
     for (const platform of ['linux', 'darwin', 'win32'] as const) {
-      const updater = {
-        allowDowngrade: true,
-        disableWebInstaller: false,
-        verifySignature: jest.fn(),
-        doDownloadUpdate: jest.fn(),
-        getOrCreateDownloadHelper: jest.fn(),
-      }
-      hardenUpdater(updater as unknown as AppUpdater, platform)
+      const updater = { allowDowngrade: true, disableWebInstaller: false, ...hooks() }
+      hardenUpdater(updater as unknown as AppUpdater, platform, { publicKeys: [releaseKey.publicKey] })
       expect(updater.allowDowngrade).toBe(false)
       expect(updater.disableWebInstaller).toBe(true)
     }
   })
 
-  it('leaves signature verification alone off Windows', () => {
-    const verifySignature = jest.fn()
-    const updater = { verifySignature }
-    hardenUpdater(updater as unknown as AppUpdater, 'linux')
-    expect(updater.verifySignature).toBe(verifySignature)
+  it('leaves macOS downloads to Squirrel.Mac', () => {
+    const updater = hooks()
+    const { executeDownload } = updater
+    hardenUpdater(updater as unknown as AppUpdater, 'darwin', { publicKeys: [] })
+    expect(updater.executeDownload).toBe(executeDownload)
   })
 
-  it('pins a full-DN publisher that matches package.json', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { build } = require('../../package.json')
-    expect(build.win.signtoolOptions.publisherName).toEqual([...WINDOWS_PUBLISHER_NAMES])
-    expect(build.win.verifyUpdateCodeSignature).toBe(true)
-    for (const name of WINDOWS_PUBLISHER_NAMES) {
-      expect(name).toMatch(/CN=.+, O=.+, C=\w\w/)
+  it.each(['win32', 'linux'] as const)('fails closed on %s without a signing key', platform => {
+    expect(() => hardenUpdater(hooks() as unknown as AppUpdater, platform, { publicKeys: [] })).toThrow(
+      /no update signing key/
+    )
+  })
+
+  it('fails closed on a malformed signing key', () => {
+    expect(() => hardenUpdater(hooks() as unknown as AppUpdater, 'win32', { publicKeys: ['not a key'] })).toThrow()
+  })
+
+  it('fails closed when electron-updater no longer exposes its download hooks', () => {
+    expect(() => hardenUpdater({} as unknown as AppUpdater, 'linux', { publicKeys: [releaseKey.publicKey] })).toThrow(
+      /download hooks/
+    )
+  })
+
+  it('ships real Ed25519 keys', () => {
+    expect(UPDATE_SIGNING_PUBLIC_KEYS.length).toBeGreaterThan(0)
+    for (const key of UPDATE_SIGNING_PUBLIC_KEYS) {
+      const parsed = crypto.createPublicKey({ key: Buffer.from(key, 'base64'), format: 'der', type: 'spki' })
+      expect(parsed.asymmetricKeyType).toBe('ed25519')
     }
   })
 
-  it('fails closed on Windows when electron-updater no longer exposes its signature hooks', () => {
-    expect(() => hardenUpdater({} as unknown as AppUpdater, 'win32')).toThrow(/download hooks/)
+  it('signs the same statement the app verifies', () => {
+    expect(updateSigning.updateStatement('1.2.3', 'Quiet Setup 1.2.3.exe', 'abc==')).toBe(
+      updateStatement('1.2.3', 'Quiet Setup 1.2.3.exe', 'abc==')
+    )
+  })
+})
+
+describe('verifyUpdateSignature', () => {
+  const name = 'Quiet-Setup-99.0.0.exe'
+  const bytes = Buffer.from('MZ pretend installer '.repeat(100))
+  const file = () => {
+    const filePath = path.join(fs.mkdtempSync(path.join(workDir, 'verify-')), name)
+    fs.writeFileSync(filePath, bytes)
+    return filePath
+  }
+  const signatureUrl = new URL(`http://feed.test/${name}.sig`)
+  const verify = (
+    fetchSignature: () => Promise<string>,
+    keys = [releaseKey.publicKey],
+    version: string | null = VERSION
+  ) =>
+    verifyUpdateSignature(
+      { filePath: file(), fileName: name, version: version ?? undefined, signatureUrl },
+      keys,
+      fetchSignature
+    )
+  const genuine = () => signedAs(name, bytes).toString()
+
+  it('accepts a signature from the release key', async () => {
+    await expect(verify(async () => genuine())).resolves.toBeNull()
+  })
+
+  it('accepts a signature from any key in the list, so keys can be rotated', async () => {
+    const next = newKey()
+    await expect(
+      verify(async () => signedAs(name, bytes, VERSION, next).toString(), [releaseKey.publicKey, next.publicKey])
+    ).resolves.toBeNull()
+  })
+
+  it('rejects a signature from a key that is not in the list', async () => {
+    await expect(verify(async () => signedAs(name, bytes, VERSION, newKey()).toString())).resolves.toMatch(
+      /does not match/
+    )
+  })
+
+  it('rejects when no key is configured or the version is unknown', async () => {
+    await expect(verify(async () => genuine(), [])).resolves.toMatch(/no release signing key/)
+    await expect(verify(async () => genuine(), [releaseKey.publicKey], null)).resolves.toMatch(/version is unknown/)
+  })
+
+  it('rejects when the signature cannot be fetched', async () => {
+    await expect(
+      verify(async () => {
+        throw new Error('HTTP 404')
+      })
+    ).resolves.toMatch(/could not fetch the signature.*HTTP 404/)
+  })
+
+  it.each([
+    ['empty', ''],
+    ['not base64', 'x'.repeat(88)],
+    ['too short', (text: string) => text.slice(0, 40)],
+    ['too long', (text: string) => `${text.trim()}AAAA`],
+  ])('rejects a %s signature file', async (_label, text) => {
+    await expect(verify(async () => (typeof text === 'string' ? text : text(genuine())))).resolves.toMatch(/malformed/)
+  })
+
+  it('rejects a flipped signature bit', async () => {
+    const raw = Buffer.from(genuine().trim(), 'base64')
+    raw[0] ^= 1
+    await expect(verify(async () => raw.toString('base64'))).resolves.toMatch(/does not match/)
+  })
+
+  it('tolerates surrounding whitespace in the signature file', async () => {
+    await expect(verify(async () => `\n  ${genuine().trim()} \r\n`)).resolves.toBeNull()
+  })
+
+  it('rejects a signature made for another version, file name or content', async () => {
+    await expect(verify(async () => signedAs(name, bytes, '98.0.0').toString())).resolves.toMatch(/does not match/)
+    await expect(verify(async () => signedAs('Other.exe', bytes).toString())).resolves.toMatch(/does not match/)
+    await expect(verify(async () => signedAs(name, Buffer.from('other bytes')).toString())).resolves.toMatch(
+      /does not match/
+    )
   })
 })
 
@@ -173,255 +274,135 @@ describe('update feed served from a local HTTP server', () => {
     else process.env.APPIMAGE = originalAppImage
   })
 
-  describe('Linux (AppImage): sha512 from the feed is enforced', () => {
-    const name = 'Quiet-99.0.0.AppImage'
-    const genuine = Buffer.from('genuine AppImage bytes '.repeat(500))
+  const platforms = [
+    {
+      title: 'Linux (AppImage)',
+      platform: 'linux' as const,
+      name: 'Quiet-99.0.0.AppImage',
+      create: (adapter: AppAdapter) => new AppImageUpdater(undefined, adapter),
+    },
+    {
+      title: 'Windows (NSIS)',
+      platform: 'win32' as const,
+      name: 'Quiet-Setup-99.0.0.exe',
+      create: (adapter: AppAdapter) => new NsisUpdater(undefined, adapter),
+    },
+  ]
 
-    const appImageUpdater = () => {
-      const updater = configure(new AppImageUpdater(undefined, makeAdapter('linux', configWithoutPublisher())))
-      hardenUpdater(updater, 'linux')
-      return updater
-    }
+  describe.each(platforms.map(p => [p.title, p] as const))(
+    '%s: downloads need a release-key signature',
+    (_title, { platform, name, create }) => {
+      const genuine = Buffer.from(`genuine ${platform} update `.repeat(500))
 
-    it('accepts an AppImage whose bytes match the feed hash (control)', async () => {
-      serveFeed(Buffer.from(feedFile(name, genuine)), { [`/${name}`]: genuine })
-      const downloaded = await download(appImageUpdater())
-      expect(fs.readFileSync(downloaded[0])).toEqual(genuine)
-    })
-
-    it('rejects an AppImage swapped for different bytes behind the same feed entry', async () => {
-      const malicious = Buffer.from('malicious payload '.repeat(500))
-      serveFeed(Buffer.from(feedFile(name, genuine)), { [`/${name}`]: malicious })
-      await expect(download(appImageUpdater())).rejects.toThrow(/sha512 checksum mismatch/)
-    })
-
-    it('rejects a feed entry that carries no hash at all', async () => {
-      const noHash = `version: ${VERSION}\nfiles:\n  - url: ${name}\npath: ${name}\nreleaseDate: '2026-01-01T00:00:00.000Z'\n`
-      serveFeed(Buffer.from(noHash), { [`/${name}`]: genuine })
-      await expect(download(appImageUpdater())).rejects.toThrow(/sha512/)
-    })
-  })
-
-  describe('Windows (NSIS): signature is checked against the pinned publisher and version', () => {
-    const name = 'Quiet-Setup-99.0.0.exe'
-    const installer = Buffer.from('MZ pretend installer '.repeat(500))
-    const pinned = WINDOWS_PUBLISHER_NAMES[0]
-
-    // Get-AuthenticodeSignature only exists on Windows, so stand in for it: an installer says who
-    // signed it and which version it is with "signed-by:<dn>" and "version:<v>" marker lines.
-    const fakeAuthenticode = jest.fn<ReturnType<VerifyWindowsInstaller>, Parameters<VerifyWindowsInstaller>>(
-      async (publisherNames, file, expectedVersion) => {
-        const text = fs.readFileSync(file, 'latin1')
-        const signer = /signed-by:(.+)$/m.exec(text)?.[1]
-        const version = /version:(.+)$/m.exec(text)?.[1]
-        if (!signer || !publisherNames.includes(signer)) return `not signed by ${publisherNames.join(' | ')}`
-        return version === expectedVersion ? null : `installer is version ${version}`
+      const makeUpdater = (existingDir?: string, harden = true, publicKeys = [releaseKey.publicKey]) => {
+        const updater = configure(create(makeAdapter(platform, updateConfig(), existingDir)))
+        if (harden) hardenUpdater(updater, platform, { publicKeys })
+        return updater
       }
-    )
 
-    const nsisUpdater = (config: string, harden = true, existingDir?: string) => {
-      const updater = configure(new NsisUpdater(undefined, makeAdapter('win', config, existingDir)))
-      if (harden) hardenUpdater(updater, 'win32', fakeAuthenticode)
-      return updater
+      const serve = (payload: Buffer, signature: Buffer | null, declared = payload) =>
+        serveFeed(Buffer.from(feedFile(name, declared)), {
+          [`/${name}`]: payload,
+          ...(signature ? { [`/${name}.sig`]: signature } : {}),
+        })
+
+      const installerOf = (updater: AppUpdater) =>
+        (updater as unknown as { installerPath: string | null }).installerPath
+
+      beforeEach(() => {
+        held = {}
+      })
+
+      it('installs an update signed by the release key (control)', async () => {
+        serve(genuine, signedAs(name, genuine))
+        const updater = makeUpdater()
+        const downloaded = await download(updater)
+        expect(fs.readFileSync(downloaded[0])).toEqual(genuine)
+        expect(installerOf(updater)).toBe(downloaded[0])
+      })
+
+      it('rejects swapped bytes even though the feed hash was updated to match them', async () => {
+        // An attacker who controls the bucket controls the file and its hash, but not the key.
+        const malicious = Buffer.from('malicious payload '.repeat(500))
+        serve(malicious, signedAs(name, genuine))
+        const updater = makeUpdater()
+        await expect(download(updater)).rejects.toThrow(/not signed by the Quiet release key.*does not match/)
+        expect(installerOf(updater)).toBeNull()
+      })
+
+      it('rejects an update with no signature file', async () => {
+        serve(genuine, null)
+        const updater = makeUpdater()
+        await expect(download(updater)).rejects.toThrow(/could not fetch the signature.*404/)
+        expect(installerOf(updater)).toBeNull()
+      })
+
+      it('rejects an update signed by another key', async () => {
+        serve(genuine, signedAs(name, genuine, VERSION, newKey()))
+        await expect(download(makeUpdater())).rejects.toThrow(/does not match/)
+      })
+
+      it('rejects an older, genuinely signed update replayed under a newer announced version', async () => {
+        serve(genuine, signedAs(name, genuine, '98.0.0'))
+        await expect(download(makeUpdater())).rejects.toThrow(/does not match/)
+      })
+
+      it('rejects a genuine signature that belongs to a different file', async () => {
+        serve(genuine, signedAs('Quiet-other-99.0.0.bin', genuine))
+        await expect(download(makeUpdater())).rejects.toThrow(/does not match/)
+      })
+
+      it('rejects a garbage signature file', async () => {
+        serve(genuine, Buffer.from('<html>not a signature</html>'))
+        await expect(download(makeUpdater())).rejects.toThrow(/malformed/)
+      })
+
+      it('still rejects a hash mismatch before any signature is considered', async () => {
+        const fetchSignature = jest.fn(async () => signedAs(name, genuine).toString())
+        serve(Buffer.concat([genuine, Buffer.from('x')]), null, genuine)
+        const updater = configure(create(makeAdapter(platform, updateConfig())))
+        hardenUpdater(updater, platform, { publicKeys: [releaseKey.publicKey], fetchSignature })
+        await expect(download(updater)).rejects.toThrow(/sha512 checksum mismatch|size/i)
+        expect(fetchSignature).not.toHaveBeenCalled()
+      })
+
+      it('does not reuse an update cached by an earlier launch without verifying it against the new announcement', async () => {
+        const dir = fs.mkdtempSync(path.join(workDir, `${platform}-cache-`))
+        // Launch 1: a genuine 98.0.0 is downloaded and verified, but never installed.
+        serveFeed(Buffer.from(feedFile(name, genuine).replace(VERSION, '98.0.0')), {
+          [`/${name}`]: genuine,
+          [`/${name}.sig`]: signedAs(name, genuine, '98.0.0'),
+        })
+        const first = makeUpdater(dir)
+        expect((await first.checkForUpdates())?.updateInfo.version).toBe('98.0.0')
+        await first.downloadUpdate()
+
+        // Launch 2: the feed now announces 99.0.0 but points at the very same bytes and hash.
+        serve(genuine, signedAs(name, genuine, '98.0.0'))
+        await expect(download(makeUpdater(dir))).rejects.toThrow(/does not match/)
+      })
+
+      it('verifies a download against the version announced when it started, even if a newer check lands meanwhile', async () => {
+        serve(genuine, signedAs(name, genuine))
+        let release: () => void = () => undefined
+        held[`/${name}`] = new Promise<void>(resolve => (release = resolve))
+        const updater = makeUpdater()
+        expect((await updater.checkForUpdates())?.updateInfo.version).toBe(VERSION)
+        const downloading = updater.downloadUpdate()
+
+        // While the file is still in flight the feed moves on and the periodic check runs.
+        const newerFeed = feedFile(name, genuine).replace(VERSION, '99.1.0')
+        served['/latest.yml'] = served['/latest-linux.yml'] = served['/latest-mac.yml'] = Buffer.from(newerFeed)
+        expect((await updater.checkForUpdates())?.updateInfo.version).toBe('99.1.0')
+
+        release()
+        await expect(downloading).resolves.toHaveLength(1)
+      })
+
+      it('without hardenUpdater the same unsigned update is accepted (the old behaviour)', async () => {
+        serve(genuine, null)
+        await expect(download(makeUpdater(undefined, false))).resolves.toHaveLength(1)
+      })
     }
-
-    const stamped = (signer: string | null, version = VERSION) =>
-      Buffer.concat([installer, Buffer.from(`\nversion:${version}${signer ? `\nsigned-by:${signer}` : ''}`)])
-
-    const serve = (payload: Buffer, declared = payload) =>
-      serveFeed(Buffer.from(feedFile(name, declared)), { [`/${name}`]: payload })
-
-    beforeEach(() => {
-      fakeAuthenticode.mockClear()
-      held = {}
-    })
-
-    it('installs an installer signed by the pinned publisher at the announced version (control)', async () => {
-      serve(stamped(pinned))
-      await expect(download(nsisUpdater(configWithoutPublisher()))).resolves.toHaveLength(1)
-      expect(fakeAuthenticode).toHaveBeenCalledWith(WINDOWS_PUBLISHER_NAMES, expect.stringContaining('.exe'), VERSION)
-    })
-
-    it('rejects a validly hashed installer signed by someone else', async () => {
-      serve(stamped('CN=Attacker Ltd'))
-      await expect(download(nsisUpdater(configWithoutPublisher()))).rejects.toThrow(
-        /not signed by the application owner/
-      )
-    })
-
-    it('rejects an unsigned installer even though app-update.yml has no publisherName', async () => {
-      serve(stamped(null))
-      await expect(download(nsisUpdater(configWithoutPublisher()))).rejects.toThrow(
-        /not signed by the application owner/
-      )
-    })
-
-    it('ignores a publisherName planted in app-update.yml', async () => {
-      serve(stamped('CN=Attacker Ltd'))
-      await expect(download(nsisUpdater(configWithPublisher()))).rejects.toThrow(/not signed by the application owner/)
-      expect(fakeAuthenticode.mock.calls[0][0]).toEqual(WINDOWS_PUBLISHER_NAMES)
-    })
-
-    it('rejects an older, genuinely signed installer replayed under a newer announced version', async () => {
-      serve(stamped(pinned, '11.2.0'))
-      await expect(download(nsisUpdater(configWithoutPublisher()))).rejects.toThrow(
-        /not signed by the application owner.*11\.2\.0/
-      )
-    })
-
-    it('still rejects a hash mismatch before any signature is considered', async () => {
-      const signed = stamped(pinned)
-      serve(Buffer.concat([signed, Buffer.from('x')]), signed)
-      await expect(download(nsisUpdater(configWithoutPublisher()))).rejects.toThrow(/sha512 checksum mismatch|size/i)
-      expect(fakeAuthenticode).not.toHaveBeenCalled()
-    })
-
-    it('does not reuse an installer cached by an earlier launch without verifying it against the new announcement', async () => {
-      const dir = fs.mkdtempSync(path.join(workDir, 'win-cache-'))
-      // Launch 1: a genuine 98.0.0 is downloaded and verified, but never installed.
-      const older = stamped(pinned, '98.0.0')
-      serveFeed(Buffer.from(feedFile(name, older).replace(VERSION, '98.0.0')), { [`/${name}`]: older })
-      const first = nsisUpdater(configWithoutPublisher(), true, dir)
-      const firstResult = await first.checkForUpdates()
-      expect(firstResult?.updateInfo.version).toBe('98.0.0')
-      await first.downloadUpdate()
-      expect(fakeAuthenticode).toHaveBeenCalledTimes(1)
-
-      // Launch 2: the feed now announces 99.0.0 but points at the very same bytes and hash.
-      serve(older)
-      await expect(download(nsisUpdater(configWithoutPublisher(), true, dir))).rejects.toThrow(
-        /not signed by the application owner.*98\.0\.0/
-      )
-      expect(fakeAuthenticode).toHaveBeenCalledTimes(2)
-    })
-
-    it('verifies a download against the version announced when it started, even if a newer check lands meanwhile', async () => {
-      serve(stamped(pinned, VERSION))
-      let release: () => void = () => undefined
-      held[`/${name}`] = new Promise<void>(resolve => (release = resolve))
-      const updater = nsisUpdater(configWithoutPublisher())
-      expect((await updater.checkForUpdates())?.updateInfo.version).toBe(VERSION)
-      const downloading = updater.downloadUpdate()
-
-      // While the installer is still in flight the feed moves on and the periodic check runs.
-      const newer = '99.1.0'
-      const newerFeed = feedFile(name, stamped(pinned, newer)).replace(VERSION, newer)
-      served['/latest.yml'] = served['/latest-linux.yml'] = served['/latest-mac.yml'] = Buffer.from(newerFeed)
-      expect((await updater.checkForUpdates())?.updateInfo.version).toBe(newer)
-
-      release()
-      await expect(downloading).resolves.toHaveLength(1)
-      expect(fakeAuthenticode).toHaveBeenCalledWith(WINDOWS_PUBLISHER_NAMES, expect.any(String), VERSION)
-    })
-
-    it('without hardenUpdater the same unsigned installer is accepted (the old behaviour)', async () => {
-      serve(stamped(null))
-      const updater = nsisUpdater(configWithoutPublisher(), false)
-      // electron-updater's own verifier, here given no publisherName to check against.
-      await expect(download(updater)).resolves.toHaveLength(1)
-      expect(fakeAuthenticode).not.toHaveBeenCalled()
-    })
-  })
-})
-
-describe('verifyWindowsInstaller', () => {
-  const pinned = WINDOWS_PUBLISHER_NAMES
-  const file = 'C:\\cache\\Quiet Setup 99.0.0.exe'
-  // Shape of Get-AuthenticodeSignature piped through ConvertTo-Json, as the script emits it.
-  const verdict = (overrides: Record<string, unknown> = {}) =>
-    JSON.stringify({
-      Status: 0,
-      Path: file,
-      Subject: 'CN=Zbay LLC, O=Zbay LLC, L=Boston, S=Massachusetts, C=US',
-      ProductVersion: '99.0.0',
-      ...overrides,
-    })
-  const verify = (output: string | Error, version: string | null = '99.0.0') =>
-    verifyWindowsInstaller(pinned, file, version ?? undefined, async () => {
-      if (output instanceof Error) throw output
-      return output
-    })
-
-  it('accepts a valid signature from the pinned publisher at the announced version', async () => {
-    await expect(verify(verdict())).resolves.toBeNull()
-  })
-
-  it.each([
-    ['an invalid signature', { Status: 2 }],
-    ['an unsigned file', { Status: 1, Subject: null }],
-    ['a different publisher with the same CN', { Subject: 'CN=Zbay LLC, O=Other Corp, C=US' }],
-    ['a subject with an extra attribute', { Subject: 'CN=Zbay LLC, O=Zbay LLC, OU=x, C=US' }],
-    ['a subject repeating the CN', { Subject: 'CN=Evil, CN=Zbay LLC, O=Zbay LLC, L=Boston, S=Massachusetts, C=US' }],
-    ['a different publisher', { Subject: 'CN=Attacker Ltd, O=Attacker Ltd, C=US' }],
-    ['a verdict for a different file', { Path: 'C:\\elsewhere\\other.exe' }],
-    ['a signed older version', { ProductVersion: '11.2.0' }],
-    ['a missing version', { ProductVersion: null }],
-  ])('rejects %s', async (_label, overrides) => {
-    await expect(verify(verdict(overrides))).resolves.toEqual(expect.any(String))
-  })
-
-  it('tolerates a BOM, whitespace and path case in the verdict', async () => {
-    await expect(verify(`\uFEFF${verdict({ Path: file.toUpperCase() })}\r\n`)).resolves.toBeNull()
-  })
-
-  it('rejects when PowerShell cannot be run, instead of ignoring the check', async () => {
-    await expect(verify(new Error('spawn powershell.exe EACCES'))).resolves.toMatch(/could not verify/)
-  })
-
-  it('rejects unparseable output', async () => {
-    await expect(verify('not json')).resolves.toMatch(/could not verify/)
-  })
-
-  it('rejects when the announced version is unknown', async () => {
-    await expect(verify(verdict(), null)).resolves.toMatch(/version is unknown/)
-  })
-
-  it('rejects when no publisher is pinned', async () => {
-    await expect(verifyWindowsInstaller([], file, '99.0.0', async () => verdict())).resolves.toMatch(/no publisher/)
-  })
-})
-
-// Real Authenticode needs PowerShell's Get-AuthenticodeSignature, so this only runs on a Windows CI
-// runner. It drives the production verifier (real PowerShell, no stub) against a system binary.
-const windowsOnly = process.platform === 'win32' ? describe : describe.skip
-windowsOnly('verifyWindowsInstaller with the real Authenticode verifier (Windows only)', () => {
-  const signedBinary = path.join(
-    process.env.SystemRoot ?? 'C:\\Windows',
-    'System32',
-    'WindowsPowerShell',
-    'v1.0',
-    'powershell.exe'
   )
-
-  // The verifier reports the signer it found, which gives us the exact subject to pin in these tests.
-  const signerOf = async () =>
-    /signed by (.+), expected/.exec(
-      (await verifyWindowsInstaller(WINDOWS_PUBLISHER_NAMES, signedBinary, '1.0.0')) ?? ''
-    )![1]
-
-  it('rejects a validly signed binary from a publisher other than the pinned one', async () => {
-    await expect(verifyWindowsInstaller(WINDOWS_PUBLISHER_NAMES, signedBinary, '1.0.0')).resolves.toMatch(
-      /signed by CN=Microsoft/
-    )
-  })
-
-  it('accepts the pinned publisher only at the version stamped into the file', async () => {
-    const microsoft = [await signerOf()]
-    const wrongVersion = await verifyWindowsInstaller(microsoft, signedBinary, '0.0.0')
-    const stamped = /installer is version (.+), the feed announced/.exec(wrongVersion ?? '')?.[1]
-    expect(stamped).toBeTruthy()
-    await expect(verifyWindowsInstaller(microsoft, signedBinary, stamped)).resolves.toBeNull()
-  })
-
-  it('rejects an unsigned file', async () => {
-    const unsigned = path.join(os.tmpdir(), `quiet-unsigned-${process.pid}.exe`)
-    fs.writeFileSync(unsigned, 'MZ not signed')
-    try {
-      await expect(verifyWindowsInstaller(WINDOWS_PUBLISHER_NAMES, unsigned, '1.0.0')).resolves.toEqual(
-        expect.any(String)
-      )
-    } finally {
-      fs.rmSync(unsigned, { force: true })
-    }
-  })
 })

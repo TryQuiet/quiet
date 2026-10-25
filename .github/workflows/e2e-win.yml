@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: node --test packages/backend/scripts/windows-tor-processes.test.cjs
 
-      - name: Test updater signature verification (real Authenticode)
+      - name: Test updater signature verification
         shell: bash
         run: npm run test:updater-security --prefix packages/desktop
 
@@ -58,9 +58,9 @@ jobs:
 
       # Release builds enforce the same policy before packaging (scripts/beforePack.cjs); this confirms
       # it on an actual Windows build for every PR.
-      - name: Verify packaged update config pins the Windows publisher
+      - name: Verify packaged update feed settings
         shell: bash
-        run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/win-unpacked/resources/app-update.yml win
+        run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/win-unpacked/resources/app-update.yml
 
       - name: Extract version
         id: extract_version

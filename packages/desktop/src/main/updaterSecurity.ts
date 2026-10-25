@@ -1,160 +1,166 @@
-import { execFile } from 'child_process'
+import crypto from 'crypto'
+import fs from 'fs'
 import path from 'path'
-import { parseDn } from 'builder-util-runtime'
+import { CancellationToken } from 'builder-util-runtime'
 import type { AppUpdater } from 'electron-updater'
+import signingKeys from './update-signing-keys.json'
 
 /**
- * Authenticode subject the Windows installer must be signed with. Keep in sync with
- * `build.win.signtoolOptions.publisherName` in package.json (scripts/updater-security.test.cjs
- * enforces it). A full DN is pinned on purpose: electron-updater falls back to matching the CN
- * alone when given a bare name, which any CA-issued certificate with the same CN would satisfy.
+ * Ed25519 public keys (base64 SPKI DER) whose signatures make a Windows installer or Linux
+ * AppImage acceptable. The private half signs each release in CI (scripts/updateSigning.cjs).
+ * A list so a key can be rotated: ship a release that carries both, signed with the old one.
  */
-export const WINDOWS_PUBLISHER_NAMES: readonly string[] = ['CN=Zbay LLC, O=Zbay LLC, L=Boston, S=Massachusetts, C=US']
+export const UPDATE_SIGNING_PUBLIC_KEYS: readonly string[] = signingKeys.publicKeys
 
-/** Resolves to null when the installer is acceptable, otherwise to the reason it is not. */
-export type VerifyWindowsInstaller = (
-  publisherNames: readonly string[],
-  filePath: string,
-  expectedVersion: string | undefined
-) => Promise<string | null>
+/**
+ * What the release key signs. It binds the app version, the file name and the file's sha512, so a
+ * signature cannot be replayed for another version or file. Must stay byte-identical to
+ * `updateStatement` in scripts/updateSigning.cjs.
+ */
+export const updateStatement = (version: string, fileName: string, sha512Base64: string) =>
+  `quiet-update-signature-v1\nversion:${version}\nfile:${fileName}\nsha512:${sha512Base64}\n`
 
-type RunPowerShell = (script: string, filePath: string) => Promise<string>
+const SIGNATURE_TIMEOUT_MS = 30_000
+const MAX_SIGNATURE_BYTES = 4096
 
-const POWERSHELL_TIMEOUT_MS = 30_000
+/** Fetches the text of a detached signature. Not trusted: whatever it returns is verified. */
+export type FetchSignature = (url: URL) => Promise<string>
 
-// The path travels in an environment variable so it never has to be quoted into the script.
-const AUTHENTICODE_SCRIPT = [
-  '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8',
-  '$f = $env:QUIET_UPDATE_FILE',
-  '$s = Get-AuthenticodeSignature -LiteralPath $f',
-  '$v = (Get-Item -LiteralPath $f).VersionInfo',
-  '[pscustomobject]@{ Status = [int]$s.Status; Path = $s.Path; Subject = $s.SignerCertificate.Subject; ProductVersion = $v.ProductVersion } | ConvertTo-Json -Compress',
-].join('; ')
+interface HttpExecutor {
+  downloadToBuffer(url: URL, options: { cancellationToken: CancellationToken }): Promise<Buffer>
+}
 
-const runPowerShell: RunPowerShell = (script, filePath) =>
-  new Promise((resolve, reject) => {
-    const systemRoot = process.env.SystemRoot ?? 'C:\\Windows'
-    const env: NodeJS.ProcessEnv = { ...process.env, QUIET_UPDATE_FILE: filePath }
-    // A foreign PSModulePath can make PowerShell load incompatible modules.
-    delete env.PSModulePath
-    execFile(
-      path.win32.join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'),
-      ['-NoProfile', '-NonInteractive', '-InputFormat', 'None', '-Command', script],
-      { env, timeout: POWERSHELL_TIMEOUT_MS, windowsHide: true },
-      (error, stdout, stderr) => {
-        if (error != null) reject(error)
-        else if (stderr) reject(new Error(`PowerShell wrote to stderr: ${stderr}`))
-        else resolve(stdout)
-      }
-    )
+// Goes through the updater's own HTTP executor so the request uses Electron's network stack, and
+// with it the system proxy settings that the update download itself relies on.
+const fetchSignatureWith =
+  (updater: AppUpdater): FetchSignature =>
+  async url => {
+    const executor = (updater as unknown as { httpExecutor?: HttpExecutor }).httpExecutor
+    if (executor == null) throw new Error('electron-updater has no HTTP executor')
+    const cancellationToken = new CancellationToken()
+    const timer = setTimeout(() => cancellationToken.cancel(), SIGNATURE_TIMEOUT_MS)
+    try {
+      const body = await executor.downloadToBuffer(url, { cancellationToken })
+      if (body.length > MAX_SIGNATURE_BYTES) throw new Error('signature file is too large')
+      return body.toString('utf8')
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+const sha512OfFile = (filePath: string) =>
+  new Promise<string>((resolve, reject) => {
+    const hash = crypto.createHash('sha512')
+    fs.createReadStream(filePath)
+      .on('data', chunk => hash.update(chunk))
+      .on('error', reject)
+      .on('end', () => resolve(hash.digest('base64')))
   })
 
-// Exact match on the pinned attributes: a signer subject with extra, repeated or multi-valued
-// attributes (parseDn keeps only the last value of a repeated key) is a different subject.
-const attributeCount = (dn: string) => dn.split(/[,+]/).filter(part => part.includes('=')).length
+const toPublicKey = (base64Spki: string) =>
+  crypto.createPublicKey({ key: Buffer.from(base64Spki, 'base64'), format: 'der', type: 'spki' })
 
-const sameDn = (pinned: string, subject: string) => {
-  const wanted = parseDn(pinned)
-  const actual = parseDn(subject)
-  return (
-    wanted.size > 0 &&
-    wanted.size === actual.size &&
-    attributeCount(pinned) === attributeCount(subject) &&
-    Array.from(wanted.keys()).every(key => wanted.get(key) === actual.get(key))
-  )
+interface SignedDownload {
+  filePath: string
+  fileName: string
+  version: string | undefined
+  signatureUrl: URL
 }
 
 /**
- * Accepts an installer only if Windows reports a valid Authenticode signature (status 0: trusted
- * chain, certificate valid at signing time) whose signer matches a pinned DN, and if the version
- * stamped into the signed file is the version the feed announced.
- *
- * electron-updater's own verifier cannot be used as is: when PowerShell cannot be executed it logs
- * "ignoring signature validation" and reports success. Here any failure to obtain a verdict is a
- * rejection.
- *
- * The version check closes a replay: the feed's version string is unauthenticated, so without it a
- * feed could announce 99.0.0 and serve an older, validly signed Quiet.
+ * Resolves to null when `filePath` carries a valid release-key signature for exactly this version
+ * and file name, otherwise to the reason it is not acceptable. Any failure to reach a verdict
+ * (no signature, unreadable file, network error) is a rejection.
  */
-export const verifyWindowsInstaller = async (
-  publisherNames: readonly string[],
-  filePath: string,
-  expectedVersion: string | undefined,
-  run: RunPowerShell = runPowerShell
+export const verifyUpdateSignature = async (
+  download: SignedDownload,
+  publicKeys: readonly string[],
+  fetchSignature: FetchSignature
 ): Promise<string | null> => {
-  if (publisherNames.length === 0) return 'no publisher is pinned'
-  if (!expectedVersion) return 'the announced update version is unknown'
-  let info: { Status?: unknown; Path?: unknown; Subject?: unknown; ProductVersion?: unknown }
+  if (publicKeys.length === 0) return 'no release signing key is configured'
+  if (!download.version) return 'the announced update version is unknown'
+  let signature: string
   try {
-    info = JSON.parse((await run(AUTHENTICODE_SCRIPT, filePath)).replace(/^\uFEFF/, '').trim())
+    signature = (await fetchSignature(download.signatureUrl)).trim()
   } catch (error) {
-    return `could not verify the signature: ${(error as Error).message}`
+    return `could not fetch the signature ${download.signatureUrl.href}: ${(error as Error).message}`
   }
-  if (info == null || typeof info !== 'object') return 'unreadable signature verdict'
-  if (info.Status !== 0) return `signature status is ${String(info.Status)}, not valid`
-  if (
-    typeof info.Path === 'string' &&
-    path.win32.normalize(info.Path).toLowerCase() !== path.win32.normalize(filePath).toLowerCase()
-  ) {
-    return 'signature verdict is for a different file'
+  if (!/^[A-Za-z0-9+/]{86}==$/.test(signature)) return 'the signature file is malformed'
+  let statement: Buffer
+  try {
+    statement = Buffer.from(updateStatement(download.version, download.fileName, await sha512OfFile(download.filePath)))
+  } catch (error) {
+    return `could not hash the download: ${(error as Error).message}`
   }
-  if (typeof info.Subject !== 'string' || !publisherNames.some(name => sameDn(name, info.Subject as string))) {
-    return `signed by ${String(info.Subject)}, expected ${publisherNames.join(' | ')}`
-  }
-  if (info.ProductVersion !== expectedVersion) {
-    return `installer is version ${String(info.ProductVersion)}, the feed announced ${expectedVersion}`
-  }
-  return null
+  const bytes = Buffer.from(signature, 'base64')
+  const valid = publicKeys.some(key => crypto.verify(null, statement, toPublicKey(key), bytes))
+  return valid ? null : 'the signature does not match this version and file'
 }
 
-// NsisUpdater keeps these as protected members, so they are not part of the public typings.
-interface DownloadOptions {
-  updateInfoAndProvider?: { info?: { version?: string } } | null
+// electron-updater keeps these as protected members, so they are not part of the public typings.
+interface DownloadTaskOptions {
+  fileInfo: { url: URL }
+  downloadUpdateOptions: { updateInfoAndProvider?: { info?: { version?: string } } | null }
+  task: (tempFile: string, ...rest: unknown[]) => Promise<void>
 }
 interface DownloadedUpdateHelper {
   getValidCachedUpdateFile(...args: unknown[]): Promise<string | null>
 }
-interface WindowsUpdater {
-  verifySignature(filePath: string): Promise<string | null>
-  doDownloadUpdate(options: DownloadOptions): Promise<string[]>
+interface UpdaterInternals {
+  executeDownload(options: DownloadTaskOptions): Promise<unknown>
   getOrCreateDownloadHelper(): Promise<DownloadedUpdateHelper>
 }
 
 /**
- * electron-updater only checks a Windows installer's signature when the on-disk app-update.yml
- * carries a `publisherName`; without one `verifySignature` returns "valid" and the installer runs
- * with nothing but the feed's own sha512 as protection. Replace it so the check always runs
- * against the publisher compiled into the app, whatever app-update.yml says (or doesn't).
+ * Makes every download prove itself with a release-key signature before electron-updater accepts
+ * it. Nothing in electron-updater does this for us: on Windows its own check only runs when the
+ * on-disk app-update.yml names a publisher (and trusts a CA-issued certificate, not our key), and
+ * on Linux the AppImage has no signature at all, so the sha512 from the feed, which sits next to
+ * the file, is the only protection.
  *
- * Two further holes are closed here:
- * - The announced version is captured when a download starts, not read from the updater's
- *   mutable "latest check" state when it finishes, so a check that overlaps a download (the app
- *   re-checks every 15 minutes) cannot make a genuine installer fail or a stale one pass.
- * - An installer left in the cache by an earlier launch is never reused: electron-updater would
- *   hand it back after comparing hashes only, skipping the signature and version checks, so a feed
- *   could announce a new version whose hash is that of an older cached installer. Within one
- *   launch the cached file was verified against the very same announcement, so that stays.
+ * The check runs inside the download task, on the temporary file, before electron-updater records
+ * the file as downloaded, so a rejected file is deleted and can neither be announced nor
+ * installed when the app quits. The version comes from the download being executed, not from the
+ * updater's mutable "latest check" state, so overlapping checks cannot mix versions up.
+ *
+ * An installer left in the cache by an earlier launch is never reused: electron-updater hands it
+ * back after comparing hashes only, which would skip this check, so a feed could announce a new
+ * version whose hash is that of an older cached installer. Within one launch the cached file was
+ * verified against the very same announcement, so that stays.
  */
-const pinWindowsPublisher = (updater: AppUpdater, verify: VerifyWindowsInstaller) => {
-  const windowsUpdater = updater as unknown as WindowsUpdater
-  if (
-    typeof windowsUpdater.verifySignature !== 'function' ||
-    typeof windowsUpdater.doDownloadUpdate !== 'function' ||
-    typeof windowsUpdater.getOrCreateDownloadHelper !== 'function'
-  ) {
-    throw new Error('electron-updater no longer exposes the Windows download hooks')
+const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string[], fetchSignature: FetchSignature) => {
+  const internals = updater as unknown as UpdaterInternals
+  if (typeof internals.executeDownload !== 'function' || typeof internals.getOrCreateDownloadHelper !== 'function') {
+    throw new Error('electron-updater no longer exposes its download hooks')
+  }
+  if (publicKeys.length === 0) throw new Error('no update signing key is configured')
+  publicKeys.forEach(toPublicKey) // throws on a malformed key
+
+  const executeDownload = internals.executeDownload.bind(internals)
+  internals.executeDownload = options => {
+    const { fileInfo, downloadUpdateOptions, task } = options
+    const version = downloadUpdateOptions.updateInfoAndProvider?.info?.version
+    const signatureUrl = new URL(fileInfo.url.href)
+    signatureUrl.pathname = `${signatureUrl.pathname}.sig`
+    const fileName = path.posix.basename(decodeURIComponent(fileInfo.url.pathname))
+    return executeDownload({
+      ...options,
+      task: async (tempFile, ...rest) => {
+        await task(tempFile, ...rest)
+        const problem = await verifyUpdateSignature(
+          { filePath: tempFile, fileName, version, signatureUrl },
+          publicKeys,
+          fetchSignature
+        )
+        if (problem != null) {
+          throw new Error(`New version ${version} is not signed by the Quiet release key: ${problem}`)
+        }
+      },
+    })
   }
 
-  let announcedVersion: string | undefined
-  const doDownloadUpdate = windowsUpdater.doDownloadUpdate.bind(windowsUpdater)
-  windowsUpdater.doDownloadUpdate = options => {
-    announcedVersion = options.updateInfoAndProvider?.info?.version
-    return doDownloadUpdate(options)
-  }
-  windowsUpdater.verifySignature = (filePath: string) => verify(WINDOWS_PUBLISHER_NAMES, filePath, announcedVersion)
-
-  const getOrCreateDownloadHelper = windowsUpdater.getOrCreateDownloadHelper.bind(windowsUpdater)
-  windowsUpdater.getOrCreateDownloadHelper = async () => {
+  const getOrCreateDownloadHelper = internals.getOrCreateDownloadHelper.bind(internals)
+  internals.getOrCreateDownloadHelper = async () => {
     const helper = await getOrCreateDownloadHelper()
     if (typeof helper.getValidCachedUpdateFile !== 'function') {
       throw new Error('electron-updater no longer exposes its update cache hook')
@@ -164,26 +170,31 @@ const pinWindowsPublisher = (updater: AppUpdater, verify: VerifyWindowsInstaller
   }
 }
 
+export interface HardenOptions {
+  publicKeys?: readonly string[]
+  fetchSignature?: FetchSignature
+}
+
 /**
  * Applies the update-verification policy. Throws if it cannot be applied, in which case the
  * caller must not check for or install updates.
  *
  * - Every platform: sha512 of the downloaded file must match the feed (electron-updater enforces
  *   it and fails the download otherwise); downgrades and web installers are refused.
- * - Windows: Authenticode signature pinned to WINDOWS_PUBLISHER_NAMES and bound to the announced
- *   version (see verifyWindowsInstaller).
+ * - Windows and Linux: the download must carry a release-key signature for the announced version
+ *   (see requireSignedDownloads). No certificate authority is involved, so an expired or
+ *   unrenewed code-signing certificate cannot break or weaken updates.
  * - macOS: Squirrel.Mac refuses a bundle whose code signature does not satisfy the running app's
  *   designated requirement, so nothing to configure here.
- * - Linux AppImage: no signature exists; the sha512 from the HTTPS feed is the only check.
  */
 export const hardenUpdater = (
   updater: AppUpdater,
   platform: NodeJS.Platform = process.platform,
-  verifyInstaller: VerifyWindowsInstaller = verifyWindowsInstaller
+  { publicKeys = UPDATE_SIGNING_PUBLIC_KEYS, fetchSignature = fetchSignatureWith(updater) }: HardenOptions = {}
 ) => {
   updater.allowDowngrade = false
   updater.disableWebInstaller = true
-  if (platform === 'win32') {
-    pinWindowsPublisher(updater, verifyInstaller)
+  if (platform === 'win32' || platform === 'linux') {
+    requireSignedDownloads(updater, publicKeys, fetchSignature)
   }
 }
