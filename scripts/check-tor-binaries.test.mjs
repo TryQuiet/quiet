@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
-import { Checker, MINIMUM, TARGETS, compareVersions, embeddedVersions, main, torInFramework } from './check-tor-binaries.mjs'
+import { Checker, LIBSSL_SHA256, MINIMUM, TARGETS, compareVersions, embeddedVersions, main, torInFramework } from './check-tor-binaries.mjs'
 
 const torString = version => `junk\0 (on Tor ${version} 8fe2745aee2c3511)\0junk`
 const opensslString = version => `junk\0OpenSSL ${version} 29 Sep 2026\0junk`
@@ -22,14 +23,17 @@ const fixture = (t, { tor = MINIMUM.tor, openssl = MINIMUM.openssl, slices = 2, 
       Array.from({ length: copies }, () => `${target.tor ? torString(tor) : ''}${target.openssl ? opensslString(openssl) : ''}`).join('')
     )
   }
+  write('3rd-party/tor/linux/libssl.so.3', 'pinned')
   write('packages/mobile/ios/Podfile', "pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v409.14.1/Tor.podspec'")
   write('packages/mobile/ios/Podfile.lock', 'PODS:\n  - Tor (409.14.1):\n    - Tor/CTor (= 409.14.1)\n')
   for (const [file, content] of Object.entries(files)) write(file, content)
   return base
 }
 
-const run = (base, method = 'repository') => {
-  const checker = new Checker()
+const PINNED = [createHash('sha256').update('pinned').digest('hex')]
+
+const run = (base, method = 'repository', libsslSha256 = PINNED) => {
+  const checker = new Checker({ libsslSha256 })
   checker[method](base, false)
   return checker.problems
 }
@@ -87,12 +91,18 @@ test('rejects OpenSSL 1.1 libraries wherever Quiet vendors or packages them', t 
   assert.equal(problems.filter(problem => problem.includes('end-of-life OpenSSL 1.1')).length, stale.length)
 })
 
+test('rejects a libssl.so.3 that is not the pinned build, even when tor and libcrypto are current', t => {
+  const problems = run(fixture(t), 'repository', LIBSSL_SHA256)
+  assert.ok(problems.some(problem => problem.includes('libssl.so.3') && problem.includes('is not the OpenSSL')))
+})
+
 test('checks a packaged tor directory', t => {
-  const base = fixture(t, { files: { 'packaged/tor': torString(MINIMUM.tor) + opensslString(MINIMUM.openssl), 'packaged/libcrypto.so.3': opensslString('3.5.8') } })
-  const checker = new Checker()
+  const base = fixture(t, { files: { 'packaged/tor': torString(MINIMUM.tor) + opensslString(MINIMUM.openssl), 'packaged/libcrypto.so.3': opensslString('3.5.8'), 'packaged/libssl.so.3': 'stale' } })
+  const checker = new Checker({ libsslSha256: PINNED })
   checker.packaged(path.join(base, 'packaged'), false)
-  assert.equal(checker.problems.length, 1)
+  assert.equal(checker.problems.length, 2)
   assert.match(checker.problems[0], /libcrypto\.so\.3: OpenSSL 3\.5\.8 is older than 3\.5\.9/)
+  assert.match(checker.problems[1], /packaged: libssl\.so\.3 .* is not the OpenSSL/)
 })
 
 test('the vendored binaries in this repository meet the baseline', () => {

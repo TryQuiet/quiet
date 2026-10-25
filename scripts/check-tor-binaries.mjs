@@ -8,11 +8,16 @@
 //
 // Raise MINIMUM when scripts/update-tor-binaries-desktop.sh moves to a newer Tor Browser.
 import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const MINIMUM = { tor: '0.4.9.14', openssl: '3.5.9', torFramework: '409.14.1' }
+
+// libssl.so.3 carries no version string, so it is pinned by hash to the build that ships with the libcrypto above
+// (Tor Browser 15.0.26, OpenSSL 3.5.9). Replace the hash whenever MINIMUM.openssl is raised.
+export const LIBSSL_SHA256 = ['9c2438d086d6c299db04b0bc337bbc8c0acd26c19c71eada2173a5b2ef7cecac']
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -61,6 +66,10 @@ export class Checker {
   problems = []
   report = []
 
+  constructor({ libsslSha256 = LIBSSL_SHA256 } = {}) {
+    this.libsslSha256 = libsslSha256
+  }
+
   fail(message) {
     this.problems.push(message)
   }
@@ -79,6 +88,12 @@ export class Checker {
     if (target.tor) this.version(target.name, 'tor', versions.tor, target.slices, MINIMUM.tor)
     if (target.openssl) this.version(target.name, 'OpenSSL', versions.openssl, target.slices, MINIMUM.openssl)
     this.report.push(`${target.name}: tor ${versions.tor.join(',') || '-'}  openssl ${versions.openssl.join(',') || '-'}`)
+  }
+
+  libssl(file, label) {
+    if (!existsSync(file)) return this.fail(`${label}: libssl.so.3 is missing`)
+    const digest = createHash('sha256').update(readFileSync(file)).digest('hex')
+    if (!this.libsslSha256.includes(digest)) this.fail(`${label}: libssl.so.3 (sha256 ${digest}) is not the OpenSSL ${MINIMUM.openssl} build`)
   }
 
   noStaleLibraries(directory, label) {
@@ -120,6 +135,7 @@ export class Checker {
 
   repository(base = root, run = true) {
     for (const target of TARGETS) this.file(target, base)
+    this.libssl(path.join(base, '3rd-party/tor/linux/libssl.so.3'), 'linux x86_64')
     for (const directory of STALE_DIRECTORIES) this.noStaleLibraries(path.join(base, directory), directory)
     this.ios(base)
     const host = { linux: ['3rd-party/tor/linux', 'tor'], win32: ['3rd-party/tor/win32', 'tor.exe'], darwin: ['3rd-party/tor/darwin', 'tor'] }[process.platform]
@@ -139,6 +155,7 @@ export class Checker {
       const libcrypto = embeddedVersions(path.join(directory, 'libcrypto.so.3')).openssl
       this.version('packaged libcrypto.so.3', 'OpenSSL', libcrypto, 1, MINIMUM.openssl)
     }
+    if (existsSync(path.join(directory, 'libcrypto.so.3'))) this.libssl(path.join(directory, 'libssl.so.3'), 'packaged')
     this.noStaleLibraries(directory, directory)
     this.report.push(`${label}: tor ${versions.tor.join(',')}  openssl ${versions.openssl.join(',') || '-'}`)
     const runnable = executable === 'tor.exe' ? process.platform === 'win32' : process.platform !== 'win32'
