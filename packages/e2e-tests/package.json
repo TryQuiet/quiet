@@ -43,7 +43,7 @@
     "@quiet/types": "^2.0.2-alpha.1",
     "backend-bundle": "^2.0.1-alpha.4",
     "cross-env": "^5.2.0",
-    "electron-chromedriver": "44.9.1",
+    "electron-chromedriver": "44.9.3",
     "electron-chromedriver-126": "npm:electron-chromedriver@31.7.7",
     "get-port": "^5.1.1",
     "jest": "^29.4.2",
