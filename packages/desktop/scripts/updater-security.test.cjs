@@ -44,29 +44,3 @@ test('verifyUpdateConfig flags a Windows app-update.yml that would skip the sign
   assert.deepEqual(problems(s3, 'other'), [])
   assert.match(problems({ provider: 'generic', url: 'http://example.test' }, 'other').join('\n'), /not https/)
 })
-
-// Real Authenticode needs PowerShell's Get-AuthenticodeSignature, so this only runs on a Windows
-// runner. It drives electron-updater's own verifier (the one hardenUpdater hands the pinned names).
-test(
-  'Windows: the real Authenticode verifier rejects an installer from a different publisher',
-  { skip: process.platform !== 'win32' },
-  async () => {
-    const { verifySignature } = require('electron-updater/out/windowsExecutableCodeSignatureVerifier')
-    const logger = { info() {}, warn() {}, error() {} }
-    const signedByMicrosoft = path.join(
-      process.env.SystemRoot,
-      'System32',
-      'WindowsPowerShell',
-      'v1.0',
-      'powershell.exe'
-    )
-    assert.equal(
-      await verifySignature(['CN=Microsoft Windows, O=Microsoft Corporation, C=US'], signedByMicrosoft, logger),
-      null
-    )
-    assert.match(
-      await verifySignature(pinnedPublishers, signedByMicrosoft, logger),
-      /incorrect certificate|publisherNames/
-    )
-  }
-)

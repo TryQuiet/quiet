@@ -56,6 +56,8 @@ jobs:
         run: node_modules/.bin/electron-builder --win
         shell: bash
 
+      # Release builds enforce the same policy before packaging (scripts/beforePack.cjs); this confirms
+      # it on an actual Windows build for every PR.
       - name: Verify packaged update config pins the Windows publisher
         shell: bash
         run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/win-unpacked/resources/app-update.yml win

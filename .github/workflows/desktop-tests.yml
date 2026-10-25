@@ -52,7 +52,7 @@ jobs:
 
       - name: "Updater security tests"
         if: steps.filter.outputs.desktop == 'true'
-        run: npm run test:updater-security --prefix packages/desktop
+        run: node --test packages/desktop/scripts/updater-security.test.cjs packages/desktop/scripts/before-pack.test.cjs
 
       - name: "Electron runtime tests (Linux)"
         if: steps.filter.outputs.desktop == 'true' && runner.os == 'Linux'
