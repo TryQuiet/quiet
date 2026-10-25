@@ -5,7 +5,7 @@
   "type": "module",
   "engines": { "node": ">=20.19.0", "npm": ">=10" },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
+    "test": "node --import tsx --test test/*.test.mjs",
     "test:full-loop": "node --import tsx --test --test-concurrency=1 full-loop.test.mjs",
     "test:onboarding": "node --import tsx --test --test-concurrency=1 onboarding.test.mjs",
     "server": "appium --address 127.0.0.1 --port 4725 --log-level warn"
