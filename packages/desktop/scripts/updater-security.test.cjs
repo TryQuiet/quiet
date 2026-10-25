@@ -147,6 +147,14 @@ test('signUpdates only lets unpublished builds go unsigned', async () => {
     }
     reset({ CI: 'true' })
     await assert.rejects(signing.default({ artifactPaths: [file] }), /not set/)
+    // e.g. `npm run distUbuntu` in the e2e workflows
+    const argv = process.argv
+    try {
+      process.argv = [...argv, '--linux', '--publish', 'never']
+      assert.deepEqual(await signing.default({ artifactPaths: [file] }), [], '--publish never')
+    } finally {
+      process.argv = argv
+    }
   } finally {
     for (const name of Object.keys(process.env)) if (!(name in saved)) delete process.env[name]
     Object.assign(process.env, saved)

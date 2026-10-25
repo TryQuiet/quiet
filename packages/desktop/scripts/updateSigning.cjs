@@ -58,6 +58,13 @@ const signFile = (filePath, version, privateKey) => {
   return signatureFile
 }
 
+// `-p never` / `--publish never` / `--publish=never`: the build is not uploaded anywhere.
+const explicitlyUnpublished = (argv = process.argv) =>
+  argv.some((arg, index) => {
+    const value = /^(?:-p|--publish)=(.+)$/.exec(arg)?.[1] ?? (/^(?:-p|--publish)$/.test(arg) ? argv[index + 1] : null)
+    return value === 'never'
+  })
+
 const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 // electron-builder `afterAllArtifactBuild`: signs the build and returns the signature files for
@@ -65,13 +72,13 @@ const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 // the signatures included, has finished, and not at all if this hook throws, so the feed never
 // announces a release whose signature is missing.
 //
-// Without a key only builds that are never published may continue: a local build (no CI) or a PR,
-// e2e or IS_LOCAL build. beforePack has already stopped publishing builds without a usable key.
+// Without a key only builds that are never published may continue: a local build (no CI), a PR, e2e
+// or IS_LOCAL build, or one run with `--publish never`. beforePack has already stopped publishing builds without a usable key.
 exports.default = async function signUpdates(buildResult) {
   const files = buildResult.artifactPaths.filter(file => SIGNED_EXTENSIONS.includes(path.extname(file)))
   if (files.length === 0) return []
   if (!process.env[KEY_ENV]) {
-    if (isUnsignedBuild(process.env) || !process.env.CI) return []
+    if (isUnsignedBuild(process.env) || !process.env.CI || explicitlyUnpublished()) return []
     throw new Error(`Refusing to publish unsigned updates: ${KEY_ENV} is not set`)
   }
   const privateKey = parsePrivateKey(process.env[KEY_ENV])

@@ -22,14 +22,19 @@ const problems = (dir, publicKeys = loadPublicKeys()) => {
     const sha512 = crypto.createHash('sha512').update(fs.readFileSync(file)).digest('base64')
     const statement = Buffer.from(updateStatement(version, name, sha512))
     const signature = Buffer.from(fs.readFileSync(`${file}.sig`, 'utf8').trim(), 'base64')
-    const valid = publicKeys.some(key =>
-      crypto.verify(
-        null,
-        statement,
-        crypto.createPublicKey({ key: Buffer.from(key, 'base64'), format: 'der', type: 'spki' }),
-        signature
+    let valid = false
+    try {
+      valid = publicKeys.some(key =>
+        crypto.verify(
+          null,
+          statement,
+          crypto.createPublicKey({ key: Buffer.from(key, 'base64'), format: 'der', type: 'spki' }),
+          signature
+        )
       )
-    )
+    } catch {
+      // a malformed signature file counts as invalid
+    }
     if (!valid) found.push(`${name}: signature is not valid for version ${version} under any shipped key`)
   }
   return found
