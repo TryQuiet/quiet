@@ -121,6 +121,16 @@ jobs:
           NODE
           USE_HARD_LINKS=false bash ../../scripts/retry-network-command.sh node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
 
+      # Reads the unpacked app electron-builder just produced, so a stale Tor
+      # copied into the package fails here even if the vendored files are right.
+      - name: Check packaged Tor and OpenSSL versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          dirs=$(find packages/desktop/dist -type d -name tor \( -path '*/resources/tor' -o -path '*/Resources/tor' \))
+          test -n "$dirs"
+          for dir in $dirs; do node scripts/check-tor-binaries.mjs --tor-dir "$dir"; done
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

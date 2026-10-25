@@ -22,7 +22,17 @@ test('final AppImage resolves production dependencies and has matching update me
   const launcher = fs.readFileSync(path.join(appDir, 'AppRun'), 'utf8')
   assert.ok(launcher.includes('NO_SANDBOX=()'))
   assert.ok(!launcher.includes('--no-sandbox'), 'packaged launcher must not disable the sandbox automatically')
-  assert.ok(launcher.includes('export LD_PRELOAD="${APPDIR}/usr/lib/libssl.so"'))
+  assert.ok(!launcher.includes('LD_PRELOAD'), 'packaged launcher must not preload an OpenSSL library')
+  // The Tor in the final bytes, not the vendored copy, must meet the baseline and bring no OpenSSL 1.1.
+  const torCheck = spawnSync(
+    process.execPath,
+    [path.resolve(__dirname, '../../../scripts/check-tor-binaries.mjs'), '--tor-dir', path.join(appDir, 'resources/tor')],
+    { encoding: 'utf8', timeout: 60_000 }
+  )
+  assert.equal(torCheck.status, 0, torCheck.stdout + torCheck.stderr)
+  assert.ok(!fs.existsSync(path.join(appDir, 'usr/lib/libssl.so')))
+  assert.ok(!fs.existsSync(path.join(appDir, 'usr/lib/libssl.so.1.1')))
+  assert.ok(!fs.existsSync(path.join(appDir, 'usr/lib/libcrypto.so.1.1')))
   const desktopFiles = fs.readdirSync(appDir).filter(name => name.endsWith('.desktop'))
   assert.ok(desktopFiles.length > 0)
   for (const name of desktopFiles) {

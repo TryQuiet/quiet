@@ -28,6 +28,9 @@ jobs:
       - name: "Validate workflow concurrency policy"
         run: node scripts/check-workflow-concurrency.test.mjs
 
+      - name: "Check shipped Tor and OpenSSL versions"
+        run: npm run check:tor-binaries && npm run test:tor-binaries
+
       - name: Test dependency download recovery
         run: node --test scripts/retry-network-command.test.mjs
 
