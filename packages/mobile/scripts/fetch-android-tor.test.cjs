@@ -17,7 +17,7 @@ test('the real Tor signature admits the pinned APK and rejects a tampered cached
   fs.mkdirSync(cache)
   fs.copyFileSync(path.join(__dirname, 'fetch-android-tor.sh'), path.join(scripts, 'fetch-android-tor.sh'))
   fs.copyFileSync(path.resolve(__dirname, '../../../scripts/tor-signing-key.asc'), path.join(directory, 'scripts/tor-signing-key.asc'))
-  const apk = 'tor-browser-android-x86_64-15.0.22.apk'
+  const apk = 'tor-browser-android-x86_64-15.0.26.apk'
   for (const name of [apk, `${apk}.asc`]) {
     fs.copyFileSync(path.join(process.env.QUIET_TOR_TEST_CACHE, name), path.join(cache, name), fs.constants.COPYFILE_FICLONE)
   }
