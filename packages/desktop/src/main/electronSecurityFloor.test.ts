@@ -13,7 +13,7 @@ const parse = (version: string) => {
   return { major, minor, patch, pre }
 }
 
-// Is `version` at or after `floor`? Prereleases sort before their release, which is all the 45 beta floor needs.
+// Is `version` at or after `floor`? Prereleases sort before their release.
 const atLeast = (version: string, floor: string) => {
   const v = parse(version)
   const f = parse(floor)
@@ -22,8 +22,17 @@ const atLeast = (version: string, floor: string) => {
   }
   if (!f.pre) return !v.pre
   if (!v.pre) return true
-  const num = (p: string) => Number(p.split('.').pop())
-  return num(v.pre) >= num(f.pre)
+  // Compare prerelease identifiers left to right: numeric ones numerically, others lexically (alpha < beta < rc)
+  const vIds = v.pre.split('.')
+  const fIds = f.pre.split('.')
+  for (let i = 0; i < Math.max(vIds.length, fIds.length); i++) {
+    if (vIds[i] === undefined) return false
+    if (fIds[i] === undefined) return true
+    if (vIds[i] === fIds[i]) continue
+    const bothNumeric = /^\d+$/.test(vIds[i]) && /^\d+$/.test(fIds[i])
+    return bothNumeric ? Number(vIds[i]) > Number(fIds[i]) : vIds[i] > fIds[i]
+  }
+  return true
 }
 
 const isPatched = (version: string) => {
@@ -35,13 +44,26 @@ const isPatched = (version: string) => {
 }
 
 describe('isPatched (eMudhra mitigation floor)', () => {
-  it.each(['44.9.1', '44.9.3', '43.8.1', '42.11.16', '45.0.0-beta.6', '45.0.0', '46.0.0'])('accepts %s', v => {
+  it.each([
+    '44.9.1',
+    '44.9.3',
+    '43.8.1',
+    '42.11.16',
+    '45.0.0-beta.6',
+    '45.0.0-beta.7',
+    '45.0.0-rc.1',
+    '45.0.0',
+    '46.0.0',
+  ])('accepts %s', v => {
     expect(isPatched(v)).toBe(true)
   })
 
-  it.each(['44.3.0', '44.9.0', '43.8.0', '42.11.15', '45.0.0-beta.5', '41.0.0', '31.7.7'])('rejects %s', v => {
-    expect(isPatched(v)).toBe(false)
-  })
+  it.each(['44.3.0', '44.9.0', '43.8.0', '42.11.15', '45.0.0-beta.5', '45.0.0-alpha.7', '41.0.0', '31.7.7'])(
+    'rejects %s',
+    v => {
+      expect(isPatched(v)).toBe(false)
+    }
+  )
 })
 
 describe('Electron version', () => {
