@@ -66,6 +66,7 @@
 * Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
 * Let a released Mac build open the camera when you scan a QR code, by granting the signed app the camera entitlement its hardened runtime requires, and ask for the camera in Quiet's own words rather than Electron's placeholder ones
 * Point a refused camera at the setting that would allow it when scanning a QR code on desktop, naming the macOS or Windows page, opening it, and asking the camera again when you come back, instead of only saying access was denied
+* fix(desktop): harden how the desktop app verifies updates. Upgrade `electron-updater` 5.0.1 → 6.8.11, which fixes a Windows code-signature verification bypass (CVE-2024-39698); pin the Windows installer's Authenticode publisher both in the build (`publisherName`) and in the app, which now refuses a Windows update whose signature is not from that publisher even if the packaged `app-update.yml` carries none; refuse downgrades and web installers; stop the updater entirely if these settings cannot be applied; and check the packaged `app-update.yml` and the real Authenticode verifier in CI. macOS updates remain verified by the OS code-signature check and Linux AppImage updates by the feed's sha512 over HTTPS only
 
 ### Tests
 

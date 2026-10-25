@@ -224,6 +224,9 @@ jobs:
           ARCH: x86_64
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
+      - name: Verify packaged update config
+        run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/linux-unpacked/resources/app-update.yml other
+
       # afterPack customizes the launcher before electron-builder hashes and
       # publishes the artifact. Verify those final bytes without rewriting them.
       - name: Verify final AppImage packaging
@@ -657,6 +660,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      # Fail the release rather than ship an installer whose updates are not signature-checked.
+      - name: Verify packaged update config pins the Windows publisher
+        shell: bash
+        run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/win-unpacked/resources/app-update.yml win
 
       - name: Get release
         id: get_release

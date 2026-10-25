@@ -4,6 +4,7 @@ import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog, powerS
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
+import { hardenUpdater } from './updaterSecurity'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
@@ -593,7 +594,14 @@ export const checkForUpdate = async () => {
   }
 }
 
-const setupUpdater = async () => {
+const setupUpdater = async (): Promise<boolean> => {
+  try {
+    hardenUpdater(autoUpdater)
+  } catch (error) {
+    // Fail closed: without the verification policy an update must not be fetched or installed.
+    logger.error('updater: disabled, could not enforce update verification', error)
+    return false
+  }
   autoUpdater.on('checking-for-update', () => {
     logger.info('updater: checking-for-update')
   })
@@ -612,9 +620,7 @@ const setupUpdater = async () => {
       mainWindow.webContents.send('newUpdateAvailable')
     }
   })
-  autoUpdater.on('before-quit-for-update', () => {
-    logger.info('updater: before-quit-for-update')
-  })
+  return true
 }
 
 let ports: ApplicationPorts
@@ -1007,11 +1013,12 @@ app.on('ready', async () => {
     // modal over whatever the test is clicking - observed as an intercepted click
     // on the join-community button. Nothing under test depends on the updater.
     if (!isE2Etest) {
-      await setupUpdater()
-      await checkForUpdate()
-      setInterval(async () => {
+      if (await setupUpdater()) {
         await checkForUpdate()
-      }, updaterInterval)
+        setInterval(async () => {
+          await checkForUpdate()
+        }, updaterInterval)
+      }
     }
   })
 

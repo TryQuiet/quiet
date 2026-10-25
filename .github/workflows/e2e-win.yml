@@ -33,6 +33,10 @@ jobs:
         shell: bash
         run: node --test packages/backend/scripts/windows-tor-processes.test.cjs
 
+      - name: Test updater signature verification (real Authenticode)
+        shell: bash
+        run: npm run test:updater-security --prefix packages/desktop
+
       - name: "Fetch jsign"
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
@@ -51,6 +55,10 @@ jobs:
         working-directory: ./packages/desktop
         run: node_modules/.bin/electron-builder --win
         shell: bash
+
+      - name: Verify packaged update config pins the Windows publisher
+        shell: bash
+        run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/win-unpacked/resources/app-update.yml win
 
       - name: Extract version
         id: extract_version
