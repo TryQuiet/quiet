@@ -9,7 +9,7 @@ import type { AppUpdater } from 'electron-updater'
  * enforces it). A full DN is pinned on purpose: electron-updater falls back to matching the CN
  * alone when given a bare name, which any CA-issued certificate with the same CN would satisfy.
  */
-export const WINDOWS_PUBLISHER_NAMES: readonly string[] = ['CN=Zbay LLC, O=Zbay LLC, C=US']
+export const WINDOWS_PUBLISHER_NAMES: readonly string[] = ['CN=Zbay LLC, O=Zbay LLC, L=Boston, S=Massachusetts, C=US']
 
 /** Resolves to null when the installer is acceptable, otherwise to the reason it is not. */
 export type VerifyWindowsInstaller = (
@@ -49,10 +49,19 @@ const runPowerShell: RunPowerShell = (script, filePath) =>
     )
   })
 
+// Exact match on the pinned attributes: a signer subject with extra, repeated or multi-valued
+// attributes (parseDn keeps only the last value of a repeated key) is a different subject.
+const attributeCount = (dn: string) => dn.split(/[,+]/).filter(part => part.includes('=')).length
+
 const sameDn = (pinned: string, subject: string) => {
   const wanted = parseDn(pinned)
   const actual = parseDn(subject)
-  return wanted.size > 0 && Array.from(wanted.keys()).every(key => wanted.get(key) === actual.get(key))
+  return (
+    wanted.size > 0 &&
+    wanted.size === actual.size &&
+    attributeCount(pinned) === attributeCount(subject) &&
+    Array.from(wanted.keys()).every(key => wanted.get(key) === actual.get(key))
+  )
 }
 
 /**
@@ -77,13 +86,16 @@ export const verifyWindowsInstaller = async (
   if (!expectedVersion) return 'the announced update version is unknown'
   let info: { Status?: unknown; Path?: unknown; Subject?: unknown; ProductVersion?: unknown }
   try {
-    info = JSON.parse(await run(AUTHENTICODE_SCRIPT, filePath))
+    info = JSON.parse((await run(AUTHENTICODE_SCRIPT, filePath)).replace(/^\uFEFF/, '').trim())
   } catch (error) {
     return `could not verify the signature: ${(error as Error).message}`
   }
   if (info == null || typeof info !== 'object') return 'unreadable signature verdict'
   if (info.Status !== 0) return `signature status is ${String(info.Status)}, not valid`
-  if (typeof info.Path === 'string' && path.win32.normalize(info.Path) !== path.win32.normalize(filePath)) {
+  if (
+    typeof info.Path === 'string' &&
+    path.win32.normalize(info.Path).toLowerCase() !== path.win32.normalize(filePath).toLowerCase()
+  ) {
     return 'signature verdict is for a different file'
   }
   if (typeof info.Subject !== 'string' || !publisherNames.some(name => sameDn(name, info.Subject as string))) {

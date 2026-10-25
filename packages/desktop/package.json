@@ -46,7 +46,7 @@
       "signtoolOptions": {
         "sign": "scripts/sign.js",
         "publisherName": [
-          "CN=Zbay LLC, O=Zbay LLC, C=US"
+          "CN=Zbay LLC, O=Zbay LLC, L=Boston, S=Massachusetts, C=US"
         ]
       }
     },

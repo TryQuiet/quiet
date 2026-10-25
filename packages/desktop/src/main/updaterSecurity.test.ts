@@ -350,12 +350,18 @@ describe('verifyWindowsInstaller', () => {
     ['an invalid signature', { Status: 2 }],
     ['an unsigned file', { Status: 1, Subject: null }],
     ['a different publisher with the same CN', { Subject: 'CN=Zbay LLC, O=Other Corp, C=US' }],
+    ['a subject with an extra attribute', { Subject: 'CN=Zbay LLC, O=Zbay LLC, OU=x, C=US' }],
+    ['a subject repeating the CN', { Subject: 'CN=Evil, CN=Zbay LLC, O=Zbay LLC, L=Boston, S=Massachusetts, C=US' }],
     ['a different publisher', { Subject: 'CN=Attacker Ltd, O=Attacker Ltd, C=US' }],
     ['a verdict for a different file', { Path: 'C:\\elsewhere\\other.exe' }],
     ['a signed older version', { ProductVersion: '11.2.0' }],
     ['a missing version', { ProductVersion: null }],
   ])('rejects %s', async (_label, overrides) => {
     await expect(verify(verdict(overrides))).resolves.toEqual(expect.any(String))
+  })
+
+  it('tolerates a BOM, whitespace and path case in the verdict', async () => {
+    await expect(verify(`\uFEFF${verdict({ Path: file.toUpperCase() })}\r\n`)).resolves.toBeNull()
   })
 
   it('rejects when PowerShell cannot be run, instead of ignoring the check', async () => {
@@ -379,7 +385,6 @@ describe('verifyWindowsInstaller', () => {
 // runner. It drives the production verifier (real PowerShell, no stub) against a system binary.
 const windowsOnly = process.platform === 'win32' ? describe : describe.skip
 windowsOnly('verifyWindowsInstaller with the real Authenticode verifier (Windows only)', () => {
-  const microsoft = ['CN=Microsoft Windows, O=Microsoft Corporation, C=US']
   const signedBinary = path.join(
     process.env.SystemRoot ?? 'C:\\Windows',
     'System32',
@@ -388,6 +393,12 @@ windowsOnly('verifyWindowsInstaller with the real Authenticode verifier (Windows
     'powershell.exe'
   )
 
+  // The verifier reports the signer it found, which gives us the exact subject to pin in these tests.
+  const signerOf = async () =>
+    /signed by (.+), expected/.exec(
+      (await verifyWindowsInstaller(WINDOWS_PUBLISHER_NAMES, signedBinary, '1.0.0')) ?? ''
+    )![1]
+
   it('rejects a validly signed binary from a publisher other than the pinned one', async () => {
     await expect(verifyWindowsInstaller(WINDOWS_PUBLISHER_NAMES, signedBinary, '1.0.0')).resolves.toMatch(
       /signed by CN=Microsoft/
@@ -395,6 +406,7 @@ windowsOnly('verifyWindowsInstaller with the real Authenticode verifier (Windows
   })
 
   it('accepts the pinned publisher only at the version stamped into the file', async () => {
+    const microsoft = [await signerOf()]
     const wrongVersion = await verifyWindowsInstaller(microsoft, signedBinary, '0.0.0')
     const stamped = /installer is version (.+), the feed announced/.exec(wrongVersion ?? '')?.[1]
     expect(stamped).toBeTruthy()
@@ -405,7 +417,9 @@ windowsOnly('verifyWindowsInstaller with the real Authenticode verifier (Windows
     const unsigned = path.join(os.tmpdir(), `quiet-unsigned-${process.pid}.exe`)
     fs.writeFileSync(unsigned, 'MZ not signed')
     try {
-      await expect(verifyWindowsInstaller(microsoft, unsigned, '1.0.0')).resolves.toEqual(expect.any(String))
+      await expect(verifyWindowsInstaller(WINDOWS_PUBLISHER_NAMES, unsigned, '1.0.0')).resolves.toEqual(
+        expect.any(String)
+      )
     } finally {
       fs.rmSync(unsigned, { force: true })
     }
