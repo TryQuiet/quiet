@@ -55,7 +55,7 @@ for (const libraryPath of [undefined, '', '/opt/quiet/lib:/usr/local/lib']) {
       result.actualPath.split(':').every(Boolean),
       'must not introduce the working directory into library lookup'
     )
-    assert.equal(result.preload, `${result.appDir}/usr/lib/libssl.so`)
+    assert.equal(result.preload, '', 'must not preload an OpenSSL library into Electron, the backend or Tor')
     assert.deepEqual(result.actualArgs, ['quiet://invite/hello', 'argument with spaces'])
   })
 }
