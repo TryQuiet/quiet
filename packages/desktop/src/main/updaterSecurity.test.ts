@@ -415,6 +415,43 @@ describe('update feed served from a local HTTP server', () => {
         await expect(downloading).resolves.toHaveLength(1)
       })
 
+      describe('downgrades', () => {
+        const updaterAt = (installed: string) => {
+          const updater = configure(create(makeAdapter(platform, updateConfig(), undefined, installed)))
+          hardenUpdater(updater, platform, { publicKeys: [releaseKey.publicKey] })
+          return updater
+        }
+
+        it('does not offer a genuinely signed older release to a newer install', async () => {
+          serve(genuine, signedAs(name, genuine))
+          const updater = updaterAt('100.0.0')
+          const result = await updater.checkForUpdates()
+          expect(result?.isUpdateAvailable).toBe(false)
+          expect(installerOf(updater)).toBeNull()
+        })
+
+        it('does not re-offer the installed version', async () => {
+          serve(genuine, signedAs(name, genuine))
+          expect((await updaterAt(VERSION).checkForUpdates())?.isUpdateAvailable).toBe(false)
+        })
+
+        it('keeps downgrades off even if the feed asks for them', async () => {
+          serve(genuine, signedAs(name, genuine))
+          const updater = updaterAt('100.0.0')
+          updater.allowDowngrade = true
+          hardenUpdater(updater, platform, { publicKeys: [releaseKey.publicKey] })
+          expect(updater.allowDowngrade).toBe(false)
+          expect((await updater.checkForUpdates())?.isUpdateAvailable).toBe(false)
+        })
+      })
+
+      it('rejects tampering on a plain-HTTP feed (the feed itself is not trusted, only the key is)', async () => {
+        expect(feedUrl.startsWith('http://')).toBe(true)
+        const malicious = Buffer.from('malicious payload '.repeat(500))
+        serve(malicious, signedAs(name, genuine))
+        await expect(download(makeUpdater())).rejects.toThrow(/does not match/)
+      })
+
       describe('release channels', () => {
         const prerelease = '99.0.0-alpha.1'
         const servePrerelease = () => {
