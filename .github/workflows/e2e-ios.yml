@@ -92,7 +92,7 @@ jobs:
           python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_storybook.py
           python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_ios.py
           python3 -B -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py'
-          node --test packages/mobile/scripts/qss-community-harness.test.cjs packages/mobile/scripts/desktop-processes.test.cjs
+          node --test packages/mobile/scripts/qss-community-harness.test.cjs packages/mobile/scripts/qss-port.test.cjs packages/mobile/scripts/desktop-processes.test.cjs
 
       - name: Install native build tools
         run: |

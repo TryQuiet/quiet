@@ -1,6 +1,7 @@
 const { execFile } = require('node:child_process')
 const { promisify } = require('node:util')
 const { androidSdkTool, ANDROID_APP_ID } = require('./androidQssBuild.cjs')
+const { qssPort } = require('./qssPort.cjs')
 
 function androidCommands(deviceId, env = process.env, execute = promisify(execFile)) {
   if (!deviceId || deviceId !== env.DETOX_ANDROID_DEVICE_ID) {
@@ -96,10 +97,11 @@ async function forceStopAndroidApp(adb, snapshot, { timeout = 20000, stableFor =
 }
 
 async function verifyAndroidRouting(adb) {
-  await adb('reverse', 'tcp:3003', 'tcp:3003')
+  const route = `tcp:${qssPort()}`
+  await adb('reverse', route, route)
   const routes = (await adb('reverse', '--list')).split(/\r?\n/).map(line => line.trim().split(/\s+/))
-  if (!routes.some(parts => parts.length === 3 && parts[1] === 'tcp:3003' && parts[2] === 'tcp:3003')) {
-    throw new Error('Android must reverse localhost:3003 to the owned host QSS fixture')
+  if (!routes.some(parts => parts.length === 3 && parts[1] === route && parts[2] === route)) {
+    throw new Error(`Android must reverse localhost:${qssPort()} to the owned host QSS fixture`)
   }
 }
 

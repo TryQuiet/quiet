@@ -4,6 +4,8 @@ import path from 'node:path'
 import { remote } from 'webdriverio'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
+import { createRequire } from 'node:module'
+const { qssPort } = createRequire(import.meta.url)('../utils/qssPort.cjs')
 const exec = promisify(execFile)
 export const literal = text =>
   text.includes("'")
@@ -70,9 +72,10 @@ export class Mobile {
   async start() {
     this.onboarding = true
     if (this.android && this.config.qssTarget !== 'staging') {
-      await this.adb('reverse', 'tcp:3003', 'tcp:3003')
+      const route = `tcp:${qssPort()}`
+      await this.adb('reverse', route, route)
       const { stdout } = await this.adb('reverse', '--list')
-      assert(stdout.includes('tcp:3003 tcp:3003'), 'The selected emulator needs the local QSS route')
+      assert(stdout.includes(`${route} ${route}`), 'The selected emulator needs the local QSS route')
     }
     this.driver = await remote({
       hostname: '127.0.0.1',
