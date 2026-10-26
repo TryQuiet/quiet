@@ -4,6 +4,8 @@
 
 ### Chores
 
+* chore(desktop): stop Authenticode-signing the Windows installer. The certificate it was signed with (Zbay LLC, DigiCert) expired in July 2023 and will not be renewed, so every installer since has carried a signature Windows reports as invalid. The `jsign` signing hook (`scripts/sign.js`), its `signtoolOptions` entry, and the certificate/password/alias secrets and download step in the release and Windows e2e workflows are removed. Fresh downloads now show SmartScreen's "unknown publisher" prompt as they effectively already did; installed apps update exactly as before, because their updater never checked the Authenticode signature
+
 * chore(deps): upgrade Electron (and the e2e ChromeDriver) from 44.3.0 to 44.9.3 (Chromium 152.0.7977.167, Node 24.22.0), a dependency security update that picks up Electron's mitigation for the compromised eMudhra intermediate CA certificates ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)). A test now fails if Electron drops below the patched release
 
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
