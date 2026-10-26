@@ -177,3 +177,18 @@ test('verifyUpdateSignatures accepts signed builds and flags missing, stale or f
   assert.match(verify(dir, accepted).join(), /not valid/)
   assert.match(verify(fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-signing-')), accepted).join(), /no \.exe/)
 })
+
+test('checkUpdateSigningKey demands a key that matches the pinned one, even on pull_request events', () => {
+  const { check } = require('./checkUpdateSigningKey.cjs')
+  const { publicKeyOf } = require('./updateSigning.cjs')
+  const crypto = require('node:crypto')
+  const mine = crypto.generateKeyPairSync('ed25519').privateKey
+  const pem = mine.export({ type: 'pkcs8', format: 'pem' })
+  const pinned = [publicKeyOf(mine)]
+  assert.deepStrictEqual(check({ QUIET_UPDATE_SIGNING_KEY: pem }, pinned).problems, [])
+  assert.strictEqual(check({ QUIET_UPDATE_SIGNING_KEY: pem, GITHUB_EVENT_NAME: 'pull_request' }, pinned).publicKey, pinned[0])
+  assert.match(check({}, pinned).problems.join(), /not set/)
+  assert.match(check({ QUIET_UPDATE_SIGNING_KEY: '' , GITHUB_EVENT_NAME: 'pull_request' }, pinned).problems.join(), /not set/)
+  assert.match(check({ QUIET_UPDATE_SIGNING_KEY: pem }, ['MCowBQYDK2VwAyEA4oQdkZ2SffV6BF+8XyahH6sAhvpWF578nzX79rTHi0c=']).problems.join(), /does not match/)
+  assert.match(check({ QUIET_UPDATE_SIGNING_KEY: 'garbage' }, pinned).problems.join(), /unusable/)
+})
