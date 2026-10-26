@@ -230,7 +230,7 @@
     "css-loader": "^6.7.2",
     "cypress": "^13.17.0",
     "cypress-storybook": "0.5.1",
-    "electron": "44.3.0",
+    "electron": "44.9.3",
     "electron-builder": "26.15.3",
     "electron-devtools-installer": "4.0.0",
     "electron-store-webpack-wrapper": "^0.0.2",

@@ -4,6 +4,8 @@
 
 ### Chores
 
+* chore(deps): upgrade Electron (and the e2e ChromeDriver) from 44.3.0 to 44.9.3 (Chromium 152.0.7977.167, Node 24.22.0), a dependency security update that picks up Electron's mitigation for the compromised eMudhra intermediate CA certificates ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)). A test now fails if Electron drops below the patched release
+
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
 
 * chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).
