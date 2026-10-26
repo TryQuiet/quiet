@@ -18,8 +18,8 @@
     "android": {
       "name": "nodejs-mobile-android-24.22.1-0.zip",
       "url": "https://github.com/TryQuiet/quiet/releases/download/nodejs-mobile-v24.22.1-0/nodejs-mobile-android-24.22.1-0.zip",
-      "size": 52881729,
-      "sha256": "32ac26c1d5c7915c5657328a246cdc0ea1e0613c24c57f8e76ac47b820245e93"
+      "size": 52819601,
+      "sha256": "4bb03968cdda48d643f9f038b495e3496747b9956eb3c5ab737e097ed751e324"
     },
     "ios": {
       "name": "nodejs-mobile-ios-24.22.1-0.zip",
@@ -30,11 +30,11 @@
   },
   "optionalAndroidAbis": {
     "x86_64": {
-      "android/app/libnode/bin/x86_64/libnode.so": "96c975c26a5a7dcd085dce9f10a7cc341233041c61458a2527625290606b3600"
+      "android/app/libnode/bin/x86_64/libnode.so": "9d70a662f33522c3367ee6165bf8c4fa8fc60fbe89826c91311ef0a124a6d292"
     }
   },
   "files": {
-    "android/app/libnode/bin/arm64-v8a/libnode.so": "4fa02bfb279ac12db9f05d1829538383b9a966ff721b1fffa760eba7adc74ce1",
+    "android/app/libnode/bin/arm64-v8a/libnode.so": "b70f036ff393ee2451c5ebf4a95325733534f78cc0704048c37f547ba043b5a3",
     "android/app/libnode/include/node/cppgc/allocation.h": "c694f793b748b67e8c3869f05ee7ae83aaed1c59e01a1bf6891e9c921d4255a9",
     "android/app/libnode/include/node/cppgc/common.h": "3c64e8f6eb258720401ec5079869c2148213f72f6d4d4df6df89d546b07a2c1a",
     "android/app/libnode/include/node/cppgc/cross-thread-persistent.h": "35cb3964217662a99e9c3cefaf75127a049fb50160cd6292cb1f09039df8c936",

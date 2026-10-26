@@ -78,7 +78,8 @@ scripts/prepare.sh
 Build commands run in the generated `out/` directory. The pinned
 [build instructions](https://github.com/gmaclennan/nodejs-mobile/blob/recipe/docs/BUILDING.md)
 use Linux, NDK r27d (`27.3.13750724`), and Android API 24 for
-`tools/android_build.sh <ndk-path> 24 arm64`; iOS uses macOS/Xcode and
+`LDFLAGS=-Wl,-z,max-page-size=16384 tools/android_build.sh <ndk-path> 24 arm64`
+(the linker flag is required for 16 KB page alignment; NDK r27d does not apply it by default); iOS uses macOS/Xcode and
 `tools/ios_framework_prepare.sh arm64` or `arm64-simulator`. Python 3.12/3.13
 with setuptools is needed. Leave `NODEJS_MOBILE_FLAVOR` unset for the full build.
 These helper scripts use all available CPU cores: limit their build jobs before
