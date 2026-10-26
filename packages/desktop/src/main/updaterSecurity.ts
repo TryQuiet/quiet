@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import fs from 'fs'
+import os from 'os'
 import path from 'path'
 import { CancellationToken, configureRequestOptions, configureRequestUrl } from 'builder-util-runtime'
 import type { AppUpdater } from 'electron-updater'
@@ -173,6 +174,23 @@ export const verifyUpdateSignature = async (
   fetchSignature: FetchSignature
 ): Promise<string | null> => (await inspectDownload(download, publicKeys, fetchSignature)).problem
 
+const INSTALL_COPY_PREFIX = 'quiet-update-'
+const INSTALL_COPY_MAX_AGE_MS = 24 * 60 * 60 * 1000
+
+/** The verified copies an earlier launch ran its installer from are not needed after the installer is done. */
+const removeStaleInstallCopies = () => {
+  try {
+    for (const entry of fs.readdirSync(os.tmpdir())) {
+      if (!entry.startsWith(INSTALL_COPY_PREFIX)) continue
+      const dir = path.join(os.tmpdir(), entry)
+      if (Date.now() - fs.statSync(dir).mtimeMs > INSTALL_COPY_MAX_AGE_MS)
+        fs.rmSync(dir, { recursive: true, force: true })
+    }
+  } catch {
+    // best effort
+  }
+}
+
 const sha512OfFileSync = (filePath: string) => {
   const hash = crypto.createHash('sha512')
   const buffer = Buffer.alloc(1 << 20)
@@ -206,6 +224,7 @@ interface UpdaterInternals {
   // BaseUpdater (Windows, Linux): both quitAndInstall() and install-on-quit end up here
   install(...args: unknown[]): boolean
   installerPath: string | null
+  downloadedUpdateHelper: { _file: string | null } | null
   dispatchError(error: Error): void
 }
 
@@ -247,6 +266,7 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
   if (publicKeys.length === 0) throw new Error('no update signing key is configured')
   publicKeys.forEach(toPublicKey) // throws on a malformed key
 
+  removeStaleInstallCopies()
   let verified: VerifiedInstall | null = null
   const executeDownload = internals.executeDownload.bind(internals)
   internals.executeDownload = options => {
@@ -293,33 +313,53 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
   }
 
   // electron-updater installs whatever file the path it remembers points to, with no further check,
-  // both for quitAndInstall() and for install-on-quit. The file sits in a directory the user can
-  // write, so check it again, synchronously, right before it is handed to the installer.
+  // both for quitAndInstall() and for install-on-quit, and that path is in a directory the user can
+  // write. So at install time the verified file is copied into a private directory (created
+  // exclusively, mode 0700), the copy is hashed and its signature checked, and the installer is run
+  // from that copy; the original path is never installed. The checks and the copy are synchronous
+  // (the quit handler cannot wait). A process running as the same user can still modify the copy
+  // between the check and the installer starting; that is only a real step up where the installer is
+  // elevated (Windows elevate.exe), because such a process can usually modify the installed app anyway.
   const install = internals.install.bind(internals)
   internals.install = (...args) => {
     const refuse = (reason: string) => {
-      const error = new Error(`Refusing to install the update: ${reason}`)
-      internals.dispatchError(error)
+      internals.dispatchError(new Error(`Refusing to install the update: ${reason}`))
       return false
     }
     const accepted = verified
-    if (accepted == null || internals.installerPath !== accepted.filePath) {
+    const helper = internals.downloadedUpdateHelper
+    if (accepted == null || helper == null || internals.installerPath !== accepted.filePath) {
       return refuse('it is not the file that was verified')
     }
+    let privateDir: string | null = null
     try {
-      const sha512 = sha512OfFileSync(accepted.filePath)
+      privateDir = fs.mkdtempSync(path.join(os.tmpdir(), INSTALL_COPY_PREFIX))
+      fs.chmodSync(privateDir, 0o700)
+      const copy = path.join(privateDir, path.basename(accepted.filePath))
+      fs.copyFileSync(accepted.filePath, copy, fs.constants.COPYFILE_EXCL)
+      fs.chmodSync(copy, 0o700)
+      const sha512 = sha512OfFileSync(copy)
       if (
         sha512 !== accepted.sha512 ||
         !signatureMatches(accepted.version, accepted.fileName, sha512, accepted.signature, publicKeys)
       ) {
+        fs.rmSync(privateDir, { recursive: true, force: true })
         fs.rmSync(accepted.filePath, { force: true })
         verified = null
         return refuse('the downloaded file changed after it was verified')
       }
+      // electron-updater reads the path from here; point it at the verified copy for this call only
+      const original = helper._file
+      helper._file = copy
+      try {
+        return install(...args)
+      } finally {
+        helper._file = original
+      }
     } catch (error) {
+      if (privateDir != null) fs.rmSync(privateDir, { recursive: true, force: true })
       return refuse(`the downloaded file could not be checked: ${(error as Error).message}`)
     }
-    return install(...args)
   }
 
   const getOrCreateDownloadHelper = internals.getOrCreateDownloadHelper.bind(internals)

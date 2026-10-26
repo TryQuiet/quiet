@@ -18,10 +18,14 @@ is verified by Squirrel.Mac against the app's Developer ID signature.
   the shipped keys, and verifies every signature it wrote against them, before electron-builder uploads.
 - Run **Actions > Check update signing key** (or `QUIET_UPDATE_SIGNING_KEY=... node scripts/checkUpdateSigningKey.cjs`)
   to prove the secret matches the pinned key without building or publishing anything.
-- The app re-hashes the downloaded file against the verified hash, synchronously, immediately before it is
-  handed to the installer (both `quitAndInstall` and install-on-quit), and refuses and deletes a file that
-  changed. A same-user process that wins the race between that check and the installer starting is outside
-  what this can stop.
+- At install time (both `quitAndInstall` and install-on-quit) the app copies the verified file into a fresh
+  private directory (created exclusively, mode 0700), re-hashes the copy, re-checks its signature and runs the
+  installer from that copy; the user-cache path it was downloaded to is never installed. Any mismatch is refused
+  and the file deleted. Copies left by earlier launches are removed after a day.
+
+  Residual risk: a process running as the same user can still modify the copy between the check and the installer
+  starting, and nothing in Node closes that gap. It matters mainly where the installer is elevated (Windows
+  `elevate.exe`); elsewhere a same-user attacker can usually modify the installed app directly.
 
 ## Creating or rotating the key
 

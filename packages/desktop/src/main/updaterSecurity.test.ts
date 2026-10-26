@@ -161,7 +161,31 @@ const download = async (updater: AppUpdater) => {
   return updater.downloadUpdate()
 }
 
+const installCopies: string[] = []
+afterAll(() => installCopies.forEach(dir => fs.rmSync(dir, { recursive: true, force: true })))
+
 describe('hardenUpdater', () => {
+  it('removes verified install copies left by an earlier launch, but not recent ones', () => {
+    const old = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-update-'))
+    const recent = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-update-'))
+    const unrelated = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-other-'))
+    const longAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    fs.utimesSync(old, longAgo, longAgo)
+    fs.utimesSync(unrelated, longAgo, longAgo)
+    hardenUpdater(
+      { executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn(), install: jest.fn() } as unknown as AppUpdater,
+      'linux',
+      {
+        publicKeys: [releaseKey.publicKey],
+      }
+    )
+    expect(fs.existsSync(old)).toBe(false)
+    expect(fs.existsSync(recent)).toBe(true)
+    expect(fs.existsSync(unrelated)).toBe(true)
+    fs.rmSync(recent, { recursive: true })
+    fs.rmSync(unrelated, { recursive: true })
+  })
+
   const hooks = () => ({ executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn(), install: jest.fn() })
 
   it('refuses downgrades and web installers on every platform', () => {
@@ -451,11 +475,20 @@ describe('update feed served from a local HTTP server', () => {
           serve(genuine, signedAs(name, genuine))
           const updater = makeUpdater()
           updater.autoInstallOnAppQuit = autoInstall
-          const doInstall = jest.spyOn(updater as any, 'doInstall').mockReturnValue(false) // not started: electron's autoUpdater is not loadable in a Node test
+          // what the installer would be started from, captured at the moment it is called
+          const installed: { path?: string; bytes?: Buffer; mode?: number; dirMode?: number } = {}
+          const doInstall = jest.spyOn(updater as any, 'doInstall').mockImplementation(() => {
+            installed.path = installerOf(updater) as string
+            installed.bytes = fs.readFileSync(installed.path)
+            installed.mode = fs.statSync(installed.path).mode & 0o777
+            installed.dirMode = fs.statSync(path.dirname(installed.path)).mode & 0o777
+            installCopies.push(path.dirname(installed.path))
+            return false // not started: electron's autoUpdater is not loadable in a Node test
+          })
           const errors: Error[] = []
           updater.on('error', error => errors.push(error))
           const [file] = await download(updater)
-          return { updater, doInstall, errors, file }
+          return { updater, doInstall, errors, file, installed }
         }
         const replace = (file: string, bytes: Buffer) => {
           // the way a different process would: a new file under the same name
@@ -464,19 +497,26 @@ describe('update feed served from a local HTTP server', () => {
         }
 
         it('installs the verified file through quitAndInstall', async () => {
-          const { updater, doInstall, errors, file } = await prepare(false)
+          const { updater, doInstall, errors, file, installed } = await prepare(false)
           updater.quitAndInstall(true)
           expect(doInstall).toHaveBeenCalledTimes(1)
-          expect(fs.readFileSync(file)).toEqual(genuine)
           expect(errors).toEqual([])
+          // installed from a verified private copy, never from the user-cache path it was downloaded to
+          expect(installed.bytes).toEqual(genuine)
+          expect(installed.path).not.toBe(file)
+          expect(path.basename(installed.path as string)).toBe(path.basename(file))
+          expect(installerOf(updater)).toBe(file)
+          if (process.platform !== 'win32') expect(installed.dirMode).toBe(0o700)
         })
 
         it('installs the verified file when the app quits', async () => {
-          const { doInstall, errors } = await prepare(true)
+          const { doInstall, errors, file, installed } = await prepare(true)
           expect(quitHandlers).toHaveLength(1)
           quitHandlers[0](0)
           expect(doInstall).toHaveBeenCalledTimes(1)
           expect(errors).toEqual([])
+          expect(installed.bytes).toEqual(genuine)
+          expect(installed.path).not.toBe(file)
         })
 
         it.each([
