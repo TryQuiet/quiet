@@ -5,6 +5,8 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { connect, type Socket as ClientSocket } from 'socket.io-client'
 import { DateTime } from 'luxon'
 
+import { quietSocketParser } from '../socket/socket.parser'
+
 import { createLogger } from '../common/logger'
 import { QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER } from '../const'
 import {
@@ -128,6 +130,7 @@ export class QSSClient extends EventEmitter {
         autoConnect: false,
         forceNew: false,
         transports: CLIENT_TRANSPORTS,
+        parser: quietSocketParser,
       })
       this._clientSocket = socket
       this._clientSocketEndpoint = this.qssEndpoint
