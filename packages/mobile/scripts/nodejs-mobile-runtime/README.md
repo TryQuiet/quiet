@@ -102,7 +102,7 @@ run on them, so Quiet's own bridge, storage and backend checks are the validatio
   supplied by the app's native build.
 - The iOS XCFramework contains **arm64 device and arm64 simulator** variants.
   Intel/x86_64 simulator support is removed by this runtime update. Both have
-  minimum iOS 14 and were built with SDK 26.5. The outer framework path,
+  minimum iOS 14 and were built with Xcode 26.3 (iPhoneOS SDK 26.2; 24.18.0 used 26.5). The outer framework path,
   `@rpath/NodeMobile.framework/NodeMobile` install name, and `node_start` C entry
   point match Quiet's existing integration.
 - Node's C++ module ABI changes from 108 to **137**; Node-API supports versions
