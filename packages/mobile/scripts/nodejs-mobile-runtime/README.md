@@ -1,7 +1,14 @@
 # Quiet's embedded Node runtime
 
-Quiet vendors the **full Node 24.18.0** Android and iOS artifacts from the
-community fork's [v24.18.0-0 prerelease](https://github.com/gmaclennan/nodejs-mobile/releases/tag/v24.18.0-0).
+Quiet vendors the **full Node 24.22.1** Android and iOS artifacts, the
+[Node 24 security release](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+([release notes](https://nodejs.org/en/blog/release/v24.22.1/)). They are built from the
+community fork's recipe rebased onto upstream `v24.22.1` and published as the
+`nodejs-mobile-v24.22.1-0` prerelease named in [runtime.json](runtime.json). The
+previous pin was the fork's
+[v24.18.0-0 prerelease](https://github.com/gmaclennan/nodejs-mobile/releases/tag/v24.18.0-0).
+`npm run check:node-runtime` (run in CI) fails if the vendored headers do not match
+`runtime.json` or are older than Node 24.22.1.
 This changes the backend runtime inside the mobile app. The build host remains
 Node 20.20.1, and React Native runs JavaScript in Hermes. Desktop's locked
 [Electron 32.3.3 embeds Node 20.18.1](https://releases.electronjs.org/release/v32.3.3),
@@ -54,45 +61,41 @@ checked against GitHub's release asset metadata. The prerelease uses an
 **unsigned tag**; these checks identify the publisher's exact artifacts, rather
 than independently establishing their source correspondence.
 
-The fork's
-[recipe at a01faac8af0250a07f30a5e06e5730feb8de874e](https://github.com/gmaclennan/nodejs-mobile/tree/a01faac8af0250a07f30a5e06e5730feb8de874e)
-applies a small patch series to upstream `v24.18.0`. Its `scripts/prepare.sh`
-requires the reconstructed source tree to equal
-`d83ac4fedea727d77a2856d2de813340c5fbf3a3`. The release tag resolves to the
-[materialized source commit f15e3d1133f84efc7888bc7eaf4cf9462273e9d2](https://github.com/gmaclennan/nodejs-mobile/commit/f15e3d1133f84efc7888bc7eaf4cf9462273e9d2).
-To reconstruct that source in an otherwise empty directory:
+The fork has no `v24.22.1` release, so Quiet's build applies the fork's
+patch series, rebased onto upstream `v24.22.1`, to upstream's tag. Node 24.22
+moved the OpenSSL engine code into a separate `ncrypto_engine` target; the fork's
+iOS build script and Xcode project did not link it, which the rebase fixes.
+The rebased recipe is commit `a3fec9b59d24985017d2abf35babc23c7e5cb4ab` of the
+recipe branch (`scripts/prepare.sh` requires the reconstructed source tree to equal
+`7deed40cce5148b464001e3d9cc4aa1492d48d23`). It follows the fork's
+[upgrade guide](https://github.com/gmaclennan/nodejs-mobile/blob/recipe/docs/UPGRADING.md):
 
 ```sh
-git init nodejs-mobile-recipe
-git -C nodejs-mobile-recipe fetch --depth 1 https://github.com/gmaclennan/nodejs-mobile.git a01faac8af0250a07f30a5e06e5730feb8de874e
-git -C nodejs-mobile-recipe checkout --detach FETCH_HEAD
-cd nodejs-mobile-recipe
+# in a checkout of the recipe branch at that commit
 scripts/prepare.sh
 ```
 
 Build commands run in the generated `out/` directory. The pinned
-[build instructions](https://github.com/gmaclennan/nodejs-mobile/blob/a01faac8af0250a07f30a5e06e5730feb8de874e/docs/BUILDING.md)
+[build instructions](https://github.com/gmaclennan/nodejs-mobile/blob/recipe/docs/BUILDING.md)
 use Linux, NDK r27d (`27.3.13750724`), and Android API 24 for
 `tools/android_build.sh <ndk-path> 24 arm64`; iOS uses macOS/Xcode and
 `tools/ios_framework_prepare.sh arm64` or `arm64-simulator`. Python 3.12/3.13
 with setuptools is needed. Leave `NODEJS_MOBILE_FLAVOR` unset for the full build.
 These helper scripts use all available CPU cores: limit their build jobs before
-using a machine with limited memory. A cold release build took roughly two to
-three hours per platform/architecture in the publisher's
-[release run](https://github.com/gmaclennan/nodejs-mobile/actions/runs/31479624590).
+using a machine with limited memory. A cold build took roughly 50 minutes per Android architecture on a 32-core Linux host.
 
-No independent rebuild or binary reproducibility comparison was performed for
-these vendored artifacts. The same release run completed Android/iOS build,
-curated test, native addon, and real device smoke jobs; that upstream evidence
-does not replace testing Quiet's bridge, storage, and backend.
+These 24.22.1 artifacts were built locally by Quiet, not by the fork's release workflow:
+they are unsigned and have had no independent reproduction. Their archive SHA-256
+values are in `runtime.json`; the fork's curated tests and device smoke jobs did not
+run on them, so Quiet's own bridge, storage and backend checks are the validation.
 
 [LICENSE.node](LICENSE.node) is the materialized source tree's license file;
 [LICENSE.polywasm](LICENSE.polywasm) covers the added WebAssembly implementation.
 
 ## Compatibility and validation boundaries
 
-- Android keeps Quiet's existing `arm64-v8a` ABI. The release also contains
-  ARMv7 and x86_64 runtimes, which this installer does not add to the app.
+- Android keeps Quiet's existing `arm64-v8a` ABI. The Android archive also contains
+  an x86_64 runtime (emulators), which `--install --abi x86_64` adds; there is no ARMv7 build.
   Every `PT_LOAD` segment in the downloaded ARM64 `libnode.so` has 16 KB
   alignment. APK ZIP alignment and the other native libraries need their
   usual checks after building. The runtime depends on `libc++_shared.so`,
@@ -120,11 +123,11 @@ does not replace testing Quiet's bridge, storage, and backend.
   WebAssembly is absent, allowing Node's undici-based `fetch` to work. This is
   a JavaScript implementation with slower execution and a limited WebAssembly
   feature set; see the pinned
-  [FAQ](https://github.com/gmaclennan/nodejs-mobile/blob/a01faac8af0250a07f30a5e06e5730feb8de874e/docs/FAQ.md).
+  [FAQ](https://github.com/gmaclennan/nodejs-mobile/blob/recipe/docs/FAQ.md).
 - Android now honors embedder-provided variables such as `NODE_OPTIONS` and
   `NODE_PATH` through the fork's `SafeGetenv` patch. Review native launch
   settings using the pinned
-  [embedding notes](https://github.com/gmaclennan/nodejs-mobile/blob/a01faac8af0250a07f30a5e06e5730feb8de874e/docs/EMBEDDING.md).
+  [embedding notes](https://github.com/gmaclennan/nodejs-mobile/blob/recipe/docs/EMBEDDING.md).
 
 Acceptance requires actual Android and iOS app startup with the native bridge,
 classic-level open/write/read/iterate/close/reopen across processes, existing

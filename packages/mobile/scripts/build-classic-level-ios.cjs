@@ -195,13 +195,13 @@ async function build(output) {
   const versionHeader = fs.readFileSync(path.join(NODE_HEADERS, 'node_version.h'), 'utf8')
   for (const [part, value] of [
     ['MAJOR', 24],
-    ['MINOR', 18],
-    ['PATCH', 0],
+    ['MINOR', 22],
+    ['PATCH', 1],
   ]) {
     assert.match(
       versionHeader,
       new RegExp(`#define NODE_${part}_VERSION\\s+${value}\\b`),
-      'Expected vendored Node 24.18.0 headers'
+      'Expected vendored Node 24.22.1 headers'
     )
   }
   const deviceSnapshot = snapshotTree(DEVICE_FRAMEWORK)
@@ -288,7 +288,7 @@ async function build(output) {
       `${JSON.stringify(
         {
           packages: PACKAGES,
-          nodeVersion: '24.18.0',
+          nodeVersion: '24.22.1',
           nodeHeaders: snapshotTree(NODE_HEADERS),
           xcode: run('xcodebuild', ['-version']),
           compiler: run('xcrun', ['clang++', '--version']),

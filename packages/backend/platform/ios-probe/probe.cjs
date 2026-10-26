@@ -8,7 +8,7 @@ const reportPath = path.join(os.homedir(), 'Documents/sodium-result.json')
 const report = {node: process.version, platform: process.platform, arch: process.arch, cases: []}
 async function main() {
   assert.equal(process.platform, 'ios')
-  assert.equal(process.version, 'v24.18.0')
+  assert.equal(process.version, 'v24.22.1')
   const reference = require('./reference/node_modules/libsodium-wrappers-sumo')
   await reference.ready
   const module = {exports: {}}

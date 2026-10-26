@@ -15,6 +15,7 @@
     "lint-ci": "npm run lint:no-fix",
     "lint-staged": "lint-staged --no-stash",
     "gen": "plop",
+    "check:node-runtime": "python3 ./scripts/nodejs-mobile-runtime/test_install.py && python3 ./scripts/nodejs-mobile-runtime/install.py --check-version",
     "prepare-backend-assets": "node ./scripts/prepare-backend-assets.cjs",
     "patch-react-native-file-logger": "node ./scripts/apply-patch.cjs ./patch/rnfl/build.gradle.patch --binary && node ./scripts/apply-patch.cjs ./patch/rnfl/AndroidManifest.xml.patch --binary",
     "patch-state-manager": "node ./scripts/apply-patch.cjs ./factory-girl.patch --production-only --directory ../state-manager",

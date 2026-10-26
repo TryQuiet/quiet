@@ -1,6 +1,6 @@
 # Android embedded Node/database smoke
 
-This instrumentation test runs the app's real `BackendWorker.startNodeProjectWithArguments` JNI launcher, embedded Node 24.18.0, statically registered `rn_bridge`, and the unchanged packaged Android classic-level addon. It starts a test fixture directly, without starting an Activity or importing the production backend/Tor bundle. The standard app startup and community tests remain separate requirements.
+This instrumentation test runs the app's real `BackendWorker.startNodeProjectWithArguments` JNI launcher, embedded Node 24.22.1, statically registered `rn_bridge`, and the unchanged packaged Android classic-level addon. It starts a test fixture directly, without starting an Activity or importing the production backend/Tor bundle. The standard app startup and community tests remain separate requirements.
 
 Build the Storybook debug app and its instrumentation APK using the normal Android build environment:
 
@@ -29,7 +29,7 @@ Normal instrumentation discovery skips this class unless `quietEmbeddedNodeRunId
 
 The Java test uses the official WorkManager test builder only to supply `WorkerParameters`; the backend worker, native bridge and Node runtime are real. It uses `NodeProjectManager` to copy the real APK assets, adds fixtures in a dedicated test directory, and verifies the production `bundle.cjs` hash is unchanged. Fixtures are included only in the instrumentation APK's assets. The database and verdict live in `Context.filesDir/quiet-embedded-node-smoke/<run-id>`; this path comes through actual JNI arguments because Android's existing bridge data-directory registration is not implemented.
 
-The fixture requires Android ARM64, Node 24.18.0, module ABI 137, and Node-API 3 or newer. It verifies a random nonce through the existing Kotlin `readyForSecret` response over the raw `rn_bridge` channel. This proves the native channel round trip; it does not test socket authentication or secret generation (`doWork()` is not started). No secret is persisted in the verdict.
+The fixture requires Android ARM64, Node 24.22.1, module ABI 137, and Node-API 3 or newer. It verifies a random nonce through the existing Kotlin `readyForSecret` response over the raw `rn_bridge` channel. This proves the native channel round trip; it does not test socket authentication or secret generation (`doWork()` is not started). No secret is persisted in the verdict.
 
 The addon must match the original APK asset and the checkout's SHA-256. The first process writes eight records synchronously, reads all records, checks a missing key, iterates forward and backward, closes and reopens the database, and verifies that compressed `.ldb` tables exist. The second process repeats the reads and open/close checks without writing new rows. Acceptance requires two distinct Android/Node PIDs, matching runtime and fixture hashes, 16 reads and two open/close cycles per process, and zero writes on the second launch. Test data remains in its dedicated namespace for inspection; normal user databases and the production bundle are untouched.
 

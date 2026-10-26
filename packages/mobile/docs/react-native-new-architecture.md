@@ -28,7 +28,7 @@ upgrades the separate Node runtime that executes Quiet's backend.
 
 - [Electron 32.3.3 runtime versions](https://releases.electronjs.org/release/v32.3.3)
 - [Official nodejs-mobile releases](https://github.com/nodejs-mobile/nodejs-mobile/releases)
-- [Node 24 mobile candidate](https://github.com/gmaclennan/nodejs-mobile/releases/tag/v24.18.0-0)
+- [Node 24.22.1 security release](https://nodejs.org/en/blog/release/v24.22.1/)
 
 ## Implementation checkpoint
 
@@ -48,8 +48,8 @@ upgrades the separate Node runtime that executes Quiet's backend.
   RN version. A narrowly pinned [upstream listener lifetime fix](../patch/rnscreens/README.md)
   is backported because native startup reproduced that crash on 4.24.0.
   The installer checks exact package/source hashes and rejects unexpected drift.
-- Embedded Node is pinned to the community fork's full **24.18.0-0** release
-  (Node **24.18.0**, module ABI **137**, Node-API **10**). The official project
+- Embedded Node is pinned to the full **24.22.1-0** runtime built from the community fork's recipe
+  (Node **24.22.1**, module ABI **137**, Node-API **10**). The official project
   has no Node 20 release. See [runtime provenance and installer](../scripts/nodejs-mobile-runtime/README.md)
   for archive digests, source commits, licenses, and compatibility tradeoffs.
   This is a community prerelease, and its binaries have not been independently

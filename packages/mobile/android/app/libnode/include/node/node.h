@@ -111,15 +111,7 @@
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 # define NODE_DEPRECATED(message, declarator) declarator
 #else  // NODE_WANT_INTERNALS
-# if NODE_CLANG_AT_LEAST(2, 9, 0) || NODE_GNUC_AT_LEAST(4, 5, 0)
-#  define NODE_DEPRECATED(message, declarator)                                 \
-    __attribute__((deprecated(message))) declarator
-# elif defined(_MSC_VER)
-#  define NODE_DEPRECATED(message, declarator)                                 \
-    __declspec(deprecated) declarator
-# else
-#  define NODE_DEPRECATED(message, declarator) declarator
-# endif
+#define NODE_DEPRECATED(message, declarator) [[deprecated(message)]] declarator
 #endif
 
 // Forward-declare libuv loop
@@ -247,8 +239,10 @@ enum Flags : uint32_t {
   kNoICU = 1 << 3,
   // Do not modify stdio file descriptor or TTY state.
   kNoStdioInitialization = 1 << 4,
-  // Do not register Node.js-specific signal handlers
-  // and reset other signal handlers to default state.
+  // Do not register Node.js-specific signal handlers, reset other signal
+  // handlers to default state, or replace the calling thread's signal mask
+  // (without this flag, POSIX builds with the inspector set it to block
+  // SIGUSR1 and nothing else).
   kNoDefaultSignalHandling = 1 << 5,
   // Do not perform V8 initialization.
   kNoInitializeV8 = 1 << 6,
@@ -892,6 +886,9 @@ NODE_EXTERN v8::MaybeLocal<v8::Value> LoadEnvironment(
     const ModuleData* entry_point,
     EmbedderPreloadCallback preload = nullptr);
 
+// Runs `env`'s event loop until its handles have closed, with JavaScript
+// execution disallowed on the isolate; see doc/api/embedding.md if that loop
+// is shared with other Environments.
 NODE_EXTERN void FreeEnvironment(Environment* env);
 
 // Set a callback that is called when process.exit() is called from JS,
@@ -905,6 +902,16 @@ NODE_EXTERN void SetProcessExitHandler(
     Environment* env,
     std::function<void(Environment*, int)>&& handler);
 NODE_EXTERN void DefaultProcessExitHandler(Environment* env, int exit_code);
+
+// Sets a process-global handler invoked when Node.js programmatically aborts.
+// Nullable strings representing the location and reason for the abort may or
+// may not be passed as a parameter to the handler. The handler should not
+// return, but node will ensure that the process exits after the handler is
+// called regardless of whether or not it returns. Passing nullptr restores the
+// default handler. This is process-global and may be invoked before any Isolate
+// or Environment exists.
+using AbortHandler = void (*)(const char* location, const char* message);
+NODE_EXTERN void SetAbortHandler(AbortHandler handler);
 
 // This may return nullptr if context is not associated with a Node instance.
 NODE_EXTERN Environment* GetCurrentEnvironment(v8::Local<v8::Context> context);
@@ -1017,6 +1024,9 @@ class NODE_EXTERN CommonEnvironmentSetup {
   // will be empty.
   // env_args will be passed through as arguments to CreateEnvironment(), after
   // `isolate_data` and `context`.
+  // `snapshot_data` has to stay alive as long as the setup created from it,
+  // and every setup in a process has to use the same snapshot: all isolates
+  // are created from the blob the first one used.
   template <typename... EnvironmentArgs>
   static std::unique_ptr<CommonEnvironmentSetup> Create(
       MultiIsolatePlatform* platform,
