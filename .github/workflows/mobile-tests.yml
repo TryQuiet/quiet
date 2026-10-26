@@ -36,6 +36,10 @@ jobs:
         working-directory: packages/mobile
         run: npm test
 
+      - name: "Check embedded Node runtime"
+        working-directory: packages/mobile
+        run: npm run check:node-runtime
+
   native-ios-auth-tests:
     runs-on: macos-26
     timeout-minutes: 45

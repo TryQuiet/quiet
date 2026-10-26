@@ -1,27 +1,25 @@
 {
   "schemaVersion": 1,
-  "nodeVersion": "24.18.0",
-  "mobileRelease": "24.18.0-0",
+  "nodeVersion": "24.22.1",
+  "mobileRelease": "24.22.1-0",
   "nodeModuleAbi": 137,
   "nodeApiVersion": 10,
   "flavor": "full",
-  "releaseUrl": "https://github.com/gmaclennan/nodejs-mobile/releases/tag/v24.18.0-0",
+  "releaseUrl": "https://github.com/TryQuiet/quiet/releases/tag/nodejs-mobile-v24.22.1-0",
   "prerelease": true,
   "source": {
     "repository": "https://github.com/gmaclennan/nodejs-mobile",
-    "recipeCommit": "a01faac8af0250a07f30a5e06e5730feb8de874e",
-    "materializedCommit": "f15e3d1133f84efc7888bc7eaf4cf9462273e9d2",
-    "materializedTree": "d83ac4fedea727d77a2856d2de813340c5fbf3a3",
-    "upstreamTag": "v24.18.0",
-    "tagObject": "7c82981fcf9f8941dcd4368124890cce330ac474",
-    "tagSignature": "unsigned"
+    "recipeCommit": "a3fec9b59d24985017d2abf35babc23c7e5cb4ab",
+    "upstreamTag": "v24.22.1",
+    "tagSignature": "unsigned",
+    "materializedTree": "7deed40cce5148b464001e3d9cc4aa1492d48d23"
   },
   "archives": {
     "android": {
-      "name": "nodejs-mobile-android-24.18.0-0.zip",
-      "url": "https://github.com/gmaclennan/nodejs-mobile/releases/download/v24.18.0-0/nodejs-mobile-android-24.18.0-0.zip",
-      "size": 77000040,
-      "sha256": "ceb86b0b8130006195a60cd37393ebe0fd665b644ce8d5674dfba1da65d3be28"
+      "name": "nodejs-mobile-android-24.22.1-0.zip",
+      "url": "https://github.com/TryQuiet/quiet/releases/download/nodejs-mobile-v24.22.1-0/nodejs-mobile-android-24.22.1-0.zip",
+      "size": 52881729,
+      "sha256": "32ac26c1d5c7915c5657328a246cdc0ea1e0613c24c57f8e76ac47b820245e93"
     },
     "ios": {
       "name": "nodejs-mobile-ios-24.18.0-0.zip",
@@ -32,11 +30,11 @@
   },
   "optionalAndroidAbis": {
     "x86_64": {
-      "android/app/libnode/bin/x86_64/libnode.so": "6f0dec1e512c3ed8faf00b3c0489a8ba3673b22dc7f91fe05b5fa83680555c75"
+      "android/app/libnode/bin/x86_64/libnode.so": "96c975c26a5a7dcd085dce9f10a7cc341233041c61458a2527625290606b3600"
     }
   },
   "files": {
-    "android/app/libnode/bin/arm64-v8a/libnode.so": "9d1d86d9bb86bd6ae9db037828b542ca2be08062d2e4d029452ea9e7a4a07a53",
+    "android/app/libnode/bin/arm64-v8a/libnode.so": "4fa02bfb279ac12db9f05d1829538383b9a966ff721b1fffa760eba7adc74ce1",
     "android/app/libnode/include/node/cppgc/allocation.h": "c694f793b748b67e8c3869f05ee7ae83aaed1c59e01a1bf6891e9c921d4255a9",
     "android/app/libnode/include/node/cppgc/common.h": "3c64e8f6eb258720401ec5079869c2148213f72f6d4d4df6df89d546b07a2c1a",
     "android/app/libnode/include/node/cppgc/cross-thread-persistent.h": "35cb3964217662a99e9c3cefaf75127a049fb50160cd6292cb1f09039df8c936",
@@ -79,17 +77,17 @@
     "android/app/libnode/include/node/cppgc/trace-trait.h": "950993565adb04dba8c6a991c62f5f4878325258b3801853577b4f44e97a5aec",
     "android/app/libnode/include/node/cppgc/type-traits.h": "493513a2ef75e6e7c80ae3f425f7b88966b020e9a7068c464179b49cd730c48f",
     "android/app/libnode/include/node/cppgc/visitor.h": "1089fc76f82b5791c9add90a58b71dd5d6aaf92f76e6198c3beff3c0e7c247ad",
-    "android/app/libnode/include/node/js_native_api.h": "8808ef8899a1691411928ef5dd7dae0537aedc93d3a34e223b2d89692e79c788",
+    "android/app/libnode/include/node/js_native_api.h": "82d3708ce120f8000ec34d72e1aa70b0d7d8a43027986293681374a71b2cb840",
     "android/app/libnode/include/node/js_native_api_types.h": "4f19cb90d240765cc0961d92a1ee20f65fdc50db7de1ab0a5cb6bc227224e1a0",
     "android/app/libnode/include/node/libplatform/libplatform-export.h": "3c488969cd90904d8b201c0a2492e9a354f0acf251e3b1e78a5447b47c4cf39a",
     "android/app/libnode/include/node/libplatform/libplatform.h": "505c159596da96cdffa0d8f6467061b4218bb86a1de37133b96b88bf2d106253",
     "android/app/libnode/include/node/libplatform/v8-tracing.h": "57c1d3c4ea4db2e0af7790105a82c21719dd48cbc4b17232981645ab981dfccc",
-    "android/app/libnode/include/node/node.h": "4af56d0d162558d0e8aa7d3180127bcb73336705c6883cabff2947d258005b58",
+    "android/app/libnode/include/node/node.h": "c35691764bac5a82c4139348ca57f5676163afe563a40ad78457cef8bfb57012",
     "android/app/libnode/include/node/node_api.h": "2d4560831e525b47b060ec8a0864ab73993df9e20215ce9f0fe7b24cd31af32a",
     "android/app/libnode/include/node/node_api_types.h": "a25356630d3058f0a0c8937d9f297e9471e037fda58c2696d8a505c2bd99cb00",
     "android/app/libnode/include/node/node_buffer.h": "48077ade87e863a88e75a74c61fd948cb9ae16d7546cc5d61e1207fc95a7ac48",
-    "android/app/libnode/include/node/node_object_wrap.h": "c16090af77c11039e6982761b71ad555f08cceb9bf800791048d4311bd839e99",
-    "android/app/libnode/include/node/node_version.h": "ff277a53d85a4ab9a5f1a731229e7e4aa8c834813de1e6007d810582c0f7b628",
+    "android/app/libnode/include/node/node_object_wrap.h": "47bc10f599b4f518374e13501cf05de4273dfb0a7bfe21bc72d6714f9b6336b5",
+    "android/app/libnode/include/node/node_version.h": "0f37dafb4917e62582daa0dc51ee3e3f9d0636dc1d822c23a1a23af112ddbfad",
     "android/app/libnode/include/node/uv.h": "bb9ed99b80cd22c58361bffdfbb2aa7029ce0391cde616745c0072a6f3c03219",
     "android/app/libnode/include/node/uv/aix.h": "bed77e4cf6c06f1224e681cbe607eff04713ca0c1e1f4a102e6a6565ee3f02aa",
     "android/app/libnode/include/node/uv/bsd.h": "963533ff4b16f72a204a8c760896a857c54d0ac50570f1793e3bef1f2ae8b35f",
@@ -123,7 +121,7 @@
     "android/app/libnode/include/node/v8-function-callback.h": "0a04fb5fe15f0956db82c286cee3ab21a5630b37b1c89249a5beda79358a5064",
     "android/app/libnode/include/node/v8-function.h": "335c745cdc90804e34ea3694da3bd5db88492e73c4e94c5169c55b67a8604b74",
     "android/app/libnode/include/node/v8-handle-base.h": "a39ce35b295ac1225e6842ab5f3a422384a5c5dbe13b5c5f384a245252670b14",
-    "android/app/libnode/include/node/v8-initialization.h": "734f5c485554509a9fa62d8aea6a548d3439cb0be26d7f90f6574b486bf505af",
+    "android/app/libnode/include/node/v8-initialization.h": "7c88a037f0b4396f8e285ff3e62fc4c1b34ea4d8e7d5c7f149d8d1f1316df533",
     "android/app/libnode/include/node/v8-inspector-protocol.h": "a6d0d6a35f1eb3558cd04bf918c244d5a550bb451a99459cea1c11312fb16bd1",
     "android/app/libnode/include/node/v8-inspector.h": "02de3f8668a07ed2f6745908765efe1e69ba66a0361a33632f30283406fc1b28",
     "android/app/libnode/include/node/v8-internal.h": "eb74fc0740b7f858a03e319e077c1698d2083325f3154c67771b120fb48f8520",

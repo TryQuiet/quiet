@@ -4,6 +4,8 @@
 
 ### Chores
 
+* chore(mobile): embed Node 24.22.1, the Node 24 [October 2026 security release](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases), in the Android and iOS apps (was 24.18.0), and add a CI check that the vendored runtime matches `runtime.json` and stays at or above 24.22.1 [#3709](https://github.com/TryQuiet/quiet/issues/3709)
+
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
 
 * chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).

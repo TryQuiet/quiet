@@ -9,7 +9,7 @@ node packages/mobile/scripts/build-classic-level-ios.cjs --output /tmp/quiet-cla
 The output directory must not exist. The script downloads SHA-512-pinned
 `classic-level@1.4.1` and `napi-macros@2.2.2` source archives, without running npm
 install scripts. It compiles the bundled LevelDB and Snappy sources with the
-repository's Node Mobile 24.18.0 headers for iOS 17.1 arm64 and x86_64 simulators.
+repository's Node Mobile 24.22.1 headers for iOS 17.1 arm64 and x86_64 simulators.
 It requires no Node binary download or obsolete Python 2 `nodejs-mobile-gyp` installation.
 The current app runtime supports only the ARM64 simulator; the builder can also
 produce an x86_64 addon slice for use with a compatible runtime. Allow a few minutes for the two native builds.

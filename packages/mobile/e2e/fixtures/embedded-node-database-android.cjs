@@ -97,7 +97,7 @@ async function run() {
     report.fixtureSha256 = hash(__filename)
     report.databaseHelperSha256 = hash(path.join(__dirname, 'embedded-node-database.cjs'))
     progress('validate-runtime')
-    assert.equal(process.versions.node, '24.18.0')
+    assert.equal(process.versions.node, '24.22.1')
     assert.equal(process.platform, 'android')
     assert.equal(process.arch, 'arm64')
     assert.equal(process.versions.modules, '137')

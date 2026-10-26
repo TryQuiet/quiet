@@ -1,12 +1,12 @@
 # Embedded Node database smoke
 
 This fixture runs inside Quiet's real iOS app, through `RNNodeJsMobile`, vendored
-Node Mobile 24.18.0, the linked `rn_bridge` module, and the existing `dlopen` path
+Node Mobile 24.22.1, the linked `rn_bridge` module, and the existing `dlopen` path
 override. It supports ARM64 simulator builds and uses a dedicated directory
 under the native bridge's Documents directory. It exercises the addon separately
 from the production backend, which remains unchanged in the original built app.
 
-The current fixture is v3 and requires Node 24.18.0 / module ABI 137. Native
+The current fixture is v3 and requires Node 24.22.1 / module ABI 137. Native
 validation of this version is recorded in the
 [New Architecture migration notes](../../docs/react-native-new-architecture.md).
 The earlier v2 fixture passed with Node 18.20.4 on an ARM64 iOS 18.5 simulator
@@ -82,7 +82,7 @@ output: the existing NodeRunner prints environment values during initialization.
 If the native bridge itself cannot load, the fixture can only emit a sanitized
 `QUIET_EMBEDDED_NODE_DATABASE` console marker because it has no native data directory.
 
-The first verdict must report `fixtureVersion: 3`, `nativeBridge: true`, `node: "24.18.0"`,
+The first verdict must report `fixtureVersion: 3`, `nativeBridge: true`, `node: "24.22.1"`,
 `platform: "ios"`, `architecture` matching `quiet_smoke_node_arch`, ABI `137`, `preloadCached: true`,
 `placeholderBytes: 0`, and `launch: 1`. Database assertions verify:
 

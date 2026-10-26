@@ -123,7 +123,7 @@ public final class EmbeddedNodeDatabaseTest {
         }
         assertNotNull("Embedded Node produced no completed verdict", verdict);
         assertEquals("Embedded smoke failed at stage " + verdict.optString("stage"), "pass", verdict.getString("status"));
-        assertEquals("24.18.0", verdict.getString("node"));
+        assertEquals("24.22.1", verdict.getString("node"));
         assertEquals("android", verdict.getString("platform"));
         assertEquals("arm64", verdict.getString("architecture"));
         assertEquals("137", verdict.getString("modules"));

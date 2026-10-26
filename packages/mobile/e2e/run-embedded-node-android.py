@@ -36,7 +36,7 @@ def validate_verdict(value, run_id, launch, hashes, previous=None):
     require(isinstance(value, dict), "Invalid verdict object")
     expected = {
         "fixtureVersion": 1, "status": "pass", "stage": "complete",
-        "runId": run_id, "launch": launch, "node": "24.18.0",
+        "runId": run_id, "launch": launch, "node": "24.22.1",
         "platform": "android", "architecture": "arm64", "modules": "137",
         "nativeBridge": True, "bridgeRoundTrip": True, **hashes,
     }

@@ -148,7 +148,7 @@ async function runEmbeddedSmoke() {
     resultPath = path.join(runDirectory, 'result.json')
     const previous = fs.existsSync(resultPath) ? JSON.parse(fs.readFileSync(resultPath, 'utf8')) : null
     progress('validate-runtime')
-    assert.equal(process.versions.node, '24.18.0', 'Smoke must use the vendored embedded Node version')
+    assert.equal(process.versions.node, '24.22.1', 'Smoke must use the vendored embedded Node version')
     assert.equal(process.platform, 'ios', 'Smoke must run inside the iOS app')
     assert.equal(process.arch, 'arm64', 'The vendored Node runtime supports the ARM64 iOS simulator')
     const expectedArchitecture = process.env.QUIET_EMBEDDED_NODE_DATABASE_ARCH

@@ -9,7 +9,7 @@ per checkout (none of the x86_64 outputs is committed, see `.gitignore`):
 
 | Input | arm64-v8a (vendored) | x86_64 (per checkout) |
 | --- | --- | --- |
-| Node runtime `android/app/libnode/bin/<abi>/libnode.so` | `scripts/nodejs-mobile-runtime/install.py`, pinned nodejs-mobile 24.18.0-0 | `python3 scripts/nodejs-mobile-runtime/install.py --install --abi x86_64` (same pinned archive; file hash under `optionalAndroidAbis` in `runtime.json`) |
+| Node runtime `android/app/libnode/bin/<abi>/libnode.so` | `scripts/nodejs-mobile-runtime/install.py`, pinned nodejs-mobile 24.22.1-0 | `python3 scripts/nodejs-mobile-runtime/install.py --install --abi x86_64` (same pinned archive; file hash under `optionalAndroidAbis` in `runtime.json`) |
 | LevelDB addon `nodejs-assets/deps/android/<process.arch>/classic-level/classic_level.node` | nodejs-mobile-gyp build, `docs/building-classic-level-android.md` (`arm64/`) | `node scripts/build-classic-level-android.cjs` (NDK 28 clang, the pinned classic-level 1.4.1 and napi-macros 2.2.2 sources, `x64/`) |
 | Tor `android/app/src/main/jniLibs/<abi>/libtor.so` | `scripts/update-tor-binaries-desktop.sh` at the repository root (Tor Browser aarch64 APK) | `scripts/fetch-android-tor.sh` (GPG-verified Tor Browser x86_64 APK) |
 

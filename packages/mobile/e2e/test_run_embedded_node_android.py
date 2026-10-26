@@ -15,7 +15,7 @@ HASHES = {key: "a" * 64 for key in ("fixtureSha256", "databaseHelperSha256", "ad
 def verdict(launch=1):
     return {
         "fixtureVersion": 1, "status": "pass", "stage": "complete", "runId": "public-test",
-        "launch": launch, "node": "24.18.0", "platform": "android", "architecture": "arm64",
+        "launch": launch, "node": "24.22.1", "platform": "android", "architecture": "arm64",
         "modules": "137", "napi": "10", "nativeBridge": True, "bridgeRoundTrip": True,
         "pid": 100 + launch, "previousPid": 101 if launch == 2 else None, **HASHES,
         "database": {"created": launch == 1, "rowsWritten": 8 if launch == 1 else 0,

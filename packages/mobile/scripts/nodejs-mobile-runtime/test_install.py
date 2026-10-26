@@ -127,6 +127,28 @@ class RuntimeInstallTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported optional Android ABI"):
             installer.android_abi_layout("armeabi-v7a")
 
+    def write_headers(self, version):
+        major, minor, patch = version.split(".")
+        for relative in installer.VERSION_HEADERS:
+            header = self.root / relative
+            header.parent.mkdir(parents=True, exist_ok=True)
+            header.write_text("#define NODE_MAJOR_VERSION %s\n#define NODE_MINOR_VERSION %s\n#define NODE_PATCH_VERSION %s\n" % (major, minor, patch))
+
+    def test_version_check_requires_matching_headers_at_or_above_the_floor(self):
+        manifest = {"nodeVersion": "24.22.1", "mobileRelease": "24.22.1-0"}
+        self.write_headers("24.22.1")
+        self.assertEqual(installer.check_version(self.root, manifest), "24.22.1")
+        self.write_headers("24.18.0")
+        with self.assertRaisesRegex(ValueError, "is Node 24.18.0, but runtime.json pins 24.22.1"):
+            installer.check_version(self.root, manifest)
+        old = {"nodeVersion": "24.18.0", "mobileRelease": "24.18.0-0"}
+        with self.assertRaisesRegex(ValueError, "below the required 24.22.1"):
+            installer.check_version(self.root, old)
+        self.write_headers("24.22.1")
+        with self.assertRaisesRegex(ValueError, "does not match nodeVersion"):
+            installer.check_version(self.root, {"nodeVersion": "24.22.1", "mobileRelease": "24.18.0-0"})
+        self.assertGreater(installer.parse_version("24.100.0"), installer.parse_version("24.22.1"))
+
 
 if __name__ == "__main__":
     unittest.main()

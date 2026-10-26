@@ -29,6 +29,12 @@ LAYOUT = {
 # Extra Android ABIs for emulator builds. They are not vendored in git: install one
 # with `--install --abi <abi>`; `--check` verifies it only while its directory exists.
 OPTIONAL_ANDROID_ABIS = ("x86_64",)
+# Floor set by the Node 24 security release (https://nodejs.org/en/blog/release/v24.22.1/).
+MINIMUM_NODE_VERSION = (24, 22, 1)
+VERSION_HEADERS = (
+    "android/app/libnode/include/node/node_version.h",
+    "ios/NodeJsMobile/libnode/include/node/node_version.h",
+)
 
 
 def android_abi_layout(abi):
@@ -217,16 +223,55 @@ def install_android_abi(root, manifest, archive, abi):
     return len(expected)
 
 
+def parse_version(text):
+    parts = text.split(".")
+    if len(parts) != 3 or not all(part.isdigit() for part in parts):
+        raise ValueError("Not a MAJOR.MINOR.PATCH version: " + text)
+    return tuple(int(part) for part in parts)
+
+
+def header_version(path):
+    """MAJOR.MINOR.PATCH from a vendored node_version.h."""
+    values = {}
+    for line in Path(path).read_text().splitlines():
+        fields = line.split()
+        if len(fields) == 3 and fields[0] == "#define" and fields[1] in ("NODE_MAJOR_VERSION", "NODE_MINOR_VERSION", "NODE_PATCH_VERSION"):
+            values[fields[1]] = fields[2]
+    if len(values) != 3:
+        raise ValueError("Incomplete Node version in " + str(path))
+    return ".".join(values["NODE_" + part + "_VERSION"] for part in ("MAJOR", "MINOR", "PATCH"))
+
+
+def check_version(root, manifest):
+    """The pinned and vendored Node versions agree with each other and meet the security floor."""
+    pinned = manifest["nodeVersion"]
+    floor = ".".join(str(part) for part in MINIMUM_NODE_VERSION)
+    if parse_version(pinned) < MINIMUM_NODE_VERSION:
+        raise ValueError("runtime.json pins Node " + pinned + ", below the required " + floor)
+    if not manifest["mobileRelease"].startswith(pinned + "-"):
+        raise ValueError("mobileRelease " + manifest["mobileRelease"] + " does not match nodeVersion " + pinned)
+    for relative in VERSION_HEADERS:
+        vendored = header_version(root / relative)
+        if vendored != pinned:
+            raise ValueError(relative + " is Node " + vendored + ", but runtime.json pins " + pinned)
+    return pinned
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--check", action="store_true", help="verify vendored files (the default)")
+    action.add_argument("--check-version", action="store_true",
+                        help="verify the vendored headers match runtime.json and meet the minimum Node version (no LFS needed)")
     action.add_argument("--install", action="store_true", help="download, verify, and replace only the pinned runtime files")
     parser.add_argument("--cache", type=Path, default=Path(tempfile.gettempdir()) / "quiet-nodejs-mobile-downloads")
     parser.add_argument("--abi", action="append", choices=OPTIONAL_ANDROID_ABIS, default=[],
                         help="with --install: add only this optional Android ABI (emulator builds)")
     args = parser.parse_args()
     manifest = json.loads((HERE / "runtime.json").read_text())
+    if args.check_version:
+        print("Vendored Node headers match runtime.json: Node " + check_version(MOBILE_ROOT, manifest))
+        return
     if args.install and args.abi:
         archive = download(manifest["archives"]["android"], args.cache)
         for abi in args.abi:
