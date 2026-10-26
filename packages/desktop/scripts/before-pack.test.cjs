@@ -16,29 +16,75 @@ test('Windows and Linux packaging stops without a release signing key the app ac
   await assert.rejects(run('win32', s3, ['-p', 'always'], { [signing.KEY_ENV]: other }), /does not match any key/)
 })
 
-test('implicit publishing and event labels do not skip the key requirement', async () => {
+test('packaging needs the key unless the build is explicitly --publish never; labels and CI do not excuse it', async () => {
   for (const [env, args] of [
-    [{ CI: 'true' }, []], // electron-builder publishes onTagOrDraft in CI
+    [{}, []], // a plain build has to say --publish never
+    [{ CI: 'true' }, []],
     [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, []],
     [{ npm_lifecycle_event: 'release' }, []],
     [{ IS_LOCAL: 'true' }, ['-p', 'always']],
     [{ IS_E2E: 'true' }, ['--publish=always']],
+    [{ GITHUB_BASE_REF: 'develop' }, []],
     [{ GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['-p', 'always']],
+    [{}, ['-p', 'never', '-p', 'always']], // repeated flags reach electron-builder as an array
+    [{}, ['--publish=never', '--publish', 'always']],
   ]) {
     await assert.rejects(run('linux', s3, args, env), /is not set/, JSON.stringify([env, args]))
   }
 })
 
-test('builds that are not published are not blocked on the key', async () => {
+test('the JS API is never "explicitly unpublished", whatever its own command line says', async () => {
+  const { explicitlyUnpublished } = signing
+  const argv = ['--linux', '--publish', 'never']
+  assert.equal(explicitlyUnpublished(['node', '/usr/bin/electron-builder', ...argv]), true)
+  assert.equal(
+    explicitlyUnpublished(['node', 'C:\\app\\node_modules\\electron-builder\\out\\cli\\cli.js', ...argv]),
+    true
+  )
+  assert.equal(explicitlyUnpublished(['node', 'release-script.js', ...argv]), false)
+  assert.equal(explicitlyUnpublished(['node']), false)
+  // a script that calls require('electron-builder').build({ publish: 'always' }) and happens to carry the flags
+  await inBuild({}, argv, () => {
+    process.argv[1] = 'release.js'
+    return assert.rejects(
+      beforePack({ electronPlatformName: 'linux', packager: {}, arch: 1 }, async () => s3),
+      /is not set/
+    )
+  })
+})
+
+// The answer comes from electron-builder's own yargs definition of its build command.
+test("explicitlyUnpublished agrees with electron-builder's own parse of the command line", () => {
+  const cli = ['node', '/app/node_modules/.bin/electron-builder']
+  const cases = [
+    [['--linux', '-p', 'never'], true],
+    [['--linux', '--publish', 'never'], true],
+    [['--linux', '--publish=never'], true],
+    [['-p', 'never', '--win'], true],
+    [[], false],
+    [['-p', 'always'], false],
+    [['--publish', 'onTag'], false],
+    [['--publish', 'onTagOrDraft'], false],
+    [['-p', 'never', '-p', 'always'], false],
+    [['-p', 'always', '-p', 'never'], false],
+    [['-p', 'never', '--publish=never'], false],
+    [['--publish', 'bogus'], false],
+    [['--publish'], false],
+  ]
+  for (const [args, expected] of cases) {
+    assert.equal(signing.explicitlyUnpublished([...cli, ...args]), expected, args.join(' '))
+  }
+})
+
+test('builds that are explicitly not published are not blocked on the key', async () => {
   await assert.doesNotReject(run('win32', s3, ['--publish', 'never'], { CI: 'true' }))
-  await assert.doesNotReject(run('linux', s3, [], {}))
-  // electron-builder does not publish pull request builds, so there is nothing to sign
-  await assert.doesNotReject(run('win32', s3, ['-p', 'always'], { CI: 'true', GITHUB_BASE_REF: 'develop' }))
+  await assert.doesNotReject(run('linux', s3, ['-p', 'never'], {}))
+  await assert.doesNotReject(run('win32', s3, ['-p', 'never'], { CI: 'true', GITHUB_BASE_REF: 'develop' }))
 })
 
 test('packaging requires the HTTPS S3 feed; macOS is left to Squirrel.Mac', async () => {
-  await assert.doesNotReject(run('linux', s3, []))
-  await assert.rejects(run('linux', { provider: 'generic', url: 'http://example.test' }, []), /not https/)
+  await assert.doesNotReject(run('linux', s3, ['-p', 'never']))
+  await assert.rejects(run('linux', { provider: 'generic', url: 'http://example.test' }, ['-p', 'never']), /not https/)
   await assert.doesNotReject(run('darwin', null, ['-p', 'always']))
 })
 
@@ -46,51 +92,4 @@ test('the real packager resolves the configuration that the hook checks', async 
   // No stub: this is the function electron-builder uses to write app-update.yml.
   const { getAppUpdatePublishConfiguration } = require('app-builder-lib/out/publish/PublishManager')
   assert.equal(typeof getAppUpdatePublishConfiguration, 'function')
-})
-
-// willPublish must agree with electron-builder's own decision. This runs the real PublishManager in a
-// child process for each environment (it reads the environment when it is loaded).
-test("willPublish makes the same decision as electron-builder's PublishManager", () => {
-  const { spawnSync } = require('node:child_process')
-  const child = `
-    const { PublishManager } = require('app-builder-lib')
-    const { CancellationToken } = require('builder-util-runtime')
-    const { willPublish } = require('./updateSigning.cjs')
-    const argv = JSON.parse(process.env.TEST_ARGV)
-    const i = argv.findIndex(a => a === '-p' || a === '--publish' || /^(-p|--publish)=/.test(a))
-    const publish = i < 0 ? undefined : /^(-p|--publish)=(.+)$/.exec(argv[i])?.[2] ?? argv[i + 1]
-    const real = new PublishManager({ cancellationToken: new CancellationToken(), onAfterPack() {}, onArtifactCreated() {} }, { publish }).isPublish
-    process.stderr.write('RESULT ' + JSON.stringify({ real, mine: willPublish(['electron-builder', ...argv]) }))`
-  const cases = [
-    [{}, []],
-    [{}, ['-p', 'always']],
-    [{}, ['--publish=always']],
-    [{}, ['-p', 'never']],
-    [{}, ['--publish', 'onTag']],
-    [{}, ['--publish', 'onTagOrDraft']],
-    [{ CI: 'true' }, []],
-    [{ CI: 'true' }, ['-p', 'never']],
-    [{ CI: 'true' }, ['--publish', 'onTag']],
-    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, []],
-    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['-p', 'onTag']],
-    [{ CI_COMMIT_TAG: 'v1' }, []],
-    [{ npm_lifecycle_event: 'release' }, []],
-    [{ npm_lifecycle_event: 'release' }, ['-p', 'never']],
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['-p', 'always']],
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['-p', 'always']],
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, []],
-    [{ TRAVIS_PULL_REQUEST: '12' }, ['-p', 'always']],
-    [{ IS_LOCAL: 'true' }, ['-p', 'always']],
-    [{ IS_E2E: 'true', CI: 'true' }, []],
-  ]
-  for (const [env, argv] of cases) {
-    const result = spawnSync(process.execPath, ['-e', child], {
-      cwd: __dirname,
-      encoding: 'utf8',
-      env: { PATH: process.env.PATH, NODE_PATH: process.env.NODE_PATH ?? '', ...env, TEST_ARGV: JSON.stringify(argv) },
-    })
-    assert.equal(result.status, 0, result.stderr)
-    const { real, mine } = JSON.parse(/RESULT (.*)$/.exec(result.stderr)[1])
-    assert.equal(mine, real, `${JSON.stringify([env, argv])}: electron-builder says ${real}`)
-  }
 })

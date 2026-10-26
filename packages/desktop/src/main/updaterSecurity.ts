@@ -1,6 +1,5 @@
 import crypto from 'crypto'
 import fs from 'fs'
-import os from 'os'
 import path from 'path'
 import { CancellationToken, configureRequestOptions, configureRequestUrl } from 'builder-util-runtime'
 import type { AppUpdater } from 'electron-updater'
@@ -174,17 +173,37 @@ export const verifyUpdateSignature = async (
   fetchSignature: FetchSignature
 ): Promise<string | null> => (await inspectDownload(download, publicKeys, fetchSignature)).problem
 
-const INSTALL_COPY_PREFIX = 'quiet-update-'
+// The verified copy an update is installed from lives under the app's own cache directory (not the shared
+// temp directory), in a directory per install named exactly `v-` plus mkdtemp's six characters.
+const INSTALL_COPIES_DIR = 'quiet-verified-installers'
+const INSTALL_COPY_PREFIX = 'v-'
+const INSTALL_COPY_NAME = /^v-[A-Za-z0-9]{6}$/
 const INSTALL_COPY_MAX_AGE_MS = 24 * 60 * 60 * 1000
 
-/** The verified copies an earlier launch ran its installer from are not needed after the installer is done. */
-const removeStaleInstallCopies = () => {
+const bestEffortRemove = (target: string) => {
   try {
-    for (const entry of fs.readdirSync(os.tmpdir())) {
-      if (!entry.startsWith(INSTALL_COPY_PREFIX)) continue
-      const dir = path.join(os.tmpdir(), entry)
-      if (Date.now() - fs.statSync(dir).mtimeMs > INSTALL_COPY_MAX_AGE_MS)
-        fs.rmSync(dir, { recursive: true, force: true })
+    fs.rmSync(target, { recursive: true, force: true })
+  } catch {
+    // never let cleanup replace the outcome it belongs to
+  }
+}
+
+const installCopiesParent = (baseCachePath: unknown) =>
+  typeof baseCachePath === 'string' && path.isAbsolute(baseCachePath)
+    ? path.join(baseCachePath, INSTALL_COPIES_DIR)
+    : null
+
+/** Copies an earlier launch ran its installer from are not needed after the installer is done. */
+const removeStaleInstallCopies = (parent: string | null) => {
+  if (parent == null) return
+  try {
+    for (const entry of fs.readdirSync(parent)) {
+      if (!INSTALL_COPY_NAME.test(entry)) continue
+      const dir = path.join(parent, entry)
+      const stat = fs.lstatSync(dir)
+      if (stat.isDirectory() && !stat.isSymbolicLink() && Date.now() - stat.mtimeMs > INSTALL_COPY_MAX_AGE_MS) {
+        bestEffortRemove(dir)
+      }
     }
   } catch {
     // best effort
@@ -224,7 +243,12 @@ interface UpdaterInternals {
   // BaseUpdater (Windows, Linux): both quitAndInstall() and install-on-quit end up here
   install(...args: unknown[]): boolean
   installerPath: string | null
-  downloadedUpdateHelper: { _file: string | null } | null
+  downloadedUpdateHelper: {
+    _file: string | null
+    downloadedFileInfo?: { isAdminRightsRequired?: boolean } | null
+  } | null
+  app: { baseCachePath?: unknown }
+  spawnLog(command: string, args?: string[], ...rest: unknown[]): Promise<unknown>
   dispatchError(error: Error): void
 }
 
@@ -259,14 +283,16 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
   if (
     typeof internals.executeDownload !== 'function' ||
     typeof internals.getOrCreateDownloadHelper !== 'function' ||
-    typeof internals.install !== 'function'
+    typeof internals.install !== 'function' ||
+    typeof internals.spawnLog !== 'function'
   ) {
     throw new Error('electron-updater no longer exposes its download hooks')
   }
   if (publicKeys.length === 0) throw new Error('no update signing key is configured')
   publicKeys.forEach(toPublicKey) // throws on a malformed key
 
-  removeStaleInstallCopies()
+  const copiesParent = installCopiesParent(internals.app?.baseCachePath)
+  removeStaleInstallCopies(copiesParent)
   let verified: VerifiedInstall | null = null
   const executeDownload = internals.executeDownload.bind(internals)
   internals.executeDownload = options => {
@@ -312,14 +338,26 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
     })
   }
 
+  // Quiet installs per user, so an update never needs administrator rights. electron-updater would run
+  // an installer through elevate.exe when the feed says it needs them, or when starting it directly fails;
+  // that would hand a file path across an elevation boundary, where a same-user process could swap the
+  // bytes after they were checked. Refuse that path outright rather than defend it.
+  const spawnLog = internals.spawnLog.bind(internals)
+  internals.spawnLog = (command, ...rest) => {
+    if (path.basename(String(command).replace(/\\/g, '/')).toLowerCase() === 'elevate.exe') {
+      return Promise.reject(new Error('Refusing to run the update installer elevated: Quiet updates install per user'))
+    }
+    return spawnLog(command, ...rest)
+  }
+
   // electron-updater installs whatever file the path it remembers points to, with no further check,
   // both for quitAndInstall() and for install-on-quit, and that path is in a directory the user can
-  // write. So at install time the verified file is copied into a private directory (created
-  // exclusively, mode 0700), the copy is hashed and its signature checked, and the installer is run
-  // from that copy; the original path is never installed. The checks and the copy are synchronous
-  // (the quit handler cannot wait). A process running as the same user can still modify the copy
-  // between the check and the installer starting; that is only a real step up where the installer is
-  // elevated (Windows elevate.exe), because such a process can usually modify the installed app anyway.
+  // write. So at install time the verified file is copied into a fresh private directory under the
+  // app's cache (created exclusively, mode 0700), the copy is hashed and its signature checked, and the
+  // installer is run from that copy; the original path is never installed. The checks and the copy are
+  // synchronous (the quit handler cannot wait). Apart from elevation, which is refused above, a process
+  // running as the same user could still replace the copy before the installer starts; it can already
+  // modify the installed app, so that is outside what this defends.
   const install = internals.install.bind(internals)
   internals.install = (...args) => {
     const refuse = (reason: string) => {
@@ -331,9 +369,14 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
     if (accepted == null || helper == null || internals.installerPath !== accepted.filePath) {
       return refuse('it is not the file that was verified')
     }
+    if (helper.downloadedFileInfo?.isAdminRightsRequired === true) {
+      return refuse('it asks for administrator rights, and Quiet updates install per user')
+    }
+    if (copiesParent == null) return refuse('the app has no cache directory to verify the file in')
     let privateDir: string | null = null
     try {
-      privateDir = fs.mkdtempSync(path.join(os.tmpdir(), INSTALL_COPY_PREFIX))
+      fs.mkdirSync(copiesParent, { recursive: true, mode: 0o700 })
+      privateDir = fs.mkdtempSync(path.join(copiesParent, INSTALL_COPY_PREFIX))
       fs.chmodSync(privateDir, 0o700)
       const copy = path.join(privateDir, path.basename(accepted.filePath))
       fs.copyFileSync(accepted.filePath, copy, fs.constants.COPYFILE_EXCL)
@@ -343,8 +386,8 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
         sha512 !== accepted.sha512 ||
         !signatureMatches(accepted.version, accepted.fileName, sha512, accepted.signature, publicKeys)
       ) {
-        fs.rmSync(privateDir, { recursive: true, force: true })
-        fs.rmSync(accepted.filePath, { force: true })
+        bestEffortRemove(privateDir)
+        bestEffortRemove(accepted.filePath)
         verified = null
         return refuse('the downloaded file changed after it was verified')
       }
@@ -357,7 +400,7 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
         helper._file = original
       }
     } catch (error) {
-      if (privateDir != null) fs.rmSync(privateDir, { recursive: true, force: true })
+      if (privateDir != null) bestEffortRemove(privateDir)
       return refuse(`the downloaded file could not be checked: ${(error as Error).message}`)
     }
   }

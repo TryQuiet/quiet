@@ -51,7 +51,9 @@ let workDir: string
 let server: http.Server
 let feedUrl: string
 // path -> body; swapped per test to model a feed that was tampered with
-let served: Record<string, Buffer | ((req: http.IncomingMessage, res: http.ServerResponse) => void)>
+type Served = Buffer | ((req: http.IncomingMessage, res: http.ServerResponse) => void)
+// a Map, not an object: the request path picks the entry and must never reach anything but a registered one
+let served: Map<string, Served> = new Map()
 // 'GET /path [range]' for every request the server answered
 let requests: string[] = []
 // handlers the updater registered to run when the app quits
@@ -64,7 +66,7 @@ beforeAll(async () => {
   server = http.createServer(async (req, res) => {
     const requested = decodeURIComponent((req.url ?? '').split('?')[0])
     await held[requested]
-    const body = served[requested]
+    const body = served.get(requested)
     requests.push(`${req.method} ${requested}${req.headers.range ? ` ${req.headers.range}` : ''}`)
     if (!body) {
       res.writeHead(404).end()
@@ -139,7 +141,12 @@ const serveFeed = (
   feed: Buffer,
   files: Record<string, Buffer | ((req: http.IncomingMessage, res: http.ServerResponse) => void)>
 ) => {
-  served = { '/latest.yml': feed, '/latest-linux.yml': feed, '/latest-mac.yml': feed, ...files }
+  served = new Map<string, Served>([
+    ['/latest.yml', feed],
+    ['/latest-linux.yml', feed],
+    ['/latest-mac.yml', feed],
+    ...Object.entries(files),
+  ])
 }
 
 const feedFile = (name: string, payload: Buffer, declared = payload) =>
@@ -161,32 +168,47 @@ const download = async (updater: AppUpdater) => {
   return updater.downloadUpdate()
 }
 
-const installCopies: string[] = []
-afterAll(() => installCopies.forEach(dir => fs.rmSync(dir, { recursive: true, force: true })))
-
 describe('hardenUpdater', () => {
-  it('removes verified install copies left by an earlier launch, but not recent ones', () => {
-    const old = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-update-'))
-    const recent = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-update-'))
-    const unrelated = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-other-'))
-    const longAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-    fs.utimesSync(old, longAgo, longAgo)
-    fs.utimesSync(unrelated, longAgo, longAgo)
-    hardenUpdater(
-      { executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn(), install: jest.fn() } as unknown as AppUpdater,
-      'linux',
-      {
-        publicKeys: [releaseKey.publicKey],
-      }
-    )
-    expect(fs.existsSync(old)).toBe(false)
-    expect(fs.existsSync(recent)).toBe(true)
-    expect(fs.existsSync(unrelated)).toBe(true)
-    fs.rmSync(recent, { recursive: true })
-    fs.rmSync(unrelated, { recursive: true })
+  const hooks = () => ({
+    executeDownload: jest.fn(),
+    getOrCreateDownloadHelper: jest.fn(),
+    install: jest.fn(),
+    spawnLog: jest.fn(),
   })
 
-  const hooks = () => ({ executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn(), install: jest.fn() })
+  it('removes only stale verified install copies, by exact name, from the app-owned directory', () => {
+    const baseCachePath = fs.mkdtempSync(path.join(workDir, 'cleanup-'))
+    const parent = path.join(baseCachePath, 'quiet-verified-installers')
+    fs.mkdirSync(parent)
+    const outside = fs.mkdtempSync(path.join(workDir, 'outside-'))
+    fs.writeFileSync(path.join(outside, 'precious'), 'x')
+    const longAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    const make = (name: string, old: boolean) => {
+      const dir = path.join(parent, name)
+      fs.mkdirSync(dir)
+      fs.writeFileSync(path.join(dir, 'installer'), 'x')
+      if (old) fs.utimesSync(dir, longAgo, longAgo)
+      return dir
+    }
+    const stale = make('v-abc123', true)
+    const recent = make('v-def456', false)
+    const lookalike = make('v-backups', true) // not a name mkdtemp makes
+    const unrelated = make('quiet-update-backup', true)
+    const link = path.join(parent, 'v-link12')
+    fs.symlinkSync(outside, link)
+    fs.lutimesSync(link, longAgo, longAgo)
+    const file = path.join(parent, 'v-file12')
+    fs.writeFileSync(file, 'x')
+    fs.utimesSync(file, longAgo, longAgo)
+
+    hardenUpdater({ ...hooks(), app: { baseCachePath } } as unknown as AppUpdater, 'linux', {
+      publicKeys: [releaseKey.publicKey],
+    })
+    expect(fs.existsSync(stale)).toBe(false)
+    for (const kept of [recent, lookalike, unrelated, file]) expect(fs.existsSync(kept)).toBe(true)
+    expect(fs.lstatSync(link).isSymbolicLink()).toBe(true) // never followed
+    expect(fs.existsSync(path.join(outside, 'precious'))).toBe(true)
+  })
 
   it('refuses downgrades and web installers on every platform', () => {
     for (const platform of ['linux', 'darwin', 'win32'] as const) {
@@ -461,7 +483,9 @@ describe('update feed served from a local HTTP server', () => {
 
         // While the file is still in flight the feed moves on and the periodic check runs.
         const newerFeed = feedFile(name, genuine).replace(VERSION, '99.1.0')
-        served['/latest.yml'] = served['/latest-linux.yml'] = served['/latest-mac.yml'] = Buffer.from(newerFeed)
+        for (const channel of ['/latest.yml', '/latest-linux.yml', '/latest-mac.yml']) {
+          served.set(channel, Buffer.from(newerFeed))
+        }
         expect((await updater.checkForUpdates())?.updateInfo.version).toBe('99.1.0')
 
         release()
@@ -482,7 +506,6 @@ describe('update feed served from a local HTTP server', () => {
             installed.bytes = fs.readFileSync(installed.path)
             installed.mode = fs.statSync(installed.path).mode & 0o777
             installed.dirMode = fs.statSync(path.dirname(installed.path)).mode & 0o777
-            installCopies.push(path.dirname(installed.path))
             return false // not started: electron's autoUpdater is not loadable in a Node test
           })
           const errors: Error[] = []
@@ -506,6 +529,7 @@ describe('update feed served from a local HTTP server', () => {
           expect(installed.path).not.toBe(file)
           expect(path.basename(installed.path as string)).toBe(path.basename(file))
           expect(installerOf(updater)).toBe(file)
+          expect(installed.path).toMatch(/quiet-verified-installers[\\/]v-[A-Za-z0-9]{6}[\\/]/)
           if (process.platform !== 'win32') expect(installed.dirMode).toBe(0o700)
         })
 
@@ -538,6 +562,27 @@ describe('update feed served from a local HTTP server', () => {
           quitHandlers[0](0)
           expect(doInstall).not.toHaveBeenCalled()
           expect(errors.map(e => e.message).join()).toMatch(/changed after it was verified/)
+        })
+
+        it('refuses an update that asks for administrator rights, and never starts the installer', async () => {
+          // Quiet installs per user, so elevation is never legitimate; a feed that asks for it is refused
+          serveFeed(
+            Buffer.from(feedFile(name, genuine).replace(/(    size: \d+\n)/, '$1    isAdminRightsRequired: true\n')),
+            {
+              [`/${name}`]: genuine,
+              [`/${name}.sig`]: signedAs(name, genuine),
+            }
+          )
+          const updater = makeUpdater()
+          updater.autoInstallOnAppQuit = true
+          const doInstall = jest.spyOn(updater as any, 'doInstall').mockReturnValue(false)
+          const errors: Error[] = []
+          updater.on('error', error => errors.push(error))
+          await download(updater)
+          updater.quitAndInstall(true)
+          quitHandlers[0](0)
+          expect(doInstall).not.toHaveBeenCalled()
+          expect(errors.map(e => e.message).join()).toMatch(/administrator rights/)
         })
 
         it('refuses to install a file that was overwritten in place', async () => {
@@ -810,5 +855,59 @@ describe('update feed served from a local HTTP server', () => {
     expect(() =>
       hardenUpdater(updater as unknown as AppUpdater, 'linux', { publicKeys: [releaseKey.publicKey] })
     ).toThrow(/download hooks/)
+  })
+
+  describe('Windows installer start', () => {
+    const name = 'Quiet-Setup-99.0.0.exe'
+    const genuine = Buffer.from('genuine installer '.repeat(500))
+    const harden = (spawn: jest.Mock) => {
+      const updater = configure(new NsisUpdater(undefined, makeAdapter('win32', updateConfig())))
+      ;(updater as any).spawnLog = spawn
+      updater.autoInstallOnAppQuit = false
+      hardenUpdater(updater, 'win32', { publicKeys: [releaseKey.publicKey] })
+      return updater
+    }
+
+    beforeEach(() => {
+      held = {}
+      serveFeed(Buffer.from(feedFile(name, genuine)), {
+        [`/${name}`]: genuine,
+        [`/${name}.sig`]: signedAs(name, genuine),
+      })
+    })
+
+    it('never runs elevate.exe, and passes other commands through', async () => {
+      const spawn = jest.fn().mockResolvedValue('started')
+      const updater = harden(spawn)
+      await expect(
+        (updater as any).spawnLog('C:\\Program Files\\Quiet\\resources\\elevate.exe', ['setup.exe'])
+      ).rejects.toThrow(/Refusing to run the update installer elevated/)
+      await expect((updater as any).spawnLog('/tmp/ELEVATE.EXE', [])).rejects.toThrow(/elevated/)
+      expect(spawn).not.toHaveBeenCalled()
+      await expect((updater as any).spawnLog('C:\\x\\setup.exe', ['--updated'])).resolves.toBe('started')
+      expect(spawn).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not fall back to elevate.exe when starting the installer fails', async () => {
+      const resourcesPath = (process as any).resourcesPath
+      ;(process as any).resourcesPath = 'C:\\Quiet\\resources'
+      try {
+        const spawn = jest.fn().mockRejectedValue(Object.assign(new Error('EACCES'), { code: 'EACCES' }))
+        const updater = harden(spawn)
+        const errors: Error[] = []
+        updater.on('error', error => errors.push(error))
+        await download(updater)
+        // the real NsisUpdater.doInstall: direct start fails with EACCES, which would retry through elevate.exe
+        expect((updater as any).install(true, false)).toBe(true)
+        await new Promise(resolve => setTimeout(resolve, 50))
+        const started = spawn.mock.calls.map(call => String(call[0]))
+        expect(started).toHaveLength(1)
+        expect(started[0]).toMatch(/quiet-verified-installers/)
+        expect(started.some(command => /elevate\.exe$/i.test(command))).toBe(false)
+        expect(errors.map(e => e.message).join()).toMatch(/Refusing to run the update installer elevated/)
+      } finally {
+        ;(process as any).resourcesPath = resourcesPath
+      }
+    })
   })
 })

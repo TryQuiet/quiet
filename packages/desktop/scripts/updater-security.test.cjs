@@ -104,7 +104,7 @@ const buildOf = names => {
   })
 }
 
-test('signUpdates signs installers and AppImages, never blockmaps, when the key is set and verifies them', async () => {
+test('each artifact is signed and verified when it is built; the after-build hook only hands the signatures on', async () => {
   const { version } = require('../package.json')
   const files = buildOf([
     `Quiet Setup ${version}.exe`,
@@ -114,7 +114,8 @@ test('signUpdates signs installers and AppImages, never blockmaps, when the key 
   const key = newKey()
   const accepted = [signing.publicKeyOf(key)]
   await inBuild({ [signing.KEY_ENV]: pem(key) }, ['--win', '-p', 'always'], async () => {
-    const signatures = await signing.signUpdatesWith({ artifactPaths: files }, accepted)
+    assert.equal(signing.signArtifactWith(files[1], accepted), null, 'blockmaps are not signed')
+    const signatures = [files[0], files[2]].map(file => signing.signArtifactWith(file, accepted))
     assert.deepEqual(
       signatures,
       [files[0], files[2]].map(file => `${file}.sig`)
@@ -122,31 +123,43 @@ test('signUpdates signs installers and AppImages, never blockmaps, when the key 
     assert.ok(!fs.existsSync(`${files[1]}.sig`))
     for (const file of [files[0], files[2]]) assert.equal(signing.verifySignatureFile(file, version, accepted), true)
     assert.equal(signing.verifySignatureFile(files[0], '0.0.1', accepted), false)
+    assert.deepEqual(signing.collectSignaturesWith({ artifactPaths: files }, accepted), signatures)
     for (const name of ['Quiet-0.0.1.AppImage', `Quiet-1${version}.AppImage`]) {
       const [stale] = buildOf([name])
-      await assert.rejects(signing.signUpdatesWith({ artifactPaths: [stale] }, accepted), /not built for version/)
+      assert.throws(() => signing.signArtifactWith(stale, accepted), /not built for version/)
     }
+    // a signature that is missing or stale stops the after-build hook, so no feed is written
+    fs.rmSync(`${files[2]}.sig`)
+    assert.throws(
+      () => signing.collectSignaturesWith({ artifactPaths: files }, accepted),
+      /no valid release-key signature/
+    )
+    signing.signFile(files[2], '0.0.1', key)
+    assert.throws(
+      () => signing.collectSignaturesWith({ artifactPaths: files }, accepted),
+      /no valid release-key signature/
+    )
   })
-  await inBuild({ [signing.KEY_ENV]: 'garbage' }, [], () =>
-    assert.rejects(signing.signUpdatesWith({ artifactPaths: files }, accepted))
+  await inBuild({ [signing.KEY_ENV]: 'garbage' }, [], async () =>
+    assert.throws(() => signing.signArtifactWith(files[0], accepted))
   )
 })
 
 test('a key the app does not accept is refused whether or not the build is published', async () => {
   const { version } = require('../package.json')
-  const files = buildOf([`Quiet-${version}.AppImage`])
+  const [file] = buildOf([`Quiet-${version}.AppImage`])
   const accepted = [signing.publicKeyOf(newKey())]
   for (const [env, argv] of [
-    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']], // implicit publish on a CI tag
+    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']],
     [{}, ['--linux', '-p', 'always']],
     [{ GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['-p', 'always']],
     [{ IS_LOCAL: 'true' }, ['-p', 'always']],
     [{}, ['--linux', '-p', 'never']],
     [{}, ['--linux']],
   ]) {
-    await inBuild({ ...env, [signing.KEY_ENV]: pem(newKey()) }, argv, () =>
-      assert.rejects(
-        signing.signUpdatesWith({ artifactPaths: files }, accepted),
+    await inBuild({ ...env, [signing.KEY_ENV]: pem(newKey()) }, argv, async () =>
+      assert.throws(
+        () => signing.signArtifactWith(file, accepted),
         /does not match any key/,
         JSON.stringify([env, argv])
       )
@@ -154,32 +167,33 @@ test('a key the app does not accept is refused whether or not the build is publi
   }
 })
 
-test('without a key only builds electron-builder will not publish may go unsigned', async () => {
+test('without a key only a build that is explicitly --publish never may go unsigned', async () => {
   const { version } = require('../package.json')
-  const files = buildOf([`Quiet-${version}.AppImage`])
+  const [file] = buildOf([`Quiet-${version}.AppImage`])
   const accepted = [signing.publicKeyOf(newKey())]
-  const unsigned = (env, argv) => inBuild(env, argv, () => signing.signUpdatesWith({ artifactPaths: files }, accepted))
-  // not published
+  const sign = (env, argv) => inBuild(env, argv, async () => signing.signArtifactWith(file, accepted))
   for (const [env, argv] of [
-    [{}, ['--linux']], // plain local build
-    [{ CI: 'true' }, ['--linux', '--publish', 'never']], // e2e workflows
+    [{}, ['--linux', '--publish', 'never']],
+    [{ CI: 'true' }, ['--linux', '-p', 'never']],
     [{ CI: 'true' }, ['--linux', '--publish=never']],
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux']], // electron-builder skips publishing for PRs
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux', '-p', 'always']],
+    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux', '-p', 'never']],
   ]) {
-    assert.deepEqual(await unsigned(env, argv), [], JSON.stringify([env, argv]))
+    assert.equal(await sign(env, argv), null, JSON.stringify([env, argv]))
   }
-  // published, explicitly or implicitly: event labels do not excuse the missing key
+  // everything else is treated as a publish, whatever the environment says
   for (const [env, argv] of [
+    [{}, ['--linux']], // a plain local build has to say --publish never
     [{}, ['--linux', '-p', 'always']],
-    [{ CI: 'true' }, ['--linux']], // implicit onTagOrDraft
-    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']], // implicit onTag
-    [{ CI: 'true', IS_LOCAL: 'true' }, ['--linux', '-p', 'always']],
-    [{ CI: 'true', IS_E2E: 'true' }, ['--linux', '-p', 'always']],
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['--linux', '-p', 'always']],
+    [{ CI: 'true' }, ['--linux']],
+    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux']],
+    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']],
+    [{ CI: 'true', IS_LOCAL: 'true' }, ['--linux']],
+    [{ CI: 'true', IS_E2E: 'true' }, ['--linux']],
     [{ npm_lifecycle_event: 'release' }, ['--linux']],
+    [{}, ['--linux', '-p', 'never', '-p', 'always']], // repeated flags reach electron-builder as an array
+    [{}, ['--linux', '--publish=never', '--publish', 'always']],
   ]) {
-    await assert.rejects(unsigned(env, argv), /Refusing to publish unsigned updates/, JSON.stringify([env, argv]))
+    await assert.rejects(sign(env, argv), /signing key/, JSON.stringify([env, argv]))
   }
 })
 

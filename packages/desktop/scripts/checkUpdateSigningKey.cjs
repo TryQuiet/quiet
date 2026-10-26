@@ -6,7 +6,8 @@ const updateSigning = require('./updateSigning.cjs')
 
 const check = (env = process.env, publicKeys = updateSigning.loadPublicKeys()) => {
   const problems = updateSigning.signingProblems('linux', env, publicKeys)
-  const publicKey = problems.length === 0 ? updateSigning.publicKeyOf(updateSigning.parsePrivateKey(env[updateSigning.KEY_ENV])) : null
+  const publicKey =
+    problems.length === 0 ? updateSigning.publicKeyOf(updateSigning.parsePrivateKey(env[updateSigning.KEY_ENV])) : null
   return { problems, publicKey }
 }
 

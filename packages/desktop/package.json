@@ -89,6 +89,7 @@
       "executableArgs": []
     },
     "beforePack": "scripts/beforePack.cjs",
+    "artifactBuildCompleted": "scripts/signArtifact.cjs",
     "afterAllArtifactBuild": "scripts/updateSigning.cjs",
     "afterPack": "scripts/afterPack.cjs",
     "beforeBuild": "scripts/beforeBuild.cjs"
@@ -109,7 +110,7 @@
     "distMac": "npm run rmDist && export SOURCE_PATH=darwin && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
     "distUbuntu": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux --publish never",
     "distUbuntu:qss": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux --publish never",
-    "distwin": "npm run rmDist && export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
+    "distwin": "npm run rmDist && export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win --publish never",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js --fix",
     "lint:cypress": "eslint src/**/*.cy.{ts,tsx} --config .eslintrc.cypress.js",

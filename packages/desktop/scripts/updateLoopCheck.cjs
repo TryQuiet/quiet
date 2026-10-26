@@ -43,8 +43,9 @@ const serve = (port, publicKeyFile) => {
   const genuine = file => Buffer.from(`genuine update ${file} `.repeat(2000))
   const evil = Buffer.from('malicious payload '.repeat(2000))
   const feed = (file, announced, declared, version = VERSION) =>
-    `version: ${version}\nfiles:\n  - url: ${JSON.stringify(file)}\n    sha512: ${sha512(declared)}\n    size: ${declared.length}\n` +
-    `path: ${JSON.stringify(file)}\nsha512: ${sha512(declared)}\nreleaseDate: '2026-01-01T00:00:00.000Z'\n`
+    `version: ${version}\nfiles:\n  - url: ${JSON.stringify(file)}\n    sha512: ${sha512(declared)}\n    size: ${
+      declared.length
+    }\n` + `path: ${JSON.stringify(file)}\nsha512: ${sha512(declared)}\nreleaseDate: '2026-01-01T00:00:00.000Z'\n`
   const routes = {}
   for (const file of Object.values(NAMES)) {
     const good = genuine(file)
@@ -91,7 +92,13 @@ const check = async (base, publicKeyFile, platform = process.platform === 'win32
         configureRequestOptions(requestOptions)
         this.doDownload(
           requestOptions,
-          { destination, options, onCancel, callback: e => (e == null ? resolve(destination) : reject(e)), responseHandler: null },
+          {
+            destination,
+            options,
+            onCancel,
+            callback: e => (e == null ? resolve(destination) : reject(e)),
+            responseHandler: null,
+          },
           0
         )
       })
@@ -104,9 +111,16 @@ const check = async (base, publicKeyFile, platform = process.platform === 'win32
     const configPath = path.join(dir, 'app-update.yml')
     fs.writeFileSync(configPath, `provider: generic\nurl: ${base}/${name}\n`)
     const adapter = {
-      version: spec.installed || '1.0.0', name: 'Quiet', isPackaged: true, appUpdateConfigPath: configPath,
-      userDataPath: dir, baseCachePath: path.join(dir, 'cache'), whenReady: async () => undefined,
-      relaunch: () => undefined, quit: () => undefined, onQuit: () => undefined,
+      version: spec.installed || '1.0.0',
+      name: 'Quiet',
+      isPackaged: true,
+      appUpdateConfigPath: configPath,
+      userDataPath: dir,
+      baseCachePath: path.join(dir, 'cache'),
+      whenReady: async () => undefined,
+      relaunch: () => undefined,
+      quit: () => undefined,
+      onQuit: () => undefined,
     }
     const updater = platform === 'linux' ? new AppImageUpdater(undefined, adapter) : new NsisUpdater(undefined, adapter)
     updater.httpExecutor = new Executor()
@@ -123,7 +137,11 @@ const check = async (base, publicKeyFile, platform = process.platform === 'win32
         outcome = { kind: 'downloaded', file: files[0], installerPath: updater.installerPath }
       }
     } catch (error) {
-      outcome = { kind: 'rejected', error: String(error.message || error).split('\n')[0], installerPath: updater.installerPath ?? null }
+      outcome = {
+        kind: 'rejected',
+        error: String(error.message || error).split('\n')[0],
+        installerPath: updater.installerPath ?? null,
+      }
     }
     let ok = outcome.kind === spec.expect
     if (ok && spec.error) ok = spec.error.test(outcome.error)
@@ -136,7 +154,14 @@ const check = async (base, publicKeyFile, platform = process.platform === 'win32
   // The shipped config policy: the packaged feed must be https.
   const { problems } = require('./verifyUpdateConfig.cjs')
   const http = problems({ provider: 's3', url: 'http://quiet.example/x' })
-  results.push({ name: 'http-feed-config', platform, expect: 'refused', got: http.length ? 'refused' : 'accepted', detail: http[0] || null, ok: http.length > 0 })
+  results.push({
+    name: 'http-feed-config',
+    platform,
+    expect: 'refused',
+    got: http.length ? 'refused' : 'accepted',
+    detail: http[0] || null,
+    ok: http.length > 0,
+  })
   fs.rmSync(work, { recursive: true, force: true })
   return results
 }

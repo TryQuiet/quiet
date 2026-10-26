@@ -53,7 +53,7 @@ jobs:
 
       - name: electron-builder
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --win
+        run: node_modules/.bin/electron-builder --win -p never
         shell: bash
 
       # Release builds enforce the same policy before packaging (scripts/beforePack.cjs); this confirms

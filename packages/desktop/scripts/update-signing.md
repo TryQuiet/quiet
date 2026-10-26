@@ -10,22 +10,36 @@ is verified by Squirrel.Mac against the app's Developer ID signature.
 - `scripts/updateSigning.cjs` is run by electron-builder (`afterAllArtifactBuild`) in the release jobs.
   It signs each `.exe` and `.AppImage` with the private key from the `QUIET_UPDATE_SIGNING_KEY`
   secret (PEM, or base64 of the PEM) and publishes the `.sig` files with the release.
-- `scripts/beforePack.cjs` stops a build that electron-builder will publish, before anything is packaged or
-  uploaded, when the key is missing or does not match a public key in `src/main/update-signing-keys.json`.
-  "Will publish" is decided as electron-builder's PublishManager does (`--publish`, implicit CI/tag/`release`
-  script publishing, pull-request rule; `before-pack.test.cjs` compares the two), and event labels such as
-  `IS_LOCAL` or `IS_E2E` do not excuse a missing key. `updateSigning.cjs` also refuses a key that does not match
-  the shipped keys, and verifies every signature it wrote against them, before electron-builder uploads.
+- `scripts/beforePack.cjs` stops a Windows or Linux build, before anything is packaged or uploaded, when the
+  key is missing or does not match a public key in `src/main/update-signing-keys.json`, **unless the build is
+  explicitly unpublished**: started from the electron-builder command line with exactly one `--publish never`
+  (`-p never`), as electron-builder's own yargs parser reads it. Everything else counts as a publish and needs
+  the key: electron-builder also publishes implicitly (CI, git tags, the `release` npm script), repeated
+  `--publish` flags reach it as an array, and the JS API's `publish` option is invisible to hooks, so none of
+  those can be told apart from a release. Event labels (`IS_LOCAL`, `IS_E2E`, pull request) excuse nothing.
+  Every local, e2e and test build script therefore passes `--publish never`; a JS API caller that builds
+  without publishing disables the hooks in its config (`beforePack: null, afterAllArtifactBuild: null`).
+- `scripts/signArtifact.cjs` (electron-builder's `artifactBuildCompleted`, which runs before electron-builder
+  starts uploading that artifact) signs each `.exe` / `.AppImage` and verifies the signature against the
+  shipped keys, so a bad key stops the build before any object is written. `scripts/updateSigning.cjs`
+  (`afterAllArtifactBuild`) then returns the `.sig` files for upload and fails if one is missing or stale.
+  A key that does not match the shipped keys is refused even for unpublished builds.
 - Run **Actions > Check update signing key** (or `QUIET_UPDATE_SIGNING_KEY=... node scripts/checkUpdateSigningKey.cjs`)
   to prove the secret matches the pinned key without building or publishing anything.
 - At install time (both `quitAndInstall` and install-on-quit) the app copies the verified file into a fresh
-  private directory (created exclusively, mode 0700), re-hashes the copy, re-checks its signature and runs the
-  installer from that copy; the user-cache path it was downloaded to is never installed. Any mismatch is refused
-  and the file deleted. Copies left by earlier launches are removed after a day.
+  private directory under its own cache (`<cache>/quiet-verified-installers/v-XXXXXX`, created exclusively,
+  mode 0700), re-hashes the copy, re-checks its signature and runs the installer from that copy; the user-cache
+  path it was downloaded to is never installed. Any mismatch is refused and the file deleted. Copies left by
+  earlier launches are removed after a day, matching only those exact names (never following symlinks), and
+  cleanup failures never replace the refusal.
+- **No elevation.** Quiet's NSIS install is per user and never needs administrator rights, so the app refuses
+  an update whose feed asks for them (`isAdminRightsRequired`) and refuses the `elevate.exe` fallback that
+  electron-updater takes when starting the installer directly fails. Elevating would hand a file path across
+  an elevation boundary, where a same-user process could swap the bytes after they were checked.
 
-  Residual risk: a process running as the same user can still modify the copy between the check and the installer
-  starting, and nothing in Node closes that gap. It matters mainly where the installer is elevated (Windows
-  `elevate.exe`); elsewhere a same-user attacker can usually modify the installed app directly.
+  Residual risk: apart from elevation, a process running as the same user could still replace the copy between
+  the check and the installer starting. It can already modify the installed app, so this is outside what the
+  update check defends.
 
 ## Creating or rotating the key
 
