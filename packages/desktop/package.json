@@ -149,6 +149,7 @@
     "test:packaging": "node --test scripts/appimage-launcher.test.cjs scripts/packaging-scripts.test.cjs",
     "test:packaged-appimage": "node --test scripts/packaged-appimage.test.cjs",
     "test:native-rebuild": "node --test scripts/native-rebuild.test.cjs",
+    "test:updater-loop": "npm run build:main && node --test scripts/update-loop.test.cjs",
     "test:updater-security": "node --test scripts/updater-security.test.cjs && jest src/main/updaterSecurity.test.ts"
   },
   "dependencies": {

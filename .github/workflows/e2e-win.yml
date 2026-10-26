@@ -62,6 +62,13 @@ jobs:
         shell: bash
         run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/win-unpacked/resources/app-update.yml
 
+      # Real NsisUpdater + update hardening against a feed served over HTTP by another process:
+      # genuine update installs; tampered, wrong-signer, unsigned, replayed, downgrade and http feeds do not.
+      - name: Test update loop against a local feed
+        working-directory: ./packages/desktop
+        run: node --test scripts/update-loop.test.cjs
+        shell: bash
+
       - name: Extract version
         id: extract_version
         uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1

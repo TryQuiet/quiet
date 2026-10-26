@@ -44,3 +44,11 @@ the signature adds nothing over the feed's own sha512.
 - Alpha and stable builds share the key. A stable install refuses pre-release updates, so a signed alpha
   cannot be pushed onto it.
 - The `.sig` is read into memory by electron-updater's HTTP executor before its 4 KB limit is applied.
+
+## Local update loop
+
+`scripts/updateLoopCheck.cjs` serves a feed (its own throwaway signing key) from one process and runs the
+real `AppImageUpdater` / `NsisUpdater` with the app's hardening against it from another:
+`node scripts/updateLoopCheck.cjs serve <port> <key-file>`, then
+`node scripts/updateLoopCheck.cjs check http://<host>:<port> <key-file> [linux|win32]`
+(needs `npm run build:main`). `npm run test:updater-loop` runs both on localhost.

@@ -2,7 +2,6 @@
 // supposed to ship with. Usage: node verifyUpdateConfig.cjs <app-update.yml>
 const fs = require('node:fs')
 const path = require('node:path')
-const yaml = require('js-yaml')
 
 const problems = config => {
   const found = []
@@ -23,6 +22,7 @@ if (require.main === module) {
     console.error('usage: verifyUpdateConfig.cjs <app-update.yml>')
     process.exit(2)
   }
+  const yaml = require('js-yaml')
   const found = problems(yaml.load(fs.readFileSync(path.resolve(file), 'utf8')))
   if (found.length > 0) {
     for (const problem of found) console.error(`app-update.yml: ${problem}`)
