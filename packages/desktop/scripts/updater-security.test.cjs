@@ -74,7 +74,7 @@ test('private keys are accepted as PEM or base64 PEM, and only if Ed25519', () =
   assert.throws(() => signing.parsePrivateKey(pem(rsa)), /not an Ed25519 key/)
 })
 
-test('signingProblems: releases need a key the app accepts; PR, local and e2e builds and macOS do not', () => {
+test('signingProblems: a build that is checked needs a key the app accepts, whatever event label it carries; macOS does not', () => {
   const key = newKey()
   const accepted = [signing.publicKeyOf(key)]
   const env = value => ({ [signing.KEY_ENV]: value })
@@ -83,81 +83,103 @@ test('signingProblems: releases need a key the app accepts; PR, local and e2e bu
   assert.match(signing.signingProblems('win32', {}, accepted).join(), /is not set/)
   assert.match(signing.signingProblems('linux', env(pem(newKey())), accepted).join(), /does not match any key/)
   assert.match(signing.signingProblems('linux', env('garbage'), accepted).join(), /unusable/)
-  for (const skip of [{ GITHUB_EVENT_NAME: 'pull_request' }, { IS_LOCAL: 'true' }, { IS_E2E: 'true' }]) {
-    assert.deepEqual(signing.signingProblems('win32', skip, accepted), [])
+  for (const label of [{ GITHUB_BASE_REF: 'develop' }, { IS_LOCAL: 'true' }, { IS_E2E: 'true' }, { E2E: 'true' }]) {
+    assert.match(signing.signingProblems('win32', label, accepted).join(), /is not set/, JSON.stringify(label))
+    assert.match(
+      signing.signingProblems('win32', { ...label, ...env(pem(newKey())) }, accepted).join(),
+      /does not match/
+    )
   }
   assert.deepEqual(signing.signingProblems('darwin', {}, accepted), [])
 })
 
-test('signUpdates signs installers and AppImages, never blockmaps, when the key is set', async () => {
+const { inBuild } = require('./buildEnv.cjs')
+
+const buildOf = names => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-signing-'))
+  return names.map(name => {
+    const file = path.join(dir, name)
+    fs.writeFileSync(file, name)
+    return file
+  })
+}
+
+test('signUpdates signs installers and AppImages, never blockmaps, when the key is set and verifies them', async () => {
   const { version } = require('../package.json')
-  const files = [`Quiet Setup ${version}.exe`, `Quiet Setup ${version}.exe.blockmap`, `Quiet-${version}.AppImage`].map(
-    name => {
-      const file = path.join(dir, name)
-      fs.writeFileSync(file, name)
-      return file
-    }
-  )
-  const saved = process.env[signing.KEY_ENV]
-  try {
-    delete process.env[signing.KEY_ENV]
-    assert.deepEqual(await signing.default({ artifactPaths: files }), [])
-    process.env[signing.KEY_ENV] = pem(newKey())
+  const files = buildOf([
+    `Quiet Setup ${version}.exe`,
+    `Quiet Setup ${version}.exe.blockmap`,
+    `Quiet-${version}.AppImage`,
+  ])
+  const key = newKey()
+  const accepted = [signing.publicKeyOf(key)]
+  await inBuild({ [signing.KEY_ENV]: pem(key) }, ['--win', '-p', 'always'], async () => {
+    const signatures = await signing.signUpdatesWith({ artifactPaths: files }, accepted)
     assert.deepEqual(
-      await signing.default({ artifactPaths: files }),
+      signatures,
       [files[0], files[2]].map(file => `${file}.sig`)
     )
     assert.ok(!fs.existsSync(`${files[1]}.sig`))
+    for (const file of [files[0], files[2]]) assert.equal(signing.verifySignatureFile(file, version, accepted), true)
+    assert.equal(signing.verifySignatureFile(files[0], '0.0.1', accepted), false)
     for (const name of ['Quiet-0.0.1.AppImage', `Quiet-1${version}.AppImage`]) {
-      const stale = path.join(dir, name)
-      fs.writeFileSync(stale, 'stale')
-      await assert.rejects(signing.default({ artifactPaths: [stale] }), /not built for version/)
+      const [stale] = buildOf([name])
+      await assert.rejects(signing.signUpdatesWith({ artifactPaths: [stale] }, accepted), /not built for version/)
     }
-    process.env[signing.KEY_ENV] = 'garbage'
-    await assert.rejects(signing.default({ artifactPaths: files }))
-  } finally {
-    if (saved === undefined) delete process.env[signing.KEY_ENV]
-    else process.env[signing.KEY_ENV] = saved
+  })
+  await inBuild({ [signing.KEY_ENV]: 'garbage' }, [], () =>
+    assert.rejects(signing.signUpdatesWith({ artifactPaths: files }, accepted))
+  )
+})
+
+test('a key the app does not accept is refused whether or not the build is published', async () => {
+  const { version } = require('../package.json')
+  const files = buildOf([`Quiet-${version}.AppImage`])
+  const accepted = [signing.publicKeyOf(newKey())]
+  for (const [env, argv] of [
+    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']], // implicit publish on a CI tag
+    [{}, ['--linux', '-p', 'always']],
+    [{ GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['-p', 'always']],
+    [{ IS_LOCAL: 'true' }, ['-p', 'always']],
+    [{}, ['--linux', '-p', 'never']],
+    [{}, ['--linux']],
+  ]) {
+    await inBuild({ ...env, [signing.KEY_ENV]: pem(newKey()) }, argv, () =>
+      assert.rejects(
+        signing.signUpdatesWith({ artifactPaths: files }, accepted),
+        /does not match any key/,
+        JSON.stringify([env, argv])
+      )
+    )
   }
 })
 
-test('signUpdates only lets unpublished builds go unsigned', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-signing-'))
+test('without a key only builds electron-builder will not publish may go unsigned', async () => {
   const { version } = require('../package.json')
-  const file = path.join(dir, `Quiet-${version}.AppImage`)
-  fs.writeFileSync(file, 'x')
-  const saved = { ...process.env }
-  const reset = env => {
-    for (const name of ['CI', 'GITHUB_EVENT_NAME', 'IS_LOCAL', 'IS_E2E', 'E2E', signing.KEY_ENV])
-      delete process.env[name]
-    Object.assign(process.env, env)
+  const files = buildOf([`Quiet-${version}.AppImage`])
+  const accepted = [signing.publicKeyOf(newKey())]
+  const unsigned = (env, argv) => inBuild(env, argv, () => signing.signUpdatesWith({ artifactPaths: files }, accepted))
+  // not published
+  for (const [env, argv] of [
+    [{}, ['--linux']], // plain local build
+    [{ CI: 'true' }, ['--linux', '--publish', 'never']], // e2e workflows
+    [{ CI: 'true' }, ['--linux', '--publish=never']],
+    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux']], // electron-builder skips publishing for PRs
+    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux', '-p', 'always']],
+  ]) {
+    assert.deepEqual(await unsigned(env, argv), [], JSON.stringify([env, argv]))
   }
-  try {
-    reset({})
-    assert.deepEqual(await signing.default({ artifactPaths: [file] }), [], 'local build')
-    for (const skip of [
-      { GITHUB_EVENT_NAME: 'pull_request' },
-      { IS_LOCAL: 'true' },
-      { IS_E2E: 'true' },
-      { E2E: 'true' },
-    ]) {
-      reset({ CI: 'true', ...skip })
-      assert.deepEqual(await signing.default({ artifactPaths: [file] }), [], JSON.stringify(skip))
-    }
-    reset({ CI: 'true' })
-    await assert.rejects(signing.default({ artifactPaths: [file] }), /not set/)
-    // e.g. `npm run distUbuntu` in the e2e workflows
-    const argv = process.argv
-    try {
-      process.argv = [...argv, '--linux', '--publish', 'never']
-      assert.deepEqual(await signing.default({ artifactPaths: [file] }), [], '--publish never')
-    } finally {
-      process.argv = argv
-    }
-  } finally {
-    for (const name of Object.keys(process.env)) if (!(name in saved)) delete process.env[name]
-    Object.assign(process.env, saved)
+  // published, explicitly or implicitly: event labels do not excuse the missing key
+  for (const [env, argv] of [
+    [{}, ['--linux', '-p', 'always']],
+    [{ CI: 'true' }, ['--linux']], // implicit onTagOrDraft
+    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']], // implicit onTag
+    [{ CI: 'true', IS_LOCAL: 'true' }, ['--linux', '-p', 'always']],
+    [{ CI: 'true', IS_E2E: 'true' }, ['--linux', '-p', 'always']],
+    [{ CI: 'true', GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['--linux', '-p', 'always']],
+    [{ npm_lifecycle_event: 'release' }, ['--linux']],
+  ]) {
+    await assert.rejects(unsigned(env, argv), /Refusing to publish unsigned updates/, JSON.stringify([env, argv]))
   }
 })
 
@@ -186,9 +208,14 @@ test('checkUpdateSigningKey demands a key that matches the pinned one, even on p
   const pem = mine.export({ type: 'pkcs8', format: 'pem' })
   const pinned = [publicKeyOf(mine)]
   assert.deepStrictEqual(check({ QUIET_UPDATE_SIGNING_KEY: pem }, pinned).problems, [])
-  assert.strictEqual(check({ QUIET_UPDATE_SIGNING_KEY: pem, GITHUB_EVENT_NAME: 'pull_request' }, pinned).publicKey, pinned[0])
+  assert.strictEqual(check({ QUIET_UPDATE_SIGNING_KEY: pem, GITHUB_BASE_REF: 'develop' }, pinned).publicKey, pinned[0])
   assert.match(check({}, pinned).problems.join(), /not set/)
-  assert.match(check({ QUIET_UPDATE_SIGNING_KEY: '' , GITHUB_EVENT_NAME: 'pull_request' }, pinned).problems.join(), /not set/)
-  assert.match(check({ QUIET_UPDATE_SIGNING_KEY: pem }, ['MCowBQYDK2VwAyEA4oQdkZ2SffV6BF+8XyahH6sAhvpWF578nzX79rTHi0c=']).problems.join(), /does not match/)
+  assert.match(check({ QUIET_UPDATE_SIGNING_KEY: '', GITHUB_BASE_REF: 'develop' }, pinned).problems.join(), /not set/)
+  assert.match(
+    check({ QUIET_UPDATE_SIGNING_KEY: pem }, [
+      'MCowBQYDK2VwAyEA4oQdkZ2SffV6BF+8XyahH6sAhvpWF578nzX79rTHi0c=',
+    ]).problems.join(),
+    /does not match/
+  )
   assert.match(check({ QUIET_UPDATE_SIGNING_KEY: 'garbage' }, pinned).problems.join(), /unusable/)
 })

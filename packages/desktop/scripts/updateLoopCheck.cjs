@@ -21,9 +21,11 @@ const statement = (version, file, hash) =>
 const sign = (key, version, file, bytes) =>
   Buffer.from(crypto.sign(null, Buffer.from(statement(version, file, sha512(bytes))), key).toString('base64') + '\n')
 
-// case -> what the client expects. `installed` is the version the client claims to run.
+// case -> what the client expects. 'downloaded' means the update passed verification and is ready to
+// install; the install step itself (re-verification right before it) is covered by updaterSecurity.test.ts.
+// case -> `installed` is the version the client claims to run.
 const CASES = {
-  control: { expect: 'installed' },
+  control: { expect: 'downloaded' },
   tampered: { expect: 'rejected', error: /does not match/ },
   'wrong-signer': { expect: 'rejected', error: /does not match/ },
   unsigned: { expect: 'rejected', error: /could not fetch the signature/ },
@@ -118,7 +120,7 @@ const check = async (base, publicKeyFile, platform = process.platform === 'win32
       if (!result?.isUpdateAvailable) outcome = { kind: 'no-update' }
       else {
         const files = await updater.downloadUpdate()
-        outcome = { kind: 'installed', file: files[0], installerPath: updater.installerPath }
+        outcome = { kind: 'downloaded', file: files[0], installerPath: updater.installerPath }
       }
     } catch (error) {
       outcome = { kind: 'rejected', error: String(error.message || error).split('\n')[0], installerPath: updater.installerPath ?? null }
@@ -126,7 +128,7 @@ const check = async (base, publicKeyFile, platform = process.platform === 'win32
     let ok = outcome.kind === spec.expect
     if (ok && spec.error) ok = spec.error.test(outcome.error)
     if (ok && spec.expect === 'rejected') ok = outcome.installerPath === null
-    if (ok && spec.expect === 'installed') ok = fs.existsSync(outcome.file)
+    if (ok && spec.expect === 'downloaded') ok = fs.existsSync(outcome.file)
     results.push({ name, platform, expect: spec.expect, got: outcome.kind, detail: outcome.error || null, ok })
   }
   for (const [name, spec] of Object.entries(CASES)) await run(name, spec)

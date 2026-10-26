@@ -6,6 +6,7 @@ import fs from 'fs'
 import http from 'http'
 import os from 'os'
 import path from 'path'
+import zlib from 'zlib'
 import { AddressInfo } from 'net'
 import { AppImageUpdater, NsisUpdater, AppUpdater } from 'electron-updater'
 import type { AppAdapter } from 'electron-updater/out/AppAdapter'
@@ -50,7 +51,11 @@ let workDir: string
 let server: http.Server
 let feedUrl: string
 // path -> body; swapped per test to model a feed that was tampered with
-let served: Record<string, Buffer>
+let served: Record<string, Buffer | ((req: http.IncomingMessage, res: http.ServerResponse) => void)>
+// 'GET /path [range]' for every request the server answered
+let requests: string[] = []
+// handlers the updater registered to run when the app quits
+let quitHandlers: Array<(exitCode: number) => void> = []
 // paths whose response is held back until the promise resolves, to overlap requests deliberately
 let held: Record<string, Promise<void>> = {}
 
@@ -60,8 +65,24 @@ beforeAll(async () => {
     const requested = decodeURIComponent((req.url ?? '').split('?')[0])
     await held[requested]
     const body = served[requested]
+    requests.push(`${req.method} ${requested}${req.headers.range ? ` ${req.headers.range}` : ''}`)
     if (!body) {
       res.writeHead(404).end()
+      return
+    }
+    if (typeof body === 'function') {
+      body(req, res)
+      return
+    }
+    const range = /^bytes=(\d+)-(\d+)$/.exec(req.headers.range ?? '')
+    if (range) {
+      const [from, to] = [Number(range[1]), Number(range[2])]
+      res
+        .writeHead(206, {
+          'content-length': to - from + 1,
+          'content-range': `bytes ${from}-${to}/${body.length}`,
+        })
+        .end(body.subarray(from, to + 1))
       return
     }
     res.writeHead(200, { 'content-length': body.length }).end(body)
@@ -89,11 +110,14 @@ const makeAdapter = (name: string, updateConfig: string, existingDir?: string, v
     whenReady: async () => undefined,
     relaunch: () => undefined,
     quit: () => undefined,
-    onQuit: () => undefined,
+    onQuit: handler => {
+      quitHandlers.push(handler)
+    },
   }
 }
 
-const updateConfig = () => `provider: generic\nurl: ${feedUrl}\n`
+// one range per request keeps the test server simple
+const updateConfig = () => `provider: generic\nurl: ${feedUrl}\nuseMultipleRangeRequest: false\n`
 
 const newKey = () => {
   const { privateKey } = crypto.generateKeyPairSync('ed25519')
@@ -111,7 +135,10 @@ const signedAs = (name: string, bytes: Buffer, version = VERSION, key = releaseK
 
 // Which channel file the updater requests depends on the host running the test (latest.yml,
 // latest-linux.yml or latest-mac.yml), whatever updater class is under test.
-const serveFeed = (feed: Buffer, files: Record<string, Buffer>) => {
+const serveFeed = (
+  feed: Buffer,
+  files: Record<string, Buffer | ((req: http.IncomingMessage, res: http.ServerResponse) => void)>
+) => {
   served = { '/latest.yml': feed, '/latest-linux.yml': feed, '/latest-mac.yml': feed, ...files }
 }
 
@@ -135,7 +162,7 @@ const download = async (updater: AppUpdater) => {
 }
 
 describe('hardenUpdater', () => {
-  const hooks = () => ({ executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn() })
+  const hooks = () => ({ executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn(), install: jest.fn() })
 
   it('refuses downgrades and web installers on every platform', () => {
     for (const platform of ['linux', 'darwin', 'win32'] as const) {
@@ -327,6 +354,8 @@ describe('update feed served from a local HTTP server', () => {
 
       beforeEach(() => {
         held = {}
+        requests = []
+        quitHandlers = []
       })
 
       it('installs an update signed by the release key (control)', async () => {
@@ -415,6 +444,212 @@ describe('update feed served from a local HTTP server', () => {
         await expect(downloading).resolves.toHaveLength(1)
       })
 
+      describe('install boundary', () => {
+        // The updater installs whatever file its remembered path points to, so the file that was
+        // verified must be what is run, on both routes: quitAndInstall() and install-on-quit.
+        const prepare = async (autoInstall: boolean) => {
+          serve(genuine, signedAs(name, genuine))
+          const updater = makeUpdater()
+          updater.autoInstallOnAppQuit = autoInstall
+          const doInstall = jest.spyOn(updater as any, 'doInstall').mockReturnValue(false) // not started: electron's autoUpdater is not loadable in a Node test
+          const errors: Error[] = []
+          updater.on('error', error => errors.push(error))
+          const [file] = await download(updater)
+          return { updater, doInstall, errors, file }
+        }
+        const replace = (file: string, bytes: Buffer) => {
+          // the way a different process would: a new file under the same name
+          fs.rmSync(file)
+          fs.writeFileSync(file, bytes)
+        }
+
+        it('installs the verified file through quitAndInstall', async () => {
+          const { updater, doInstall, errors, file } = await prepare(false)
+          updater.quitAndInstall(true)
+          expect(doInstall).toHaveBeenCalledTimes(1)
+          expect(fs.readFileSync(file)).toEqual(genuine)
+          expect(errors).toEqual([])
+        })
+
+        it('installs the verified file when the app quits', async () => {
+          const { doInstall, errors } = await prepare(true)
+          expect(quitHandlers).toHaveLength(1)
+          quitHandlers[0](0)
+          expect(doInstall).toHaveBeenCalledTimes(1)
+          expect(errors).toEqual([])
+        })
+
+        it.each([
+          ['replaced with other bytes of the same length', (g: Buffer) => Buffer.alloc(g.length, 0x41)],
+          ['replaced with other bytes', () => Buffer.from('malicious payload')],
+          ['truncated', (g: Buffer) => g.subarray(0, g.length - 1)],
+        ])('refuses quitAndInstall when the downloaded file was %s after verification', async (_what, tamper) => {
+          const { updater, doInstall, errors, file } = await prepare(false)
+          replace(file, tamper(genuine))
+          updater.quitAndInstall(true)
+          expect(doInstall).not.toHaveBeenCalled()
+          expect(errors.map(e => e.message).join()).toMatch(/changed after it was verified/)
+          expect(fs.existsSync(file)).toBe(false)
+        })
+
+        it('refuses install-on-quit when the downloaded file was changed after verification', async () => {
+          const { doInstall, errors, file } = await prepare(true)
+          replace(file, Buffer.from('malicious payload'))
+          quitHandlers[0](0)
+          expect(doInstall).not.toHaveBeenCalled()
+          expect(errors.map(e => e.message).join()).toMatch(/changed after it was verified/)
+        })
+
+        it('refuses to install a file that was overwritten in place', async () => {
+          const { updater, doInstall, file } = await prepare(false)
+          fs.appendFileSync(file, 'x')
+          updater.quitAndInstall(true)
+          expect(doInstall).not.toHaveBeenCalled()
+        })
+
+        it('refuses to install when the file has disappeared', async () => {
+          const { updater, doInstall, errors, file } = await prepare(false)
+          fs.rmSync(file)
+          updater.quitAndInstall(true)
+          expect(doInstall).not.toHaveBeenCalled()
+          expect(errors).toHaveLength(1)
+        })
+      })
+
+      describe('differential downloads', () => {
+        const BLOCK = 2048
+        const blockMapJson = (data: Buffer) => {
+          const checksums: string[] = []
+          const sizes: number[] = []
+          for (let offset = 0; offset < data.length; offset += BLOCK) {
+            const block = data.subarray(offset, offset + BLOCK)
+            checksums.push(crypto.createHash('sha256').update(block).digest('base64'))
+            sizes.push(block.length)
+          }
+          return JSON.stringify({ version: '2', files: [{ name: 'file', offset: 0, checksums, sizes }] })
+        }
+        // AppImages carry their block map at the end of the file (deflated, then its 4-byte length);
+        // installers have a `<file>.blockmap` next to them.
+        const embedded = platform === 'linux'
+        const withBlockMap = (payload: Buffer) => {
+          if (!embedded) return { file: payload, blockMapSize: undefined as number | undefined }
+          const deflated = zlib.deflateRawSync(blockMapJson(payload))
+          const length = Buffer.alloc(4)
+          length.writeUInt32BE(deflated.length)
+          return { file: Buffer.concat([payload, deflated, length]), blockMapSize: deflated.length }
+        }
+        // The installed app's file, which differs from the new one in a few blocks.
+        const installedPayload = Buffer.concat([Buffer.alloc(BLOCK * 3, 0x42), genuine.subarray(BLOCK * 3)])
+        const installed = withBlockMap(installedPayload).file
+        const oldName = name.replace(VERSION, '1.0.0')
+
+        // Where this updater looks for the file it is updating from.
+        const prepareOldFile = (dir: string) => {
+          const oldFile =
+            platform === 'linux' ? (process.env.APPIMAGE as string) : path.join(dir, 'cache', 'Quiet', 'installer.exe')
+          fs.mkdirSync(path.dirname(oldFile), { recursive: true })
+          fs.writeFileSync(oldFile, installed)
+        }
+
+        // `payload` is what the feed's hash, the block map and the served ranges describe.
+        const serveDifferential = (payload: Buffer, signedFile: Buffer | null) => {
+          const { file, blockMapSize } = withBlockMap(payload)
+          let feed = feedFile(name, file)
+          if (blockMapSize != null)
+            feed = feed.replace(
+              `    size: ${file.length}\n`,
+              `    size: ${file.length}\n    blockMapSize: ${blockMapSize}\n`
+            )
+          serveFeed(Buffer.from(feed), {
+            [`/${name}`]: file,
+            ...(embedded
+              ? {}
+              : {
+                  [`/${name}.blockmap`]: zlib.gzipSync(blockMapJson(payload)),
+                  [`/${oldName}.blockmap`]: zlib.gzipSync(blockMapJson(installedPayload)),
+                }),
+            ...(signedFile ? { [`/${name}.sig`]: signedAs(name, signedFile) } : {}),
+          })
+          return file
+        }
+        const differentialUpdater = () => {
+          const dir = fs.mkdtempSync(path.join(workDir, `${platform}-diff-`))
+          prepareOldFile(dir)
+          const updater = makeUpdater(dir)
+          updater.disableDifferentialDownload = false
+          return updater
+        }
+        const usedRanges = () => requests.filter(r => r.startsWith(`GET /${name} bytes=`))
+
+        it('accepts a genuine update assembled from the installed file and ranges of the new one (control)', async () => {
+          const file = serveDifferential(genuine, withBlockMap(genuine).file)
+          const updater = differentialUpdater()
+          const [downloaded] = await download(updater)
+          expect(fs.readFileSync(downloaded)).toEqual(file)
+          expect(usedRanges().length).toBeGreaterThan(0)
+          expect(requests).not.toContain(`GET /${name}`)
+        })
+
+        it('rejects tampered bytes delivered differentially with a block map and feed hash that match them', async () => {
+          const malicious = Buffer.concat([
+            Buffer.alloc(BLOCK * 3, 0x42),
+            Buffer.from('malicious payload '.repeat(500)),
+          ])
+          serveDifferential(malicious, withBlockMap(genuine).file)
+          const updater = differentialUpdater()
+          await expect(download(updater)).rejects.toThrow(/not signed by the Quiet release key.*does not match/)
+          expect(usedRanges().length).toBeGreaterThan(0)
+          expect(installerOf(updater)).toBeNull()
+        })
+
+        it('rejects a differential update with no signature file', async () => {
+          serveDifferential(genuine, null)
+          const updater = differentialUpdater()
+          await expect(download(updater)).rejects.toThrow(/could not fetch the signature/)
+          expect(installerOf(updater)).toBeNull()
+        })
+      })
+
+      describe('signature size limit', () => {
+        const oversized =
+          (sendHead: (res: http.ServerResponse) => void, sent: { bytes: number }) =>
+          (req: http.IncomingMessage, res: http.ServerResponse) => {
+            sendHead(res)
+            const chunk = Buffer.alloc(16 * 1024, 0x41)
+            const timer = setInterval(() => {
+              if (res.destroyed || sent.bytes > 8 * 1024 * 1024) {
+                clearInterval(timer)
+                res.destroy()
+                return
+              }
+              sent.bytes += chunk.length
+              res.write(chunk)
+            }, 1)
+            res.on('close', () => clearInterval(timer))
+          }
+
+        it('stops reading a chunked signature response at the limit instead of buffering it', async () => {
+          const sent = { bytes: 0 }
+          serveFeed(Buffer.from(feedFile(name, genuine)), {
+            [`/${name}`]: genuine,
+            [`/${name}.sig`]: oversized(res => res.writeHead(200), sent),
+          })
+          await expect(download(makeUpdater())).rejects.toThrow(/signature file is larger than 4096 bytes/)
+          // the request is aborted soon after the limit, long before a large body could be buffered
+          expect(sent.bytes).toBeLessThan(2 * 1024 * 1024)
+        })
+
+        it('refuses a signature whose declared length is over the limit without reading it', async () => {
+          const sent = { bytes: 0 }
+          serveFeed(Buffer.from(feedFile(name, genuine)), {
+            [`/${name}`]: genuine,
+            [`/${name}.sig`]: oversized(res => res.writeHead(200, { 'content-length': 500 * 1024 * 1024 }), sent),
+          })
+          await expect(download(makeUpdater())).rejects.toThrow(/signature file is larger than 4096 bytes/)
+          expect(sent.bytes).toBeLessThan(2 * 1024 * 1024)
+        })
+      })
+
       describe('downgrades', () => {
         const updaterAt = (installed: string) => {
           const updater = configure(create(makeAdapter(platform, updateConfig(), undefined, installed)))
@@ -488,4 +723,52 @@ describe('update feed served from a local HTTP server', () => {
       })
     }
   )
+
+  describe('Windows Authenticode check, when a publisher is configured', () => {
+    // Quiet's packaged app-update.yml names no publisher today (the signing certificate has to be valid
+    // for that to work), so electron-updater skips its Authenticode check. This shows the release-key
+    // check composes with it, so pinning a publisher later only adds the second boundary.
+    const name = 'Quiet-Setup-99.0.0.exe'
+    const genuine = Buffer.from('genuine installer '.repeat(500))
+    const withPublisher = (verdict: string | null) => {
+      const adapter = makeAdapter('win32', `${updateConfig()}publisherName:\n  - CN=Quiet Test\n`)
+      const updater = configure(new NsisUpdater(undefined, adapter))
+      const verify = jest.fn().mockResolvedValue(verdict)
+      ;(updater as any)._verifyUpdateCodeSignature = verify
+      hardenUpdater(updater, 'win32', { publicKeys: [releaseKey.publicKey] })
+      return { updater, verify }
+    }
+
+    beforeEach(() => {
+      held = {}
+      serveFeed(Buffer.from(feedFile(name, genuine)), {
+        [`/${name}`]: genuine,
+        [`/${name}.sig`]: signedAs(name, genuine),
+      })
+    })
+
+    it('needs both the release-key signature and the Authenticode signature', async () => {
+      const { updater, verify } = withPublisher(null)
+      await expect(download(updater)).resolves.toHaveLength(1)
+      expect(verify).toHaveBeenCalledWith(['CN=Quiet Test'], expect.stringContaining(name))
+    })
+
+    it('rejects a release-key-signed installer whose Authenticode signature is not valid', async () => {
+      const { updater } = withPublisher('signature status is 1, not valid')
+      await expect(download(updater)).rejects.toThrow(/not signed by the application owner/)
+    })
+
+    it('still rejects an Authenticode-valid installer without a release-key signature', async () => {
+      serveFeed(Buffer.from(feedFile(name, genuine)), { [`/${name}`]: genuine })
+      const { updater } = withPublisher(null)
+      await expect(download(updater)).rejects.toThrow(/could not fetch the signature/)
+    })
+  })
+
+  it('fails closed when electron-updater has no install hook', () => {
+    const updater = { executeDownload: jest.fn(), getOrCreateDownloadHelper: jest.fn() }
+    expect(() =>
+      hardenUpdater(updater as unknown as AppUpdater, 'linux', { publicKeys: [releaseKey.publicKey] })
+    ).toThrow(/download hooks/)
+  })
 })

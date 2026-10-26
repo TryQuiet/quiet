@@ -19,7 +19,7 @@ const freePort = () =>
     })
   })
 
-test('update loop against a local HTTP feed: genuine installs, every attack is refused', { skip: !built && !process.env.CI && 'run npm run build:main first' }, async () => {
+test('update loop against a local HTTP feed: genuine update is accepted, every attack is refused', { skip: !built && !process.env.CI && 'run npm run build:main first' }, async () => {
   const dir = fs.mkdtempSync(path.join(process.env.TMPDIR || os.tmpdir(), 'quiet-loop-test-'))
   const keyFile = path.join(dir, 'public.key')
   const port = await freePort()

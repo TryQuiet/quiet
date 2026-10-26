@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
-import { CancellationToken } from 'builder-util-runtime'
+import { CancellationToken, configureRequestOptions, configureRequestUrl } from 'builder-util-runtime'
 import type { AppUpdater } from 'electron-updater'
 import signingKeys from './update-signing-keys.json'
 
@@ -27,22 +27,66 @@ const MAX_SIGNATURE_BYTES = 4096
 export type FetchSignature = (url: URL) => Promise<string>
 
 interface HttpExecutor {
-  downloadToBuffer(url: URL, options: { cancellationToken: CancellationToken }): Promise<Buffer>
+  // Not in the public typings; it is what downloadToBuffer is built on.
+  doDownload(requestOptions: object, options: object, redirectCount: number): void
+}
+interface SignatureResponse {
+  headers: Record<string, string | string[] | undefined>
+  on(event: string, handler: (...args: any[]) => void): unknown
 }
 
 // Goes through the updater's own HTTP executor so the request uses Electron's network stack, and
-// with it the system proxy settings that the update download itself relies on.
+// with it the system proxy settings that the update download itself relies on. The body is read as
+// a stream and the request is aborted as soon as it passes the limit, so a hostile feed cannot make
+// the app buffer an arbitrarily large "signature" (HttpExecutor.downloadToBuffer would take 500 MB).
 const fetchSignatureWith =
   (updater: AppUpdater): FetchSignature =>
   async url => {
     const executor = (updater as unknown as { httpExecutor?: HttpExecutor }).httpExecutor
-    if (executor == null) throw new Error('electron-updater has no HTTP executor')
+    if (executor == null || typeof executor.doDownload !== 'function') {
+      throw new Error('electron-updater has no HTTP executor')
+    }
     const cancellationToken = new CancellationToken()
     const timer = setTimeout(() => cancellationToken.cancel(), SIGNATURE_TIMEOUT_MS)
+    let tooLarge = false
     try {
-      const body = await executor.downloadToBuffer(url, { cancellationToken })
-      if (body.length > MAX_SIGNATURE_BYTES) throw new Error('signature file is too large')
+      const body = await cancellationToken.createPromise<Buffer>((resolve, reject, onCancel) => {
+        const requestOptions: Record<string, unknown> = { redirect: 'manual' }
+        configureRequestUrl(url, requestOptions as any)
+        configureRequestOptions(requestOptions as any)
+        const chunks: Buffer[] = []
+        let received = 0
+        const overflow = () => {
+          tooLarge = true
+          cancellationToken.cancel() // aborts the request
+        }
+        executor.doDownload(
+          {
+            ...requestOptions,
+          },
+          {
+            destination: null,
+            options: { cancellationToken },
+            onCancel,
+            callback: (error: Error | null) => (error == null ? resolve(Buffer.concat(chunks)) : reject(error)),
+            responseHandler: (response: SignatureResponse, callback: (error: Error | null) => void) => {
+              const declared = Number([response.headers['content-length']].flat()[0])
+              if (declared > MAX_SIGNATURE_BYTES) return overflow()
+              response.on('data', (chunk: Buffer) => {
+                received += chunk.length
+                if (received > MAX_SIGNATURE_BYTES) return overflow()
+                chunks.push(chunk)
+              })
+              response.on('end', () => callback(null))
+            },
+          },
+          0
+        )
+      })
       return body.toString('utf8')
+    } catch (error) {
+      if (tooLarge) throw new Error(`signature file is larger than ${MAX_SIGNATURE_BYTES} bytes`)
+      throw error
     } finally {
       clearTimeout(timer)
     }
@@ -67,6 +111,57 @@ interface SignedDownload {
   signatureUrl: URL
 }
 
+const SIGNATURE_PATTERN = /^[A-Za-z0-9+/]{86}==$/
+
+/** Whether `signature` (base64) is a release-key signature of exactly this version, file name and hash. */
+const signatureMatches = (
+  version: string,
+  fileName: string,
+  sha512Base64: string,
+  signature: string,
+  publicKeys: readonly string[]
+) => {
+  const statement = Buffer.from(updateStatement(version, fileName, sha512Base64))
+  const bytes = Buffer.from(signature, 'base64')
+  return publicKeys.some(key => crypto.verify(null, statement, toPublicKey(key), bytes))
+}
+
+interface Verdict {
+  problem: string | null
+  sha512?: string
+  signature?: string
+}
+
+const inspectDownload = async (
+  download: SignedDownload,
+  publicKeys: readonly string[],
+  fetchSignature: FetchSignature
+): Promise<Verdict> => {
+  if (publicKeys.length === 0) return { problem: 'no release signing key is configured' }
+  if (!download.version) return { problem: 'the announced update version is unknown' }
+  // Both come from the feed. Keep the signed statement well formed whatever the feed says.
+  if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(download.version) || /[\r\n]/.test(download.fileName)) {
+    return { problem: 'the announced version or file name is malformed' }
+  }
+  let signature: string
+  try {
+    signature = (await fetchSignature(download.signatureUrl)).trim()
+  } catch (error) {
+    return { problem: `could not fetch the signature ${download.signatureUrl.href}: ${(error as Error).message}` }
+  }
+  if (!SIGNATURE_PATTERN.test(signature)) return { problem: 'the signature file is malformed' }
+  let sha512: string
+  try {
+    sha512 = await sha512OfFile(download.filePath)
+  } catch (error) {
+    return { problem: `could not hash the download: ${(error as Error).message}` }
+  }
+  if (!signatureMatches(download.version, download.fileName, sha512, signature, publicKeys)) {
+    return { problem: 'the signature does not match this version and file' }
+  }
+  return { problem: null, sha512, signature }
+}
+
 /**
  * Resolves to null when `filePath` carries a valid release-key signature for exactly this version
  * and file name, otherwise to the reason it is not acceptable. Any failure to reach a verdict
@@ -76,29 +171,24 @@ export const verifyUpdateSignature = async (
   download: SignedDownload,
   publicKeys: readonly string[],
   fetchSignature: FetchSignature
-): Promise<string | null> => {
-  if (publicKeys.length === 0) return 'no release signing key is configured'
-  if (!download.version) return 'the announced update version is unknown'
-  // Both come from the feed. Keep the signed statement well formed whatever the feed says.
-  if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(download.version) || /[\r\n]/.test(download.fileName)) {
-    return 'the announced version or file name is malformed'
-  }
-  let signature: string
+): Promise<string | null> => (await inspectDownload(download, publicKeys, fetchSignature)).problem
+
+const sha512OfFileSync = (filePath: string) => {
+  const hash = crypto.createHash('sha512')
+  const buffer = Buffer.alloc(1 << 20)
+  const fd = fs.openSync(filePath, 'r')
   try {
-    signature = (await fetchSignature(download.signatureUrl)).trim()
-  } catch (error) {
-    return `could not fetch the signature ${download.signatureUrl.href}: ${(error as Error).message}`
+    for (
+      let read = fs.readSync(fd, buffer, 0, buffer.length, null);
+      read > 0;
+      read = fs.readSync(fd, buffer, 0, buffer.length, null)
+    ) {
+      hash.update(buffer.subarray(0, read))
+    }
+  } finally {
+    fs.closeSync(fd)
   }
-  if (!/^[A-Za-z0-9+/]{86}==$/.test(signature)) return 'the signature file is malformed'
-  let statement: Buffer
-  try {
-    statement = Buffer.from(updateStatement(download.version, download.fileName, await sha512OfFile(download.filePath)))
-  } catch (error) {
-    return `could not hash the download: ${(error as Error).message}`
-  }
-  const bytes = Buffer.from(signature, 'base64')
-  const valid = publicKeys.some(key => crypto.verify(null, statement, toPublicKey(key), bytes))
-  return valid ? null : 'the signature does not match this version and file'
+  return hash.digest('base64')
 }
 
 // electron-updater keeps these as protected members, so they are not part of the public typings.
@@ -113,6 +203,19 @@ interface DownloadedUpdateHelper {
 interface UpdaterInternals {
   executeDownload(options: DownloadTaskOptions): Promise<unknown>
   getOrCreateDownloadHelper(): Promise<DownloadedUpdateHelper>
+  // BaseUpdater (Windows, Linux): both quitAndInstall() and install-on-quit end up here
+  install(...args: unknown[]): boolean
+  installerPath: string | null
+  dispatchError(error: Error): void
+}
+
+/** What the release key vouched for, kept so the file can be checked again right before it is run. */
+interface VerifiedInstall {
+  filePath: string
+  version: string
+  fileName: string
+  sha512: string
+  signature: string
 }
 
 /**
@@ -134,12 +237,17 @@ interface UpdaterInternals {
  */
 const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string[], fetchSignature: FetchSignature) => {
   const internals = updater as unknown as UpdaterInternals
-  if (typeof internals.executeDownload !== 'function' || typeof internals.getOrCreateDownloadHelper !== 'function') {
+  if (
+    typeof internals.executeDownload !== 'function' ||
+    typeof internals.getOrCreateDownloadHelper !== 'function' ||
+    typeof internals.install !== 'function'
+  ) {
     throw new Error('electron-updater no longer exposes its download hooks')
   }
   if (publicKeys.length === 0) throw new Error('no update signing key is configured')
   publicKeys.forEach(toPublicKey) // throws on a malformed key
 
+  let verified: VerifiedInstall | null = null
   const executeDownload = internals.executeDownload.bind(internals)
   internals.executeDownload = options => {
     const { fileInfo, downloadUpdateOptions, task } = options
@@ -154,20 +262,64 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
         new Error(`Pre-release ${version} is not offered to a stable ${updater.currentVersion.version} install`)
       )
     }
+    let verdict: Verdict | null = null
     return executeDownload({
       ...options,
       task: async (tempFile, ...rest) => {
         await task(tempFile, ...rest)
-        const problem = await verifyUpdateSignature(
+        verdict = await inspectDownload(
           { filePath: tempFile, fileName, version, signatureUrl },
           publicKeys,
           fetchSignature
         )
-        if (problem != null) {
-          throw new Error(`New version ${version} is not signed by the Quiet release key: ${problem}`)
+        if (verdict.problem != null) {
+          throw new Error(`New version ${version} is not signed by the Quiet release key: ${verdict.problem}`)
         }
       },
+    }).then(result => {
+      // electron-updater has now moved the file into place and recorded it as the update to install
+      const accepted = verdict as Verdict | null
+      if (accepted?.sha512 != null && accepted.signature != null && internals.installerPath != null) {
+        verified = {
+          filePath: internals.installerPath,
+          version: version!,
+          fileName,
+          sha512: accepted.sha512,
+          signature: accepted.signature,
+        }
+      }
+      return result
     })
+  }
+
+  // electron-updater installs whatever file the path it remembers points to, with no further check,
+  // both for quitAndInstall() and for install-on-quit. The file sits in a directory the user can
+  // write, so check it again, synchronously, right before it is handed to the installer.
+  const install = internals.install.bind(internals)
+  internals.install = (...args) => {
+    const refuse = (reason: string) => {
+      const error = new Error(`Refusing to install the update: ${reason}`)
+      internals.dispatchError(error)
+      return false
+    }
+    const accepted = verified
+    if (accepted == null || internals.installerPath !== accepted.filePath) {
+      return refuse('it is not the file that was verified')
+    }
+    try {
+      const sha512 = sha512OfFileSync(accepted.filePath)
+      if (
+        sha512 !== accepted.sha512 ||
+        !signatureMatches(accepted.version, accepted.fileName, sha512, accepted.signature, publicKeys)
+      ) {
+        fs.rmSync(accepted.filePath, { force: true })
+        verified = null
+        return refuse('the downloaded file changed after it was verified')
+      }
+    } catch (error) {
+      return refuse(`the downloaded file could not be checked: ${(error as Error).message}`)
+    }
+    return install(...args)
   }
 
   const getOrCreateDownloadHelper = internals.getOrCreateDownloadHelper.bind(internals)

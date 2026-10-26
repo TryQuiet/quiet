@@ -5,10 +5,8 @@
 const updateSigning = require('./updateSigning.cjs')
 
 const check = (env = process.env, publicKeys = updateSigning.loadPublicKeys()) => {
-  // Not an `isUnsignedBuild` environment: this check always demands the key.
-  const { GITHUB_EVENT_NAME, IS_LOCAL, IS_E2E, E2E, ...rest } = env
-  const problems = updateSigning.signingProblems('linux', rest, publicKeys)
-  const publicKey = problems.length === 0 ? updateSigning.publicKeyOf(updateSigning.parsePrivateKey(rest[updateSigning.KEY_ENV])) : null
+  const problems = updateSigning.signingProblems('linux', env, publicKeys)
+  const publicKey = problems.length === 0 ? updateSigning.publicKeyOf(updateSigning.parsePrivateKey(env[updateSigning.KEY_ENV])) : null
   return { problems, publicKey }
 }
 
