@@ -22,7 +22,7 @@ cat > "$quiet_build/main.cpp" <<'CPP'
 #include "embedded-node.h"
 int main(int argc, char* argv[]) { return runEmbeddedNode(argc, argv); }
 CPP
-"$quiet_toolchain/bin/${quiet_target}24-clang++" -std=c++17 \
+"$quiet_toolchain/bin/${quiet_target}24-clang++" -std=c++20 \
   -I "$quiet_app/libnode/include/node" -I "$quiet_app/src/main/cpp" \
   "$quiet_build/main.cpp" -L "$quiet_app/libnode/bin/$quiet_abi" -lnode -o "$quiet_build/backend-probe"
 (cd "$quiet_root/packages/backend" && node scripts/build-tor-probe.mjs)

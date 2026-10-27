@@ -216,7 +216,7 @@ assertion values and raw stacks. Cleanup failures retain a failed process status
 
 `iOS notification Appium tests` runs separate `onboarding` and `provider` jobs on
 macOS 26 with Xcode 26.3. Both native clients use the normal Tor backend and
-the installed Tor 409.11.2 XCFramework from the committed CocoaPods lockfile.
+the installed Tor 409.14.1 XCFramework from the committed CocoaPods lockfile.
 The guarded builder checks the shipped Tor version and preserves build receipts.
 The onboarding lane runs Postgres, Redis and a push-disabled QSS directly on
 the Mac; no Docker service is required. The provider lane connects to staging

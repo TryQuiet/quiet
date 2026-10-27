@@ -18,10 +18,10 @@ download() {
 
 download https://github.com/nodejs-mobile/nodejs-mobile/releases/download/v18.20.4/nodejs-mobile-v18.20.4-android.zip \
   "$quiet_build/node.zip" bd7321eaa1a7602fbe0bb87302df2d79d87835cf4363fbdd17c350dbb485c2af
-download https://archive.torproject.org/tor-package-archive/torbrowser/15.0.21/tor-browser-android-x86_64-15.0.21.apk \
-  "$quiet_build/tor.apk" 8fb0419c6b03931ac9c81cd4e006720a09150965598f8c32b8b53c0746b47fe2
+download https://archive.torproject.org/tor-package-archive/torbrowser/15.0.26/tor-browser-android-x86_64-15.0.26.apk \
+  "$quiet_build/tor.apk" 5b292e0fa91ed40a30435058f79f2bb88481e0be43d430761aa586c36cd156c7
 curl --fail --location --retry 2 \
-  https://archive.torproject.org/tor-package-archive/torbrowser/15.0.21/tor-browser-android-x86_64-15.0.21.apk.asc \
+  https://archive.torproject.org/tor-package-archive/torbrowser/15.0.26/tor-browser-android-x86_64-15.0.26.apk.asc \
   --output "$quiet_build/tor.apk.asc"
 mkdir -p "$quiet_build/gnupg"
 chmod 700 "$quiet_build/gnupg"

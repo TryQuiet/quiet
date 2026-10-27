@@ -20,6 +20,8 @@
     "lint-staged": "lerna run lint-staged",
     "pull:submodules": "git submodule update --init --recursive --no-fetch",
     "pull:submodules:update": "git submodule update --init --recursive --remote",
+    "check:tor-binaries": "node ./scripts/check-tor-binaries.mjs",
+    "test:tor-binaries": "node --test ./scripts/check-tor-binaries.test.mjs",
     "check:runtime-deps": "node scripts/check-runtime-dependency-floors.mjs",
     "test:submodule-policy": "bash ./scripts/validate-audit-submodules.test.sh && node --test ./scripts/pinned-submodules.test.mjs",
     "build:auth": "cd ./3rd-party/auth && pnpm install && pnpm build",

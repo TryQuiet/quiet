@@ -79,7 +79,7 @@ final class TorControlRegressionTests: XCTestCase, TorHandlerDelegate {
     let originalCookie = cookie
     var control = try backendControl(timeout: 30)
     let version = try value("version", in: command(control, "GETINFO version"))
-    XCTAssertEqual(version.split(separator: " ").first, "0.4.9.11")
+    XCTAssertEqual(version.split(separator: " ").first, "0.4.9.14")
     print("TOR_REGRESSION runtimeVersion=\(version)")
     let deadline = Date().addingTimeInterval(180)
     var bootstrapped = false

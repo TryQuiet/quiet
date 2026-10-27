@@ -27,8 +27,8 @@ target 'Quiet' do
   use_frameworks! :linkage => :static
   config = use_native_modules!
 
-  # Includes Tor 0.4.9.11 and device/Apple Silicon simulator XCFramework slices.
-  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v409.11.2/Tor.podspec'
+  # Includes Tor 0.4.9.14 (OpenSSL 3.6.5) and device/Apple Silicon simulator XCFramework slices.
+  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v409.14.1/Tor.podspec'
   pod 'FirebaseCore', '~> 10.20.0'
   pod 'FirebaseMessaging', '~> 10.20.0'
   pod 'FirebaseInstallations', '~> 10.20.0'

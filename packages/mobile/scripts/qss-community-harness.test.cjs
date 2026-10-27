@@ -98,7 +98,7 @@ test('build preflight checks the real files and rejects stale or remote native c
   const frontend = Buffer.from('bundled quiet test app')
   fs.writeFileSync(path.join(app, 'main.jsbundle'), frontend)
   fs.writeFileSync(path.join(app, 'Quiet.debug.dylib'), ENDPOINT)
-  const tor = Buffer.from('linked Tor 0.4.9.11')
+  const tor = Buffer.from('linked Tor 0.4.9.14')
   const torBinary = path.join(app, 'Frameworks/Tor.framework/Tor')
   fs.mkdirSync(path.dirname(torBinary), { recursive: true })
   fs.writeFileSync(torBinary, tor)
@@ -107,7 +107,7 @@ test('build preflight checks the real files and rejects stale or remote native c
     JSON.stringify({
       status: 'passed',
       torPodUnchanged: true,
-      torVersion: '409.11.2',
+      torVersion: '409.14.1',
       embeddedTorSHA256: createHash('sha256').update(tor).digest('hex'),
       scheme: 'Quiet',
       configuration: 'Debug',
