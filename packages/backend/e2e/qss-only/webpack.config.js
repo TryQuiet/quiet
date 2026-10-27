@@ -23,7 +23,7 @@ export default env => {
     }),
     new webpack.BannerPlugin({
       raw: true,
-      banner: `/* ${mode.MARKER}: Tor metadata simulated; P2P disabled. */\n(function () { const ENDPOINT = ${JSON.stringify(mode.ENDPOINT)}; (${mode.requireQssOnlyEnvironment.toString()})(process.env); })();`,
+      banner: `/* ${mode.MARKER}: Tor metadata simulated; P2P disabled. */\n${mode.startupGuardSource()}`,
     })
   )
   return config

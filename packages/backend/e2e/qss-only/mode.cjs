@@ -15,4 +15,9 @@ function requireQssOnlyEnvironment(environment = process.env) {
   }
 }
 
-module.exports = { MARKER, ENDPOINT, requireQssOnlyEnvironment }
+// The bundle banner runs this check before any bundled code, so it inlines every function the check calls.
+function startupGuardSource() {
+  return `(function () { const ENDPOINT = ${JSON.stringify(ENDPOINT)}; ${isAllowedEndpoint.toString()} (${requireQssOnlyEnvironment.toString()})(process.env); })();`
+}
+
+module.exports = { MARKER, ENDPOINT, requireQssOnlyEnvironment, startupGuardSource }
