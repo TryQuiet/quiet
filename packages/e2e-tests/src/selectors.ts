@@ -2031,13 +2031,19 @@ export class Channel {
         const startTime = DateTime.utc().toMillis()
         const endTime = startTime + 40_000
         while (DateTime.utc().toMillis() < endTime) {
-          const messages = await this.getUserMessages(username)
-          for (const element of messages) {
-            const filenameElement = await this.getFileAttachmentnameElementByType(filename, fileType, element)
-            if (filenameElement != null) {
-              logger.info(`Found message with matching filename ${filename}`)
-              return element
+          try {
+            const messages = await this.getUserMessages(username)
+            for (const element of messages) {
+              const filenameElement = await this.getFileAttachmentnameElementByType(filename, fileType, element)
+              if (filenameElement != null) {
+                logger.info(`Found message with matching filename ${filename}`)
+                return element
+              }
             }
+          } catch (e) {
+            // The message re-renders as the upload progresses; a node found a moment ago can
+            // be gone by the time its text is read. The next poll reads the new one.
+            if (!(e instanceof error.StaleElementReferenceError)) throw e
           }
           await sleep(500)
         }
