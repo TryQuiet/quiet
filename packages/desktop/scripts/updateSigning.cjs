@@ -10,6 +10,7 @@ const fs = require('fs')
 const path = require('path')
 
 const KEY_ENV = 'QUIET_UPDATE_SIGNING_KEY'
+const REQUIRE_ENV = 'QUIET_REQUIRE_UPDATE_SIGNING'
 const SIGNED_EXTENSIONS = ['.exe', '.AppImage']
 
 const updateStatement = (version, fileName, sha512Base64) =>
@@ -29,60 +30,22 @@ const parsePrivateKey = value => {
   return key
 }
 
-// The same file whichever way it was reached: .bin symlink, Windows .cmd shim, relative path, letter case.
-const canonical = file => {
-  try {
-    return fs.realpathSync.native(file)
-  } catch {
-    return null
-  }
-}
-
-// The electron-builder command line entry point, node_modules/electron-builder/cli.js. Identified by the
-// file itself, not by a name: a script of another name (or the same name elsewhere) that drives the JS API
-// is not the CLI, whatever flags it carries.
-const isBuilderCli = argv => {
-  const entry = argv[1] == null ? null : canonical(argv[1])
-  let cli = null
-  try {
-    cli = canonical(require.resolve('electron-builder/cli.js'))
-  } catch {
-    // electron-builder is not installed: nothing can be the CLI
-  }
-  return entry != null && entry === cli
-}
-
 /**
- * Whether this build is EXPLICITLY not published: it was started by the electron-builder command
- * line with exactly one `--publish never` (`-p never`), as electron-builder's own yargs parser reads
- * it. Nothing else counts. electron-builder decides publishing from more than the command line
- * (implicit CI, tag, `release`-script and pull-request rules, repeated flags that reach it as an
- * array, the JS API's `publish` option) and hooks cannot ask its PublishManager, so everything not
- * provably "never" is treated as a publish and needs the signing key. The JS API therefore never
- * qualifies; callers disable these hooks in their config when they build without publishing.
+ * Whether this build must carry signatures: `QUIET_REQUIRE_UPDATE_SIGNING=1`, which the release jobs set
+ * (they are the only builds that publish). Any other non-empty value is a mistake and stops the build
+ * rather than silently turning the requirement off.
  */
-const explicitlyUnpublished = (argv = process.argv) => {
-  if (!isBuilderCli(argv)) return false
-  try {
-    const builderDir = path.dirname(require.resolve('electron-builder/package.json'))
-    const yargs = require(require.resolve('yargs/yargs', { paths: [builderDir] }))
-    const { configureBuildCommand } = require('electron-builder/out/builder')
-    const parsed = configureBuildCommand(yargs(argv.slice(2)))
-      .exitProcess(false)
-      .fail((message, error) => {
-        throw error ?? new Error(message)
-      })
-      .parse()
-    return parsed.publish === 'never'
-  } catch {
-    return false
-  }
+const signingRequired = (env = process.env) => {
+  const value = env[REQUIRE_ENV]
+  if (value == null || value === '') return false
+  if (value === '1') return true
+  throw new Error(`${REQUIRE_ENV} must be 1 or unset, not ${JSON.stringify(value)}`)
 }
 
 /**
  * Why a build of `platform` ("win32" | "linux" | ...) cannot be signed with the configured key. Event
- * labels (pull request, local, e2e) never excuse a missing or wrong key: callers ask this only for
- * builds that are to be published.
+ * labels (pull request, local, e2e) never excuse a missing or wrong key: callers ask this for builds
+ * that must be signed or that have a key.
  */
 const signingProblems = (platform, env = process.env, publicKeys = loadPublicKeys()) => {
   if (platform !== 'win32' && platform !== 'linux') return [] // macOS: Squirrel.Mac verifies the bundle
@@ -144,22 +107,18 @@ const checkVersionedName = file => {
  * Signs one primary artifact (`.exe`, `.AppImage`) and verifies the signature against the keys the app
  * ships. Run from electron-builder's `artifactBuildCompleted` hook (scripts/signArtifact.cjs), which
  * fires before electron-builder starts uploading that artifact, so a bad key or signature stops the
- * build before any object is written. Returns the `.sig` path, or null when nothing needs signing.
- * A key, when set, must match a shipped public key even for unpublished builds; without one only an
- * explicitly unpublished build (`--publish never`) may continue.
+ * build before any object is written. Returns the `.sig` path, or null when nothing is signed.
+ * Whenever a key is set it is used, and it must match a shipped public key, published build or not.
+ * Without one the artifact is left unsigned unless the build requires signing (QUIET_REQUIRE_UPDATE_SIGNING=1).
  */
-const signArtifactWith = (file, publicKeys, argv = process.argv) => {
+const signArtifactWith = (file, publicKeys, env = process.env) => {
   if (!SIGNED_EXTENSIONS.includes(path.extname(file))) return null
-  if (!process.env[KEY_ENV]) {
-    if (explicitlyUnpublished(argv)) return null
-    throw new Error(
-      `Refusing to build a publishable update without a signing key: ${KEY_ENV} is not set (use --publish never for a build that is not released)`
-    )
-  }
-  const wrong = signingProblems('linux', process.env, publicKeys)
+  const required = signingRequired(env)
+  if (!env[KEY_ENV] && !required) return null
+  const wrong = signingProblems('linux', env, publicKeys)
   if (wrong.length > 0) throw new Error(`Refusing to sign updates: ${wrong.join('; ')}`)
   const version = checkVersionedName(file)
-  const signatureFile = signFile(file, version, parsePrivateKey(process.env[KEY_ENV]))
+  const signatureFile = signFile(file, version, parsePrivateKey(env[KEY_ENV]))
   if (!verifySignatureFile(file, version, publicKeys)) {
     throw new Error(`Signature for ${path.basename(file)} does not verify against the keys the app ships`)
   }
@@ -171,10 +130,10 @@ const signArtifactWith = (file, publicKeys, argv = process.argv) => {
 // returns them and fails if one is missing or no longer verifies. electron-builder writes latest*.yml
 // only after every upload, the signatures included, has finished, and not at all if this hook throws,
 // so the feed never announces a release whose signature is missing.
-const collectSignaturesWith = (buildResult, publicKeys, argv = process.argv) => {
+const collectSignaturesWith = (buildResult, publicKeys, env = process.env) => {
   const files = buildResult.artifactPaths.filter(file => SIGNED_EXTENSIONS.includes(path.extname(file)))
   if (files.length === 0) return []
-  if (!process.env[KEY_ENV] && explicitlyUnpublished(argv)) return []
+  if (!env[KEY_ENV] && !signingRequired(env)) return []
   return files.map(file => {
     const version = checkVersionedName(file)
     if (!fs.existsSync(`${file}.sig`) || !verifySignatureFile(file, version, publicKeys)) {
@@ -192,6 +151,8 @@ exports.default = async buildResult => collectSignaturesWith(buildResult, loadPu
 
 Object.assign(exports, {
   KEY_ENV,
+  REQUIRE_ENV,
+  signingRequired,
   updateStatement,
   loadPublicKeys,
   publicKeyOf,
@@ -200,6 +161,5 @@ Object.assign(exports, {
   signFile,
   signArtifactWith,
   collectSignaturesWith,
-  explicitlyUnpublished,
   verifySignatureFile,
 })

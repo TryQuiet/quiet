@@ -222,6 +222,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           QUIET_UPDATE_SIGNING_KEY: ${{ secrets.QUIET_UPDATE_SIGNING_KEY }}
+          # Release builds publish, so they must be signed: without a key the app accepts, nothing is packaged.
+          QUIET_REQUIRE_UPDATE_SIGNING: '1'
           ARCH: x86_64
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
@@ -645,6 +647,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           QUIET_UPDATE_SIGNING_KEY: ${{ secrets.QUIET_UPDATE_SIGNING_KEY }}
+          # Release builds publish, so they must be signed: without a key the app accepts, nothing is packaged.
+          QUIET_REQUIRE_UPDATE_SIGNING: '1'
           AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false

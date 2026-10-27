@@ -104,14 +104,17 @@ const sha512OfFile = (filePath: string) =>
 const toPublicKey = (base64Spki: string) =>
   crypto.createPublicKey({ key: Buffer.from(base64Spki, 'base64'), format: 'der', type: 'spki' })
 
-interface SignedDownload {
-  filePath: string
+/** An update as the feed announces it, before anything is downloaded. */
+interface AnnouncedDownload {
   fileName: string
   version: string | undefined
+  /** base64 sha512 the feed gives for the file; electron-updater refuses a download that does not match it */
+  sha512: string | undefined
   signatureUrl: URL
 }
 
-const SIGNATURE_PATTERN = /^[A-Za-z0-9+/]{86}==$/
+// 64 bytes in base64: an Ed25519 signature, and a sha512
+const BASE64_64_BYTES = /^[A-Za-z0-9+/]{86}==$/
 
 /** Whether `signature` (base64) is a release-key signature of exactly this version, file name and hash. */
 const signatureMatches = (
@@ -128,20 +131,23 @@ const signatureMatches = (
 
 interface Verdict {
   problem: string | null
-  sha512?: string
   signature?: string
 }
 
-const inspectDownload = async (
-  download: SignedDownload,
+const inspectAnnouncement = async (
+  download: AnnouncedDownload,
   publicKeys: readonly string[],
   fetchSignature: FetchSignature
 ): Promise<Verdict> => {
   if (publicKeys.length === 0) return { problem: 'no release signing key is configured' }
   if (!download.version) return { problem: 'the announced update version is unknown' }
-  // Both come from the feed. Keep the signed statement well formed whatever the feed says.
-  if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(download.version) || /[\r\n]/.test(download.fileName)) {
-    return { problem: 'the announced version or file name is malformed' }
+  // All three come from the feed. Keep the signed statement well formed whatever the feed says.
+  if (
+    !/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(download.version) ||
+    /[\r\n]/.test(download.fileName) ||
+    !BASE64_64_BYTES.test(download.sha512 ?? '')
+  ) {
+    return { problem: 'the announced version, file name or sha512 is malformed' }
   }
   let signature: string
   try {
@@ -149,29 +155,24 @@ const inspectDownload = async (
   } catch (error) {
     return { problem: `could not fetch the signature ${download.signatureUrl.href}: ${(error as Error).message}` }
   }
-  if (!SIGNATURE_PATTERN.test(signature)) return { problem: 'the signature file is malformed' }
-  let sha512: string
-  try {
-    sha512 = await sha512OfFile(download.filePath)
-  } catch (error) {
-    return { problem: `could not hash the download: ${(error as Error).message}` }
+  if (!BASE64_64_BYTES.test(signature)) return { problem: 'the signature file is malformed' }
+  if (!signatureMatches(download.version, download.fileName, download.sha512!, signature, publicKeys)) {
+    return { problem: 'the signature does not match this version, file and sha512' }
   }
-  if (!signatureMatches(download.version, download.fileName, sha512, signature, publicKeys)) {
-    return { problem: 'the signature does not match this version and file' }
-  }
-  return { problem: null, sha512, signature }
+  return { problem: null, signature }
 }
 
 /**
- * Resolves to null when `filePath` carries a valid release-key signature for exactly this version
- * and file name, otherwise to the reason it is not acceptable. Any failure to reach a verdict
- * (no signature, unreadable file, network error) is a rejection.
+ * Resolves to null when the feed's announcement (version, file name, sha512) carries a valid release-key
+ * signature, otherwise to the reason it is not acceptable. Needs nothing but the small `.sig`, so it runs
+ * before the installer is downloaded. Any failure to reach a verdict (no signature, network error) is a
+ * rejection.
  */
 export const verifyUpdateSignature = async (
-  download: SignedDownload,
+  download: AnnouncedDownload,
   publicKeys: readonly string[],
   fetchSignature: FetchSignature
-): Promise<string | null> => (await inspectDownload(download, publicKeys, fetchSignature)).problem
+): Promise<string | null> => (await inspectAnnouncement(download, publicKeys, fetchSignature)).problem
 
 // The verified copy an update is installed from lives under the app's own cache directory (not the shared
 // temp directory), in a directory per install named exactly `v-` plus mkdtemp's six characters.
@@ -253,7 +254,7 @@ const sha512OfFileSync = (filePath: string) => {
 
 // electron-updater keeps these as protected members, so they are not part of the public typings.
 interface DownloadTaskOptions {
-  fileInfo: { url: URL }
+  fileInfo: { url: URL; info?: { sha512?: string } }
   downloadUpdateOptions: { updateInfoAndProvider?: { info?: { version?: string } } | null }
   task: (tempFile: string, ...rest: unknown[]) => Promise<void>
 }
@@ -291,14 +292,17 @@ interface VerifiedInstall {
  * on Linux the AppImage has no signature at all, so the sha512 from the feed, which sits next to
  * the file, is the only protection.
  *
- * The check runs inside the download task, on the temporary file, before electron-updater records
- * the file as downloaded, so a rejected file is deleted and can neither be announced nor
- * installed when the app quits. The version comes from the download being executed, not from the
- * updater's mutable "latest check" state, so overlapping checks cannot mix versions up.
+ * The signature is checked against the feed's announcement (version, file name, sha512) before
+ * anything is downloaded, so a feed with a bad or missing `.sig` costs one small request per check
+ * rather than a full installer. electron-updater then refuses a file whose sha512 differs from the
+ * announced one, and the finished file is hashed again here, inside the download task and before
+ * electron-updater records it as downloaded, so a file that does not match the signed hash is
+ * deleted and can neither be announced nor installed when the app quits. The version comes from the
+ * download being executed, not from the updater's mutable "latest check" state, so overlapping
+ * checks cannot mix versions up.
  *
  * An installer left in the cache by an earlier launch is never reused: electron-updater hands it
- * back after comparing hashes only, which would skip this check, so a feed could announce a new
- * version whose hash is that of an older cached installer. Within one launch the cached file was
+ * back after comparing hashes only, outside the download task. Within one launch the cached file was
  * verified against the very same announcement, so that stays.
  */
 const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string[], fetchSignature: FetchSignature) => {
@@ -331,36 +335,47 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
         new Error(`Pre-release ${version} is not offered to a stable ${updater.currentVersion.version} install`)
       )
     }
-    let verdict: Verdict | null = null
-    return executeDownload({
-      ...options,
-      task: async (tempFile, ...rest) => {
-        await task(tempFile, ...rest)
-        verdict = await inspectDownload(
-          { filePath: tempFile, fileName, version, signatureUrl },
-          publicKeys,
-          fetchSignature
-        )
-        if (verdict.problem != null) {
-          throw new Error(`New version ${version} is not signed by the Quiet release key: ${verdict.problem}`)
-        }
-      },
-    }).then(result => {
-      // electron-updater has now moved the file into place and recorded it as the update to install
-      const accepted = verdict as Verdict | null
-      if (accepted?.sha512 != null && accepted.signature != null && internals.installerPath != null) {
-        verified = {
-          filePath: internals.installerPath,
-          version: version!,
-          fileName,
-          sha512: accepted.sha512,
-          signature: accepted.signature,
-        }
+    const announcedSha512 = fileInfo.info?.sha512
+    return inspectAnnouncement(
+      { fileName, version, sha512: announcedSha512, signatureUrl },
+      publicKeys,
+      fetchSignature
+    ).then(verdict => {
+      if (verdict.problem != null) {
+        throw new Error(`New version ${version} is not signed by the Quiet release key: ${verdict.problem}`)
       }
-      return result
+      const signature = verdict.signature!
+      let downloaded = false
+      return executeDownload({
+        ...options,
+        task: async (tempFile, ...rest) => {
+          await task(tempFile, ...rest)
+          // electron-updater has checked the sha512 already; check it here too, against the signed value,
+          // so the binding does not rest on every download route (full, differential) doing so upstream
+          const sha512 = await sha512OfFile(tempFile)
+          if (sha512 !== announcedSha512) {
+            throw new Error(`New version ${version} does not match its signed sha512`)
+          }
+          downloaded = true
+        },
+      }).then(result => {
+        // electron-updater has now moved the file into place and recorded it as the update to install
+        if (downloaded && internals.installerPath != null) {
+          verified = {
+            filePath: internals.installerPath,
+            version: version!,
+            fileName,
+            sha512: announcedSha512!,
+            signature,
+          }
+        }
+        return result
+      })
     })
   }
 
+  // Wraps electron-updater's spawnLog, which starts the installer on Windows (NsisUpdater); on Linux
+  // AppImageUpdater does not call it, so the wrapper changes nothing there.
   // Quiet installs per user, so an update never needs administrator rights. electron-updater would run
   // an installer through elevate.exe when the feed says it needs them, or when starting it directly fails;
   // that would hand a file path across an elevation boundary, where a same-user process could swap the

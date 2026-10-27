@@ -26,6 +26,8 @@ test('the update feed is an HTTPS S3 bucket', () => {
 
 test('electron-builder runs the signing hooks', () => {
   assert.equal(build.beforePack, 'scripts/beforePack.cjs')
+  // artifactBuildCompleted fires per artifact before electron-builder uploads it: sign-before-upload
+  assert.equal(build.artifactBuildCompleted, 'scripts/signArtifact.cjs')
   assert.equal(build.afterAllArtifactBuild, 'scripts/updateSigning.cjs')
 })
 
@@ -93,7 +95,7 @@ test('signingProblems: a build that is checked needs a key the app accepts, what
   assert.deepEqual(signing.signingProblems('darwin', {}, accepted), [])
 })
 
-const { inBuild } = require('./buildEnv.cjs')
+const { inBuild } = require('./buildEnv.test-helper.cjs')
 
 const buildOf = names => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-signing-'))
@@ -103,6 +105,7 @@ const buildOf = names => {
     return file
   })
 }
+const REQUIRED = { [signing.REQUIRE_ENV]: '1' }
 
 test('each artifact is signed and verified when it is built; the after-build hook only hands the signatures on', async () => {
   const { version } = require('../package.json')
@@ -113,7 +116,7 @@ test('each artifact is signed and verified when it is built; the after-build hoo
   ])
   const key = newKey()
   const accepted = [signing.publicKeyOf(key)]
-  await inBuild({ [signing.KEY_ENV]: pem(key) }, ['--win', '-p', 'always'], async () => {
+  await inBuild({ ...REQUIRED, [signing.KEY_ENV]: pem(key) }, async () => {
     assert.equal(signing.signArtifactWith(files[1], accepted), null, 'blockmaps are not signed')
     const signatures = [files[0], files[2]].map(file => signing.signArtifactWith(file, accepted))
     assert.deepEqual(
@@ -140,61 +143,93 @@ test('each artifact is signed and verified when it is built; the after-build hoo
       /no valid release-key signature/
     )
   })
-  await inBuild({ [signing.KEY_ENV]: 'garbage' }, [], async () =>
-    assert.throws(() => signing.signArtifactWith(files[0], accepted))
+  await inBuild({ [signing.KEY_ENV]: 'garbage' }, async () =>
+    assert.throws(() => signing.signArtifactWith(files[0], accepted), /unusable/)
   )
 })
 
-test('a key the app does not accept is refused whether or not the build is published', async () => {
+test('a key that is present is always used, whether or not signing is required', async () => {
   const { version } = require('../package.json')
-  const [file] = buildOf([`Quiet-${version}.AppImage`])
-  const accepted = [signing.publicKeyOf(newKey())]
-  for (const [env, argv] of [
-    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']],
-    [{}, ['--linux', '-p', 'always']],
-    [{ GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['-p', 'always']],
-    [{ IS_LOCAL: 'true' }, ['-p', 'always']],
-    [{}, ['--linux', '-p', 'never']],
-    [{}, ['--linux']],
-  ]) {
-    await inBuild({ ...env, [signing.KEY_ENV]: pem(newKey()) }, argv, async () =>
-      assert.throws(
-        () => signing.signArtifactWith(file, accepted),
-        /does not match any key/,
-        JSON.stringify([env, argv])
-      )
-    )
+  const key = newKey()
+  const accepted = [signing.publicKeyOf(key)]
+  for (const env of [{}, { CI: 'true', GITHUB_BASE_REF: 'develop' }, { IS_LOCAL: 'true' }]) {
+    const [file] = buildOf([`Quiet-${version}.AppImage`])
+    await inBuild({ ...env, [signing.KEY_ENV]: pem(key) }, async () => {
+      assert.equal(signing.signArtifactWith(file, accepted), `${file}.sig`, JSON.stringify(env))
+      assert.deepEqual(signing.collectSignaturesWith({ artifactPaths: [file] }, accepted), [`${file}.sig`])
+    })
+    assert.equal(signing.verifySignatureFile(file, version, accepted), true)
   }
 })
 
-test('without a key only a build that is explicitly --publish never may go unsigned', async () => {
+test('a key the app does not accept is refused whether or not signing is required', async () => {
   const { version } = require('../package.json')
   const [file] = buildOf([`Quiet-${version}.AppImage`])
   const accepted = [signing.publicKeyOf(newKey())]
-  const sign = (env, argv) => inBuild(env, argv, async () => signing.signArtifactWith(file, accepted))
-  for (const [env, argv] of [
-    [{}, ['--linux', '--publish', 'never']],
-    [{ CI: 'true' }, ['--linux', '-p', 'never']],
-    [{ CI: 'true' }, ['--linux', '--publish=never']],
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux', '-p', 'never']],
-  ]) {
-    assert.equal(await sign(env, argv), null, JSON.stringify([env, argv]))
+  for (const env of [REQUIRED, {}, { CI: 'true', CI_COMMIT_TAG: 'v1' }, { IS_LOCAL: 'true' }]) {
+    await inBuild({ ...env, [signing.KEY_ENV]: pem(newKey()) }, async () =>
+      assert.throws(() => signing.signArtifactWith(file, accepted), /does not match any key/, JSON.stringify(env))
+    )
   }
-  // everything else is treated as a publish, whatever the environment says
-  for (const [env, argv] of [
-    [{}, ['--linux']], // a plain local build has to say --publish never
-    [{}, ['--linux', '-p', 'always']],
-    [{ CI: 'true' }, ['--linux']],
-    [{ CI: 'true', GITHUB_BASE_REF: 'develop' }, ['--linux']],
-    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, ['--linux']],
-    [{ CI: 'true', IS_LOCAL: 'true' }, ['--linux']],
-    [{ CI: 'true', IS_E2E: 'true' }, ['--linux']],
-    [{ npm_lifecycle_event: 'release' }, ['--linux']],
-    [{}, ['--linux', '-p', 'never', '-p', 'always']], // repeated flags reach electron-builder as an array
-    [{}, ['--linux', '--publish=never', '--publish', 'always']],
-  ]) {
-    await assert.rejects(sign(env, argv), /signing key/, JSON.stringify([env, argv]))
+  assert.ok(!fs.existsSync(`${file}.sig`))
+})
+
+test('without a key an artifact stays unsigned unless signing is required; CI and event labels change nothing', async () => {
+  const { version } = require('../package.json')
+  const [file] = buildOf([`Quiet-${version}.AppImage`])
+  const accepted = [signing.publicKeyOf(newKey())]
+  const labels = [
+    {},
+    { CI: 'true' },
+    { CI: 'true', GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' },
+    { CI: 'true', CI_COMMIT_TAG: 'v1', GITHUB_REF_TYPE: 'tag' },
+    { IS_LOCAL: 'true' },
+    { IS_E2E: 'true' },
+    { npm_lifecycle_event: 'release' },
+  ]
+  for (const env of labels) {
+    await inBuild(env, async () => {
+      assert.equal(signing.signArtifactWith(file, accepted), null, JSON.stringify(env))
+      assert.deepEqual(signing.collectSignaturesWith({ artifactPaths: [file] }, accepted), [])
+    })
+    await inBuild({ ...env, ...REQUIRED }, async () => {
+      assert.throws(() => signing.signArtifactWith(file, accepted), /is not set/, JSON.stringify(env))
+      assert.throws(
+        () => signing.collectSignaturesWith({ artifactPaths: [file] }, accepted),
+        /no valid release-key signature/
+      )
+    })
   }
+  assert.ok(!fs.existsSync(`${file}.sig`))
+  await inBuild({ [signing.REQUIRE_ENV]: 'true' }, async () =>
+    assert.throws(() => signing.signArtifactWith(file, accepted), /must be 1 or unset/)
+  )
+})
+
+// Only the release jobs publish, so they are the ones that must require signing. Checked on the workflow
+// itself so a new or renamed publishing step cannot drop the requirement unnoticed.
+test('every desktop release step that publishes Windows or Linux requires signing and is followed by a signature check', () => {
+  const yaml = require('js-yaml')
+  const workflow = yaml.load(
+    fs.readFileSync(path.join(__dirname, '../../../.github/workflows/desktop-build.yml'), 'utf8')
+  )
+  const publishing = []
+  for (const [name, job] of Object.entries(workflow.jobs)) {
+    const steps = job.steps ?? []
+    steps.forEach((step, index) => {
+      const run = step.run ?? ''
+      if (!/electron-builder/.test(run) || !/(^|\s)(-p|--publish)[ =](always|onTag|onTagOrDraft)\b/.test(run)) return
+      if (!/--(win|linux)\b/.test(run)) return
+      publishing.push(name)
+      assert.equal(step.env?.[signing.REQUIRE_ENV], '1', `${name}: ${step.name}`)
+      assert.match(String(step.env?.[signing.KEY_ENV]), /secrets\.QUIET_UPDATE_SIGNING_KEY/, `${name}: ${step.name}`)
+      assert.ok(
+        steps.slice(index + 1).some(later => /verifyUpdateSignatures\.cjs/.test(later.run ?? '')),
+        `${name}: no verifyUpdateSignatures step after ${step.name}`
+      )
+    })
+  }
+  assert.equal(publishing.length, 2, `expected the Linux and Windows release steps, found ${publishing}`)
 })
 
 test('verifyUpdateSignatures accepts signed builds and flags missing, stale or foreign signatures', () => {
