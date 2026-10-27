@@ -2854,6 +2854,12 @@ PODS:
   - Tor/Core (409.11.2)
   - Tor/CTor (409.11.2):
     - Tor/Core
+  - VisionCamera (4.7.3):
+    - VisionCamera/Core (= 4.7.3)
+    - VisionCamera/React (= 4.7.3)
+  - VisionCamera/Core (4.7.3)
+  - VisionCamera/React (4.7.3):
+    - React-Core
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2953,6 +2959,7 @@ DEPENDENCIES:
   - SocketRocket (~> 0.7.1)
   - Sodium
   - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v409.11.2/Tor.podspec`)
+  - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -3158,6 +3165,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-zip-archive"
   Tor:
     :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v409.11.2/Tor.podspec
+  VisionCamera:
+    :path: "../node_modules/react-native-vision-camera"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -3270,6 +3279,7 @@ SPEC CHECKSUMS:
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   Tor: c79e517898f56f85140076d1d4360043b1e74206
+  VisionCamera: 7187b3dac1ff3071234ead959ce311875748e14f
   Yoga: cc4a6600d61e4e9276e860d4d68eebb834a050ba
 
 PODFILE CHECKSUM: b37032212f372baa90127920195a4304f20e7fcd
