@@ -538,6 +538,9 @@ function describeWaitTarget(label?: string): string {
   return label == null ? '' : ` (${label})`
 }
 
+/** Logged by the desktop LoadingPanel each time it renders the joining panel. */
+const JOINING_PANEL_SHOWN_LOG = 'Showing joining panel'
+
 export class JoiningLoadingPanel {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -557,6 +560,23 @@ export class JoiningLoadingPanel {
     const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
     return this.driver.wait(
       async () => this.hasVisiblePanel(panelLocator),
+      timeoutMs,
+      `Loading panel element couldn't be seen within timeout${describeWaitTarget(label)}`,
+      500
+    )
+  }
+
+  /**
+   * Resolves once the joining panel is on screen, or once the app has logged showing it.
+   * Over a local QSS or a localhost peer a join can complete within a single 500ms poll,
+   * so a panel that came and went is only recorded by the renderer's log line. Use this
+   * on a freshly opened app: its output must not contain an earlier join.
+   */
+  async waitUntilShown(app: App, timeoutMs = 60_000, label?: string): Promise<boolean> {
+    const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
+    return this.driver.wait(
+      async () =>
+        app.buildSetup.hasProcessOutput(JOINING_PANEL_SHOWN_LOG) || (await this.hasVisiblePanel(panelLocator)),
       timeoutMs,
       `Loading panel element couldn't be seen within timeout${describeWaitTarget(label)}`,
       500
@@ -1150,9 +1170,14 @@ export class RegisterUsernameModal {
   }
 
   get element() {
+    return this.waitForElement()
+  }
+
+  /** The username step's heading, for callers whose deadline covers more than the usual 15s. */
+  waitForElement(timeoutMs: number = 15_000) {
     return this.driver.wait(
       until.elementLocated(By.xpath(`//h3[text()='${CHOOSE_USERNAME_HEADING}']`)),
-      15_000,
+      timeoutMs,
       `Username registration modal couldn't be located within timeout`,
       500
     )
@@ -3571,21 +3596,33 @@ export class Settings {
    * minted when the tab opens, so the row is clicked again until the toast shows.
    */
   async deviceLink(): Promise<string> {
-    const copyRow = await this.driver.wait(
-      until.elementLocated(By.xpath("//*[@data-testid='link-devices-copy-link']")),
-      10_000,
-      `Copy link row couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(copyRow), 5_000)
+    const copyRowLocator = By.xpath("//*[@data-testid='link-devices-copy-link']")
+    const findCopyRow = async () => {
+      const row = await this.driver.wait(
+        until.elementLocated(copyRowLocator),
+        10_000,
+        `Copy link row couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(until.elementIsVisible(row), 5_000)
+      return row
+    }
+    await findCopyRow()
     let copied = false
     for (let attempt = 0; attempt < 15 && !copied; attempt++) {
       try {
-        await copyRow.click()
+        // Locate the row afresh each attempt: the panel re-renders it once the device
+        // link is minted, which leaves a previously found element stale.
+        await (await findCopyRow()).click()
       } catch (clickError) {
         // The settings drawer can still be sliding after its contents become visible, so an
         // early click lands on the drawer instead of the row. Retrying is the whole loop's job.
-        if (!(clickError instanceof error.ElementClickInterceptedError)) throw clickError
+        if (
+          !(clickError instanceof error.ElementClickInterceptedError) &&
+          !(clickError instanceof error.StaleElementReferenceError)
+        ) {
+          throw clickError
+        }
         continue
       }
       try {
