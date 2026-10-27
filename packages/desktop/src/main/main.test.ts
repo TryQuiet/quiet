@@ -4,6 +4,7 @@ import * as main from './main'
 import * as backendHelpers from './backendHelpers'
 
 import { autoUpdater } from 'electron-updater'
+import { hardenUpdater } from './updaterSecurity'
 import { BrowserWindow, app, ipcMain, Menu, powerSaveBlocker, session } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
@@ -173,6 +174,9 @@ jest.mock('electron-updater', () => {
   }
 })
 
+// The verification policy has its own suite (updaterSecurity.test.ts); here only the wiring matters.
+jest.mock('./updaterSecurity', () => ({ hardenUpdater: jest.fn() }))
+
 jest.mock('backend-bundle', jest.fn())
 
 const appOn = app.on as jest.Mock<any, any>
@@ -264,6 +268,9 @@ describe('electron app ready event', () => {
     expect(mockwebContentsOnceCalls[0][0]).toBe('did-finish-load')
 
     await mockwebContentsOnceCalls[0][1]()
+
+    // the verification policy is applied to the updater before it is used
+    expect(hardenUpdater).toHaveBeenCalledWith(autoUpdater)
 
     // checking is autoUpdater strat
     expect(autoUpdater.checkForUpdates).toHaveBeenCalledTimes(1)

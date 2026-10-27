@@ -33,6 +33,10 @@ jobs:
         shell: bash
         run: node --test packages/backend/scripts/windows-tor-processes.test.cjs
 
+      - name: Test updater signature verification
+        shell: bash
+        run: npm run test:updater-security --prefix packages/desktop
+
       - name: "Fetch jsign"
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
@@ -49,7 +53,20 @@ jobs:
 
       - name: electron-builder
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --win
+        run: node_modules/.bin/electron-builder --win -p never
+        shell: bash
+
+      # Release builds enforce the same policy before packaging (scripts/beforePack.cjs); this confirms
+      # it on an actual Windows build for every PR.
+      - name: Verify packaged update feed settings
+        shell: bash
+        run: node packages/desktop/scripts/verifyUpdateConfig.cjs packages/desktop/dist/win-unpacked/resources/app-update.yml
+
+      # Real NsisUpdater + update hardening against a feed served over HTTP by another process:
+      # genuine update installs; tampered, wrong-signer, unsigned, replayed, downgrade and http feeds do not.
+      - name: Test update loop against a local feed
+        working-directory: ./packages/desktop
+        run: node --test scripts/update-loop.test.cjs
         shell: bash
 
       - name: Extract version
