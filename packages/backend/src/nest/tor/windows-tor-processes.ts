@@ -19,7 +19,16 @@ export const getWindowsTorProcessIds = async (dataDirectory: string): Promise<st
         Where-Object { $_.CommandLine -match $directory } |
         Select-Object -ExpandProperty ProcessId`,
       ],
-      { encoding: 'utf8', env: { ...process.env, QUIET_TOR_DATA_DIR: dataDirectory }, timeout: 10_000 }
+      {
+        encoding: 'utf8',
+        env: { ...process.env, QUIET_TOR_DATA_DIR: dataDirectory },
+        timeout: 10_000,
+        // The backend is forked from Electron's GUI main process and has no console, so
+        // without this Windows creates a console window for every PowerShell query: a
+        // visible flash for users, and on the hosted CI runner a query that never
+        // finishes, so every launch and quit sat through both 10s timeouts.
+        windowsHide: true,
+      }
     )
   let output: Awaited<ReturnType<typeof query>>
   try {
