@@ -179,6 +179,21 @@ reverse or route to a localhost QSS service. The iOS hosted workflow currently
 uses a fresh simulator. Physical devices still require normal app and
 WebDriverAgent provisioning.
 
+To run only the simulator and Appium on a Mac while the test process, QSS fixture and
+desktop peer run on another host (for example a small Mac and a Linux box), set
+`appiumHost` to the Mac's address and `deviceApp` to the app's absolute path on the Mac
+(`app` stays the local copy that preflight inspects; on Linux its plists are read with
+Python instead of `plutil`). Reach the Mac's Appium port and give the simulator a route to
+the fixture, for example
+`ssh -N -L 4725:127.0.0.1:4725 -R 3077:127.0.0.1:3077 mac`, and set `QUIET_QSS_PORT=3077`
+for the fixture, the test process and the iOS build (`QSS_ENDPOINT=ws://localhost:3077`
+in its env file). The iOS app bakes the endpoint in, so a build only works with the port
+it was built for.
+
+iOS note: WebDriverAgent reports React Native layout wrappers such as
+`get-started-component` as not visible, so `Mobile.screen()` waits for their existence on
+iOS and for visibility on Android.
+
 Run the provider workflow from `develop`, after the server change is deployed:
 
 ```sh

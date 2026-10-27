@@ -21,6 +21,8 @@ export function validateConfig(config) {
     assert(fs.existsSync(config[field]), `Build ${field} first`)
   }
   assert(/^[a-zA-Z][\w]*(?:\.[\w]+)+$/.test(config.bundleId), 'Provide the installed Quiet application ID')
+  if (config.appiumHost !== undefined) assert(/^[\w.-]+$/.test(config.appiumHost), 'Invalid appiumHost')
+  if (config.deviceApp !== undefined) assert(path.isAbsolute(config.deviceApp), 'deviceApp must be an absolute path on the Appium host')
   for (const key of ['appiumPort', 'adbPort', 'systemPort', 'wdaLocalPort']) {
     if (config[key] !== undefined) assert(Number.isInteger(config[key]) && config[key] > 1023 && config[key] < 65536, `Invalid ${key}`)
   }
@@ -50,10 +52,10 @@ export function validateProviderFixture(fixture, platform, fullLoop) {
 
 export function inspectIosBuild(config, fullLoop, endpoint = ENDPOINT) {
   assert([ENDPOINT, STAGING_ENDPOINT].includes(endpoint), 'Select the local fixture or staging QSS')
-  assert.equal(process.platform, 'darwin', 'iOS Appium requires a Mac with Xcode')
-  const plist = name => JSON.parse(execFileSync('/usr/bin/plutil', [
-    '-convert', 'json', '-o', '-', path.join(config.app, name),
-  ], { encoding: 'utf8' }))
+  // plutil only exists on macOS; a test host that drives a remote Mac (appiumHost) reads the same plists with Python.
+  const plist = name => JSON.parse(process.platform === 'darwin'
+    ? execFileSync('/usr/bin/plutil', ['-convert', 'json', '-o', '-', path.join(config.app, name)], { encoding: 'utf8' })
+    : execFileSync('python3', ['-I', '-c', 'import json,plistlib,sys;print(json.dumps(plistlib.load(open(sys.argv[1],"rb"))))', path.join(config.app, name)], { encoding: 'utf8' }))
   const info = plist('Info.plist')
   assert.equal(info.CFBundleIdentifier, config.bundleId, 'The iOS app must match the selected application ID')
   const env = plist('Env.plist')

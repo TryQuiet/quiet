@@ -41,6 +41,24 @@ export class Mobile {
   text(value) {
     return this.android ? `//*[@text=${literal(value)}]` : `//*[@label=${literal(value)}]`
   }
+  // Wait for a screen's root container (the `*-component` / `channels_list` ids).
+  // On iOS, WebDriverAgent reports React Native's layout wrappers (XCUIElementTypeOther,
+  // accessible=false) as visible="false" even while every child on screen is visible, so
+  // isDisplayed() never turns true for them. Existence of the wrapper is the reliable
+  // signal there; interactive elements keep using visible().
+  async screen(id, timeout = 30000) {
+    if (this.android) return this.visible(this.id(id), timeout)
+    let element
+    await this.driver.waitUntil(
+      async () => {
+        if (this.onboarding) await this.allowNotifications()
+        element = await this.driver.$(this.id(id))
+        return element.isExisting()
+      },
+      { timeout, interval: 500, timeoutMsg: 'Expected native screen did not appear' }
+    )
+    return element
+  }
   async visible(selector, timeout = 30000) {
     let element
     await this.driver.waitUntil(
@@ -78,7 +96,7 @@ export class Mobile {
       assert(stdout.includes(`${route} ${route}`), 'The selected emulator needs the local QSS route')
     }
     this.driver = await remote({
-      hostname: '127.0.0.1',
+      hostname: this.config.appiumHost || '127.0.0.1',
       port: this.config.appiumPort || 4725,
       logLevel: 'silent',
       connectionRetryCount: 0,
@@ -87,7 +105,8 @@ export class Mobile {
         platformName: this.android ? 'Android' : 'iOS',
         'appium:automationName': this.android ? 'UiAutomator2' : 'XCUITest',
         'appium:udid': this.config.udid,
-        'appium:app': this.config.app,
+        // With a remote Appium server, `deviceApp` is the app's path on that host.
+        'appium:app': this.config.deviceApp || this.config.app,
         'appium:fullReset': true,
         'appium:newCommandTimeout': 180,
         ...(this.android
@@ -104,7 +123,7 @@ export class Mobile {
     })
     await this.driver.setOrientation('PORTRAIT')
     await this.allowNotifications()
-    await this.visible(this.id('get-started-component'), 120000)
+    await this.screen('get-started-component', 120000)
   }
   async allowNotifications() {
     if (this.android) {
@@ -155,19 +174,19 @@ export class Mobile {
     await this.tapId('paste-a-link')
     await this.input('Link', invite)
     await this.tapText('Continue')
-    await this.visible(this.id('username-registration-component'), 90000)
+    await this.screen('username-registration-component', 90000)
     await this.input('Username', username)
     await this.tapText('Continue')
-    await this.visible(this.id('terms-of-service-component'), 90000)
+    await this.screen('terms-of-service-component', 90000)
     await this.tapId('terms-of-service-agree')
-    await this.visible(this.id('channels_list'), 120000)
+    await this.screen('channels_list', 120000)
     await this.allowNotifications()
     await this.tapId('channel_tile_general')
-    await this.visible(this.id('chat_general'))
+    await this.screen('chat_general')
     this.onboarding = false
   }
   async message(text, username, channel = 'general') {
-    await this.visible(this.id(`chat_${channel}`), 60000)
+    await this.screen(`chat_${channel}`, 60000)
     const selector = this.android
       ? `//*[@resource-id=${literal(`userMessages-${username}`)}]//*[@resource-id="message-stored"]//*[@resource-id=${literal(text)}]`
       : `//*[@name=${literal(`userMessages-${username}`)}]//*[@name="message-stored"]//*[@name=${literal(text)}]`
