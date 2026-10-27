@@ -1,7 +1,7 @@
 import { Encoder, Decoder, PacketType } from 'socket.io-parser'
 import { quietSocketParser, MAX_SOCKET_ATTACHMENTS } from './socket.parser'
 
-const decodeBinaryPacket = (decoder: { on: Function; add: Function }, attachments: number) => {
+const decodeBinaryPacket = (decoder: Decoder, attachments: number) => {
   const packet = {
     type: PacketType.EVENT,
     nsp: '/',
