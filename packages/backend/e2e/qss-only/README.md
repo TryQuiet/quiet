@@ -29,7 +29,7 @@ Prepare/package desktop using the [mixed-suite recipe](../../../mobile/e2e/READM
 
 ```sh
 # From packages/desktop, after build:prod.
-node -e 'const b = require("electron-builder"); b.build({targets: b.Platform.LINUX.createTarget("dir"), publish: "never", config: {afterAllArtifactBuild: null}}).catch(error => {console.error(error); process.exitCode = 1})'
+node -e 'const b = require("electron-builder"); b.build({targets: b.Platform.LINUX.createTarget("dir"), publish: "never", config: {beforePack: null, artifactBuildCompleted: null, afterAllArtifactBuild: null}}).catch(error => {console.error(error); process.exitCode = 1})'
 ```
 
 Set `QUIET_DESKTOP_BINARY` to the produced executable (currently `dist/linux-unpacked/@quietdesktop`). On Linux hosts that prohibit unprivileged user namespaces, configure the packaged `chrome-sandbox` according to the existing Electron sandbox prerequisites.

@@ -4,6 +4,8 @@
 
 ### Chores
 
+* chore(desktop): stop Authenticode-signing the Windows installer. The certificate it was signed with (Zbay LLC, DigiCert) expired in July 2023 and will not be renewed, so every installer since has carried a signature Windows reports as invalid. The `jsign` signing hook (`scripts/sign.js`), its `signtoolOptions` entry, and the certificate/password/alias secrets and download step in the release and Windows e2e workflows are removed. Fresh downloads now show SmartScreen's "unknown publisher" prompt as they effectively already did; installed apps update exactly as before, because their updater never checked the Authenticode signature
+
 * chore(deps): upgrade Electron (and the e2e ChromeDriver) from 44.3.0 to 44.9.3 (Chromium 152.0.7977.167, Node 24.22.0), a dependency security update that picks up Electron's mitigation for the compromised eMudhra intermediate CA certificates ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)). A test now fails if Electron drops below the patched release
 
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
@@ -68,6 +70,7 @@
 * Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
 * Let a released Mac build open the camera when you scan a QR code, by granting the signed app the camera entitlement its hardened runtime requires, and ask for the camera in Quiet's own words rather than Electron's placeholder ones
 * Point a refused camera at the setting that would allow it when scanning a QR code on desktop, naming the macOS or Windows page, opening it, and asking the camera again when you come back, instead of only saying access was denied
+* fix(desktop): harden how the desktop app verifies updates. Upgrade `electron-updater` 5.0.1 → 6.8.11, which fixes a Windows code-signature verification bypass (CVE-2024-39698). Windows installers and Linux AppImages must now carry a detached signature from Quiet's own release key (the public key ships in the app; CI signs each release and publishes `<file>.sig`), bound to the update's version and file name, so an update that was swapped or replayed is refused and no certificate authority is involved; downgrades and web installers are refused, an update cached by an earlier launch is never reused unverified, the updater stops entirely if these settings cannot be applied, and Windows and Linux release builds refuse to package without a signing key the app accepts
 
 ### Tests
 
