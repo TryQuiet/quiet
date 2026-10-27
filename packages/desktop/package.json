@@ -76,6 +76,9 @@
     "appImage": {
       "executableArgs": []
     },
+    "beforePack": "scripts/beforePack.cjs",
+    "artifactBuildCompleted": "scripts/signArtifact.cjs",
+    "afterAllArtifactBuild": "scripts/updateSigning.cjs",
     "afterPack": "scripts/afterPack.cjs",
     "beforeBuild": "scripts/beforeBuild.cjs"
   },
@@ -94,7 +97,7 @@
     "distMac": "npm run rmDist && export SOURCE_PATH=darwin && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
     "distUbuntu": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run build:prod && electron-builder --linux --publish never",
     "distUbuntu:qss": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run build:prod && electron-builder --linux --publish never",
-    "distwin": "npm run rmDist && export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
+    "distwin": "npm run rmDist && export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win --publish never",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js --fix",
     "lint:cypress": "eslint src/**/*.cy.{ts,tsx} --config .eslintrc.cypress.js",
@@ -133,7 +136,9 @@
     "setMainEnvs": "node scripts/setMainEnvs.js",
     "test:packaging": "node --test scripts/appimage-launcher.test.cjs scripts/packaging-scripts.test.cjs",
     "test:packaged-appimage": "node --test scripts/packaged-appimage.test.cjs",
-    "test:native-rebuild": "node --test scripts/native-rebuild.test.cjs"
+    "test:native-rebuild": "node --test scripts/native-rebuild.test.cjs",
+    "test:updater-loop": "npm run build:main && node --test scripts/update-loop.test.cjs",
+    "test:updater-security": "node --test scripts/updater-security.test.cjs && jest src/main/updaterSecurity.test.ts"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "1.39.0",
@@ -143,11 +148,12 @@
     "@quiet/node-common": "^4.0.3",
     "@quiet/types": "^2.0.2-alpha.1",
     "backend-bundle": "^2.0.1-alpha.4",
+    "builder-util-runtime": "9.7.0",
     "electron-context-menu": "5.0.0",
     "electron-debug": "^3.2.0",
     "electron-localshortcut": "^3.2.1",
     "electron-store": "^8.2.0",
-    "electron-updater": "^5.0.1",
+    "electron-updater": "^6.8.11",
     "fuse.js": "7.3.0",
     "get-port": "^5.1.1",
     "jsqr": "1.4.0",
@@ -212,7 +218,7 @@
     "css-loader": "^6.7.2",
     "cypress": "^13.17.0",
     "cypress-storybook": "0.5.1",
-    "electron": "44.3.0",
+    "electron": "44.9.3",
     "electron-builder": "26.15.3",
     "electron-devtools-installer": "4.0.0",
     "electron-store-webpack-wrapper": "^0.0.2",

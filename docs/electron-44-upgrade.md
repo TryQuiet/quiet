@@ -5,8 +5,8 @@ This change is stacked on PR #3422 (`upgrade/react-native-081`), including its
 
 | Component                                  | Version          |
 | ------------------------------------------ | ---------------- |
-| Desktop Electron and Electron ChromeDriver | 44.3.0           |
-| Chromium shipped by Electron               | 152.0.7977.78    |
+| Desktop Electron and Electron ChromeDriver | 44.9.3           |
+| Chromium shipped by Electron               | 152.0.7977.167   |
 | Node shipped by Electron                   | 24.20.0          |
 | Host build Node / npm                      | 24.21.0 / 10.8.2 |
 | Minimum macOS                              | 13               |
@@ -242,3 +242,19 @@ all four native runtime groups pass. E2E build/lint and 29 harness checks pass.
 The Chrome fixture now explicitly asks Selenium Manager for installed Chrome's
 driver, ignoring the Electron drivers npm adds to PATH. Twelve real-browser
 settings cases cover that selection, including hidden/empty panel rejection.
+
+## Security update: Electron 44.9.3 (eMudhra intermediate CA mitigation, Node 24.22.0)
+
+Desktop and the e2e ChromeDriver moved from 44.3.0 to 44.9.3 (Chromium 152.0.7977.167,
+embedded Node 24.22.0). 44.9.1 is the first Electron 44 release carrying the mitigation for
+the compromised eMudhra intermediate CA keys ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9),
+[Electron 44.9.1 release notes](https://github.com/electron/electron/releases/tag/v44.9.1));
+we take 44.9.3 ([release notes](https://github.com/electron/electron/releases/tag/v44.9.3))
+because the security audit recommends it and it embeds Node 24.22.0 (up from 24.20.0),
+partly addressing #3709. #3709 still wants Node >= 24.22.1, which needs a later Electron.
+The fix lives in the Electron binary, which does not receive Chrome's out-of-band
+CRLSet updates, so only a version bump covers Quiet. Patched floors per line:
+42.11.16, 43.8.1, 44.9.1, 45.0.0-beta.6. `src/main/electronSecurityFloor.test.ts`
+fails if the declared, locked or installed Electron falls below the floor.
+No breaking changes: this is a patch-level move within the 44 line, and Electron's
+own dependencies are unchanged.

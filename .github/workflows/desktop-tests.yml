@@ -50,6 +50,10 @@ jobs:
         if: steps.filter.outputs.desktop == 'true'
         run: lerna run test --scope @quiet/desktop --stream
 
+      - name: "Updater security tests"
+        if: steps.filter.outputs.desktop == 'true'
+        run: node --test packages/desktop/scripts/updater-security.test.cjs packages/desktop/scripts/before-pack.test.cjs
+
       - name: "Electron runtime tests (Linux)"
         if: steps.filter.outputs.desktop == 'true' && runner.os == 'Linux'
         run: xvfb-run -a npm run test:electron --prefix packages/desktop
