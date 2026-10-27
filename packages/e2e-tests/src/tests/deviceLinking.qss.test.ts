@@ -430,7 +430,7 @@ async function runDelayedQssDeviceAdmission(releaseBeforeFallback: boolean): Pro
     await joinModal.submit()
 
     const joinPanel = new JoiningLoadingPanel(linkedDevice.driver)
-    expect(await joinPanel.waitUntilVisible()).toBeTruthy()
+    expect(await joinPanel.waitUntilShown(linkedDevice)).toBeTruthy()
     await proxy.waitForConnection()
     if (releaseBeforeFallback) proxy.release()
 
@@ -585,7 +585,7 @@ describe('Device linking message replication (QSS)', () => {
 
     it('shows the joining loading panel while the linked device is joining', async () => {
       const joinPanel = new JoiningLoadingPanel(users.linkedDevice.app.driver)
-      expect(await joinPanel.waitUntilVisible()).toBeTruthy()
+      expect(await joinPanel.waitUntilShown(users.linkedDevice.app)).toBeTruthy()
       await joinPanel.waitForJoinToComplete()
 
       linkedDeviceChannel = new Channel(users.linkedDevice.app.driver, generalChannelName)

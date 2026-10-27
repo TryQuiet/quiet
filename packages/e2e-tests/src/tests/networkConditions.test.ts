@@ -2,7 +2,6 @@ import path from 'path'
 import fs from 'fs'
 import os from 'os'
 import crypto from 'crypto'
-import { By, until } from 'selenium-webdriver'
 import {
   App,
   Channel,
@@ -95,7 +94,7 @@ suite(`Two players: ${qssEnabled ? 'QSS with Tor unavailable' : 'Tor'}, asymmetr
       await create.submit()
       if (qssEnabled) await new ServerOfferModal(owner.driver).chooseUseServer()
       const register = new RegisterUsernameModal(owner.driver)
-      await owner.driver.wait(until.elementLocated(By.xpath("//h3[text()='Register a username']")), deadline)
+      await register.waitForElement(deadline)
       expect(await register.isReady()).toBeTruthy()
       await register.typeUsername('owner')
       await register.submit()
@@ -119,7 +118,7 @@ suite(`Two players: ${qssEnabled ? 'QSS with Tor unavailable' : 'Tor'}, asymmetr
       await guestJoin.typeCommunityInviteLink(invitation)
       await guestJoin.submit()
       const guestRegister = new RegisterUsernameModal(guest.driver)
-      await guest.driver.wait(until.elementLocated(By.xpath("//h3[text()='Register a username']")), deadline)
+      await guestRegister.waitForElement(deadline)
       expect(await guestRegister.isReady()).toBeTruthy()
       await guestRegister.typeUsername('guest')
       await guestRegister.submit()

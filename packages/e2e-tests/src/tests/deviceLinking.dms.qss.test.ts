@@ -141,7 +141,7 @@ describe('Direct messages across linked devices (QSS)', () => {
       await joinModal.submit()
 
       const joinPanel = new JoiningLoadingPanel(app.driver)
-      expect(await joinPanel.waitUntilVisible(TIMEOUTS.joinPanelVisible)).toBeTruthy()
+      expect(await joinPanel.waitUntilShown(app, TIMEOUTS.joinPanelVisible)).toBeTruthy()
       return joinPanel
     },
 
