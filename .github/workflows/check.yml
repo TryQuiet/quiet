@@ -31,6 +31,11 @@ jobs:
       - name: "Check shipped Tor and OpenSSL versions"
         run: npm run check:tor-binaries && npm run test:tor-binaries
 
+      - name: "Check runtime dependency floors (ws, socket.io-parser)"
+        run: |
+          node --test scripts/check-runtime-dependency-floors.test.mjs
+          npm run check:runtime-deps
+
       - name: Test dependency download recovery
         run: node --test scripts/retry-network-command.test.mjs
 
