@@ -42,9 +42,7 @@
         "build/icon.*",
         "package.json"
       ],
-      "signtoolOptions": {
-        "sign": "scripts/sign.js"
-      }
+      "signExecutable": false
     },
     "linux": {
       "icon": "./build/icon.png",
