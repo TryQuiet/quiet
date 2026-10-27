@@ -223,7 +223,8 @@ test('every CI step that can publish a Windows or Linux build requires signing a
     for (const [name, job] of Object.entries(workflow.jobs ?? {})) {
       const steps = job.steps ?? []
       steps.forEach((step, index) => {
-        const run = step.run ?? ''
+        // the command may be a `run:` or handed to an action (`with: command:`, as the retry action takes it)
+        const run = [step.run, ...Object.values(step.with ?? {})].filter(value => typeof value === 'string').join('\n')
         if (!/electron-builder/.test(run) || /--mac\b/.test(run)) return
         const env = { ...workflow.env, ...job.env, ...step.env }
         const flag = /(^|\s)(-p|--publish)[ =](\S+)/.exec(run)?.[3]
@@ -234,7 +235,11 @@ test('every CI step that can publish a Windows or Linux build requires signing a
         assert.equal(env[signing.REQUIRE_ENV], '1', where)
         assert.match(String(env[signing.KEY_ENV]), /secrets\.QUIET_UPDATE_SIGNING_KEY/, where)
         assert.ok(
-          steps.slice(index + 1).some(later => /verifyUpdateSignatures\.cjs/.test(later.run ?? '')),
+          steps
+            .slice(index + 1)
+            .some(later =>
+              /verifyUpdateSignatures\.cjs/.test([later.run, ...Object.values(later.with ?? {})].join('\n'))
+            ),
           `${where}: no verifyUpdateSignatures step after it`
         )
       })

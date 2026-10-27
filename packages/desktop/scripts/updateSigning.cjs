@@ -31,21 +31,25 @@ const parsePrivateKey = value => {
   return key
 }
 
-// Where electron-builder's S3 publisher (the AWS SDK) can find credentials. A build that has any of them
-// could upload, so it must be signed whether or not anyone remembered QUIET_REQUIRE_UPDATE_SIGNING.
+// Where electron-builder's S3 publisher can find credentials: electron-publish reads AWS_ACCESS_KEY_ID /
+// AWS_SECRET_ACCESS_KEY or `os.homedir()/.aws/credentials`, and its aws4 signer falls back to AWS_ACCESS_KEY /
+// AWS_SECRET_KEY; the rest are the AWS SDK's own, listed so a future publisher is covered too. A build that
+// has any of them could upload, so it must be signed whether or not anyone remembered QUIET_REQUIRE_UPDATE_SIGNING.
 const PUBLISH_CREDENTIAL_ENV = [
   'AWS_ACCESS_KEY_ID',
   'AWS_SECRET_ACCESS_KEY',
+  'AWS_ACCESS_KEY',
+  'AWS_SECRET_KEY',
   'AWS_SESSION_TOKEN',
   'AWS_PROFILE',
+  'AWS_SHARED_CREDENTIALS_FILE',
+  'AWS_CONFIG_FILE',
   'AWS_WEB_IDENTITY_TOKEN_FILE',
   'AWS_CONTAINER_CREDENTIALS_RELATIVE_URI',
   'AWS_CONTAINER_CREDENTIALS_FULL_URI',
 ]
-const awsFiles = env => [
-  env.AWS_SHARED_CREDENTIALS_FILE || path.join(os.homedir(), '.aws', 'credentials'),
-  env.AWS_CONFIG_FILE || path.join(os.homedir(), '.aws', 'config'),
-]
+// Always the default locations: an override variable does not stop electron-publish reading the default file.
+const awsFiles = () => [path.join(os.homedir(), '.aws', 'credentials'), path.join(os.homedir(), '.aws', 'config')]
 
 /**
  * Why this build must carry signatures, or null when it need not: `QUIET_REQUIRE_UPDATE_SIGNING=1`, which
@@ -61,7 +65,7 @@ const signingRequirement = (env = process.env) => {
   if (value === '1') return `${REQUIRE_ENV}=1`
   const credential = PUBLISH_CREDENTIAL_ENV.find(name => env[name])
   if (credential) return `${credential} is set, so this build could publish`
-  const file = awsFiles(env).find(candidate => fs.existsSync(candidate))
+  const file = awsFiles().find(candidate => fs.existsSync(candidate))
   if (file) return `${file} exists, so this build could publish`
   return null
 }
