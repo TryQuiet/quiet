@@ -34,6 +34,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import getPort from 'get-port'
 import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
+import { quietSocketParser } from './socket/socket.parser'
 import { StorageModule } from './storage/storage.module'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
@@ -137,6 +138,7 @@ export class AppModule {
               allowUpgrades: true,
               pingInterval: 60_000,
               pingTimeout: 30_000,
+              parser: quietSocketParser,
             })
             // @ts-ignore
             io.engine.use(async (req, res, next) => {
