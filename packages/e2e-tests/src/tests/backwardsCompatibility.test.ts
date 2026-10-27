@@ -15,6 +15,11 @@ import { BuildSetup, downloadInstaller, sleep } from '../utils'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, compatibilityBaseline } from '../compatibilityBaseline'
 import { createLogger } from '../logger'
 import { completeBaselineJoin } from '../baselineSetupRecovery'
+import {
+  ReleasedBaselineCreateCommunityModal,
+  ReleasedBaselineJoinCommunityModal,
+  ReleasedBaselineRegisterUsernameModal,
+} from '../releasedBaselineOnboarding'
 
 const logger = createLogger('backwardsCompatibility')
 
@@ -94,21 +99,29 @@ describe('Backwards Compatibility', () => {
       itif(process.platform == 'linux')(
         'Owner sees "join community" modal and switches to "create community" modal',
         async () => {
-          const joinModal = new JoinCommunityModal(ownerAppOldVersion.driver)
+          // The released baseline predates the onboarding redesign; a same-build
+          // restart must still exercise the current screens.
+          const joinModal = baselineUsesCurrentBuild
+            ? new JoinCommunityModal(ownerAppOldVersion.driver)
+            : new ReleasedBaselineJoinCommunityModal(ownerAppOldVersion.driver)
           expect(await joinModal.isReady()).toBeTruthy()
           await joinModal.switchToCreateCommunity()
         }
       )
 
       itif(process.platform == 'linux')('Owner submits valid community name', async () => {
-        const createModal = new CreateCommunityModal(ownerAppOldVersion.driver)
+        const createModal = baselineUsesCurrentBuild
+          ? new CreateCommunityModal(ownerAppOldVersion.driver)
+          : new ReleasedBaselineCreateCommunityModal(ownerAppOldVersion.driver)
         expect(await createModal.isReady()).toBeTruthy()
         await createModal.typeCommunityName(communityName)
         await createModal.submit()
       })
 
       itif(process.platform == 'linux')('Owner sees "register username" modal and submits valid username', async () => {
-        const registerModal = new RegisterUsernameModal(ownerAppOldVersion.driver)
+        const registerModal = baselineUsesCurrentBuild
+          ? new RegisterUsernameModal(ownerAppOldVersion.driver)
+          : new ReleasedBaselineRegisterUsernameModal(ownerAppOldVersion.driver)
         expect(await registerModal.isReady()).toBeTruthy()
         await registerModal.typeUsername(ownerUsername)
         await registerModal.submit()
