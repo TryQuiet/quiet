@@ -6,107 +6,118 @@ const path = require('node:path')
 const test = require('node:test')
 const beforePack = require('./beforePack.cjs').default
 const signing = require('./updateSigning.cjs')
+const { inBuild } = require('./buildEnv.test-helper.cjs')
 
 const s3 = { provider: 's3', bucket: 'quiet.11.x', region: 'us-east-1', forcePathStyle: true }
-const { inBuild } = require('./buildEnv.cjs')
-const run = (electronPlatformName, config, publishArgs = ['-p', 'always'], env = {}) =>
-  inBuild(env, publishArgs, () => beforePack({ electronPlatformName, packager: {}, arch: 1 }, async () => config))
+const run = (electronPlatformName, config, env = {}) =>
+  inBuild(env, () => beforePack({ electronPlatformName, packager: {}, arch: 1 }, async () => config))
+const otherKey = () => crypto.generateKeyPairSync('ed25519').privateKey.export({ type: 'pkcs8', format: 'pem' })
+const REQUIRED = { [signing.REQUIRE_ENV]: '1' }
 
-test('Windows and Linux packaging stops without a release signing key the app accepts', async () => {
-  await assert.rejects(run('win32', s3), /Refusing to package win32.*is not set/)
-  await assert.rejects(run('linux', s3), /Refusing to package linux.*is not set/)
-  const other = crypto.generateKeyPairSync('ed25519').privateKey.export({ type: 'pkcs8', format: 'pem' })
-  await assert.rejects(run('win32', s3, ['-p', 'always'], { [signing.KEY_ENV]: other }), /does not match any key/)
+test('a build that must be signed stops before packaging without a release signing key the app accepts', async () => {
+  for (const platform of ['win32', 'linux']) {
+    await assert.rejects(run(platform, s3, REQUIRED), new RegExp(`Refusing to package ${platform}.*is not set`))
+    await assert.rejects(run(platform, s3, { ...REQUIRED, [signing.KEY_ENV]: otherKey() }), /does not match any key/)
+    await assert.rejects(run(platform, s3, { ...REQUIRED, [signing.KEY_ENV]: 'garbage' }), /unusable/)
+  }
 })
 
-test('packaging needs the key unless the build is explicitly --publish never; labels and CI do not excuse it', async () => {
-  for (const [env, args] of [
-    [{}, []], // a plain build has to say --publish never
-    [{ CI: 'true' }, []],
-    [{ CI: 'true', CI_COMMIT_TAG: 'v1' }, []],
-    [{ npm_lifecycle_event: 'release' }, []],
-    [{ IS_LOCAL: 'true' }, ['-p', 'always']],
-    [{ IS_E2E: 'true' }, ['--publish=always']],
-    [{ GITHUB_BASE_REF: 'develop' }, []],
-    [{ GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' }, ['-p', 'always']],
-    [{}, ['-p', 'never', '-p', 'always']], // repeated flags reach electron-builder as an array
-    [{}, ['--publish=never', '--publish', 'always']],
+test('a wrong key stops packaging even when signing is not required', async () => {
+  await assert.rejects(run('linux', s3, { [signing.KEY_ENV]: otherKey() }), /does not match any key/)
+  await assert.rejects(run('win32', s3, { [signing.KEY_ENV]: otherKey(), CI: 'true' }), /does not match any key/)
+})
+
+test('without the requirement a keyless build packages, whatever CI or event labels it carries', async () => {
+  for (const env of [
+    {},
+    { CI: 'true' },
+    { CI: 'true', CI_COMMIT_TAG: 'v1', GITHUB_REF_TYPE: 'tag' },
+    { GITHUB_BASE_REF: 'develop', PUBLISH_FOR_PULL_REQUEST: 'true' },
+    { IS_LOCAL: 'true' },
+    { IS_E2E: 'true' },
+    { npm_lifecycle_event: 'release' },
   ]) {
-    await assert.rejects(run('linux', s3, args, env), /is not set/, JSON.stringify([env, args]))
+    await assert.doesNotReject(run('linux', s3, env), JSON.stringify(env))
+    await assert.doesNotReject(run('win32', s3, env), JSON.stringify(env))
   }
 })
 
-test('the CLI is identified by the real electron-builder entry point, not by a name', async () => {
-  const { explicitlyUnpublished } = signing
-  const argv = ['--linux', '--publish', 'never']
-  const cli = require.resolve('electron-builder/cli.js')
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-id-'))
-  try {
-    // how the npm .bin shim, a relative path and a differently-cased path reach it
-    const shim = path.join(dir, 'electron-builder')
-    fs.symlinkSync(cli, shim)
-    assert.equal(explicitlyUnpublished(['node', cli, ...argv]), true)
-    assert.equal(explicitlyUnpublished(['node', shim, ...argv]), true)
-    assert.equal(explicitlyUnpublished(['node', path.relative(process.cwd(), cli), ...argv]), true)
-    if (process.platform === 'win32') {
-      assert.equal(explicitlyUnpublished(['node', cli.toUpperCase(), ...argv]), true)
+test('a build with S3 publishing credentials must be signed even without the flag', async () => {
+  for (const name of signing.PUBLISH_CREDENTIAL_ENV) {
+    await assert.rejects(
+      run('linux', s3, { [name]: 'x' }),
+      new RegExp(`is not set.*signing is required: ${name} is set`),
+      name
+    )
+  }
+  // electron-publish reads these from the default location whatever the override variables say
+  for (const name of ['credentials', 'config']) {
+    const home = fs.mkdtempSync(path.join(os.tmpdir(), 'aws-home-'))
+    try {
+      fs.mkdirSync(path.join(home, '.aws'))
+      fs.writeFileSync(path.join(home, '.aws', name), '[default]\n')
+      for (const override of [{}, { AWS_SHARED_CREDENTIALS_FILE: '/nonexistent', AWS_CONFIG_FILE: '/nonexistent' }]) {
+        await assert.rejects(
+          run('win32', s3, { HOME: home, USERPROFILE: home, ...override }),
+          /signing is required/,
+          `${name} ${JSON.stringify(override)}`
+        )
+      }
+    } finally {
+      fs.rmSync(home, { recursive: true, force: true })
     }
-    // scripts of the same names that drive the JS API are not the CLI
-    for (const name of ['electron-builder', 'electron-builder.js', 'electron-builder.cmd', 'cli.js']) {
-      const script = path.join(dir, 'js-api', name)
-      fs.mkdirSync(path.dirname(script), { recursive: true })
-      fs.writeFileSync(script, "require('electron-builder').build({ publish: 'always' })\n")
-      assert.equal(explicitlyUnpublished(['node', script, ...argv]), false, name)
-    }
-    assert.equal(explicitlyUnpublished(['node', '/usr/bin/electron-builder', ...argv]), false)
-    assert.equal(explicitlyUnpublished(['node', 'release-script.js', ...argv]), false)
-    assert.equal(explicitlyUnpublished(['node']), false)
-    // and the hook refuses such a script, carrying the flags, without a key
-    await inBuild({}, argv, () => {
-      process.argv[1] = path.join(dir, 'js-api', 'electron-builder.js')
-      return assert.rejects(
-        beforePack({ electronPlatformName: 'linux', packager: {}, arch: 1 }, async () => s3),
-        /is not set/
-      )
-    })
-  } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
   }
 })
 
-// The answer comes from electron-builder's own yargs definition of its build command.
-test("explicitlyUnpublished agrees with electron-builder's own parse of the command line", () => {
-  const cli = ['node', require.resolve('electron-builder/cli.js')]
-  const cases = [
-    [['--linux', '-p', 'never'], true],
-    [['--linux', '--publish', 'never'], true],
-    [['--linux', '--publish=never'], true],
-    [['-p', 'never', '--win'], true],
-    [[], false],
-    [['-p', 'always'], false],
-    [['--publish', 'onTag'], false],
-    [['--publish', 'onTagOrDraft'], false],
-    [['-p', 'never', '-p', 'always'], false],
-    [['-p', 'always', '-p', 'never'], false],
-    [['-p', 'never', '--publish=never'], false],
-    [['--publish', 'bogus'], false],
-    [['--publish'], false],
+// Differential check against the publisher electron-builder actually uses: whenever it would find credentials,
+// the gate must require signing. (Only this test reads the publisher's internals; the gate itself does not.)
+test('signing is required whenever the locked S3 publisher would find credentials', async () => {
+  const { resolveAwsCredentials } = require('electron-publish/out/s3/awsCredentials')
+  const { RequestSigner } = require('aws4')
+  const publisherFinds = () =>
+    Boolean(resolveAwsCredentials()?.accessKeyId || RequestSigner.prototype.defaultCredentials().accessKeyId)
+  const withCredentialsFile = (name, env) => {
+    const home = fs.mkdtempSync(path.join(os.tmpdir(), 'aws-home-'))
+    fs.mkdirSync(path.join(home, '.aws'))
+    fs.writeFileSync(path.join(home, '.aws', name), '[default]\naws_access_key_id = AKIA\naws_secret_access_key = s\n')
+    return { HOME: home, USERPROFILE: home, ...env }
+  }
+  const setups = [
+    { AWS_ACCESS_KEY_ID: 'AKIA', AWS_SECRET_ACCESS_KEY: 's' },
+    { AWS_ACCESS_KEY: 'AKIA', AWS_SECRET_KEY: 's' }, // aws4's fallback
+    { AWS_ACCESS_KEY_ID: 'AKIA' },
+    { AWS_ACCESS_KEY: 'AKIA' },
+    withCredentialsFile('credentials', {}),
+    withCredentialsFile('credentials', { AWS_SHARED_CREDENTIALS_FILE: '/nonexistent', AWS_PROFILE: 'default' }),
   ]
-  for (const [args, expected] of cases) {
-    assert.equal(signing.explicitlyUnpublished([...cli, ...args]), expected, args.join(' '))
+  let found = 0
+  for (const env of setups) {
+    await inBuild(env, async () => {
+      if (!publisherFinds()) return
+      found++
+      assert.ok(signing.signingRequired(), JSON.stringify(Object.keys(env)))
+    })
+    if (env.HOME) fs.rmSync(env.HOME, { recursive: true, force: true })
   }
+  assert.ok(found >= 5, `the publisher found credentials in only ${found} setups; the check would prove nothing`)
+  // and a clean build environment gives the publisher nothing, so keyless local builds stay possible
+  await inBuild({}, async () => {
+    assert.equal(publisherFinds(), false)
+    assert.equal(signing.signingRequired(), false)
+  })
 })
 
-test('builds that are explicitly not published are not blocked on the key', async () => {
-  await assert.doesNotReject(run('win32', s3, ['--publish', 'never'], { CI: 'true' }))
-  await assert.doesNotReject(run('linux', s3, ['-p', 'never'], {}))
-  await assert.doesNotReject(run('win32', s3, ['-p', 'never'], { CI: 'true', GITHUB_BASE_REF: 'develop' }))
+test('the requirement is exactly QUIET_REQUIRE_UPDATE_SIGNING=1; any other value stops the build', async () => {
+  for (const value of ['true', '0', 'yes', ' 1']) {
+    await assert.rejects(run('linux', s3, { [signing.REQUIRE_ENV]: value }), /must be 1 or unset/, value)
+  }
+  await assert.doesNotReject(run('linux', s3, { [signing.REQUIRE_ENV]: '' }))
 })
 
 test('packaging requires the HTTPS S3 feed; macOS is left to Squirrel.Mac', async () => {
-  await assert.doesNotReject(run('linux', s3, ['-p', 'never']))
-  await assert.rejects(run('linux', { provider: 'generic', url: 'http://example.test' }, ['-p', 'never']), /not https/)
-  await assert.doesNotReject(run('darwin', null, ['-p', 'always']))
+  await assert.doesNotReject(run('linux', s3))
+  await assert.rejects(run('linux', { provider: 'generic', url: 'http://example.test' }), /not https/)
+  await assert.doesNotReject(run('darwin', null, REQUIRED))
 })
 
 test('the real packager resolves the configuration that the hook checks', async () => {

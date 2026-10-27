@@ -23,17 +23,18 @@ const sign = (key, version, file, bytes) =>
 
 // case -> what the client expects. 'downloaded' means the update passed verification and is ready to
 // install; the install step itself (re-verification right before it) is covered by updaterSecurity.test.ts.
-// case -> `installed` is the version the client claims to run.
+// `installed` is the version the client claims to run. `fetched` is whether the installer itself may be
+// requested: a bad signature is refused on the feed's announcement, before any installer byte is fetched.
 const CASES = {
-  control: { expect: 'downloaded' },
-  tampered: { expect: 'rejected', error: /does not match/ },
-  'wrong-signer': { expect: 'rejected', error: /does not match/ },
-  unsigned: { expect: 'rejected', error: /could not fetch the signature/ },
-  'garbage-signature': { expect: 'rejected', error: /malformed|does not match/ },
-  'replayed-old-signature': { expect: 'rejected', error: /does not match/ },
-  'feed-hash-mismatch': { expect: 'rejected', error: /sha512 checksum mismatch|checksum/i },
-  downgrade: { expect: 'no-update', installed: '100.0.0' },
-  'prerelease-for-stable': { expect: 'rejected', error: /Pre-release/ },
+  control: { expect: 'downloaded', fetched: true },
+  tampered: { expect: 'rejected', error: /does not match/, fetched: false },
+  'wrong-signer': { expect: 'rejected', error: /does not match/, fetched: false },
+  unsigned: { expect: 'rejected', error: /could not fetch the signature/, fetched: false },
+  'garbage-signature': { expect: 'rejected', error: /malformed|does not match/, fetched: false },
+  'replayed-old-signature': { expect: 'rejected', error: /does not match/, fetched: false },
+  'feed-hash-mismatch': { expect: 'rejected', error: /sha512 checksum mismatch|checksum/i, fetched: true },
+  downgrade: { expect: 'no-update', installed: '100.0.0', fetched: false },
+  'prerelease-for-stable': { expect: 'rejected', error: /Pre-release/, fetched: false },
 }
 
 const serve = (port, publicKeyFile) => {
@@ -62,13 +63,21 @@ const serve = (port, publicKeyFile) => {
     add('unsigned', good, null)
     add('garbage-signature', good, Buffer.from('<html>nope</html>'))
     add('replayed-old-signature', good, sign(release, '98.0.0', file, good))
-    add('feed-hash-mismatch', evil, sign(release, VERSION, file, evil), { declared: good })
+    // a genuine signature over the hash the feed announces, but other bytes served: downloaded, then refused
+    add('feed-hash-mismatch', evil, sign(release, VERSION, file, good), { declared: good })
     add('downgrade', good, sign(release, VERSION, file, good))
     const pre = '99.0.0-alpha.1'
     add('prerelease-for-stable', good, sign(release, pre, file, good), { version: pre })
   }
+  // `GET /__installer-requests/<case>`: how many times that case's installer (not its .sig) was requested
+  const installerRequests = {}
   const server = http.createServer((req, res) => {
-    const body = routes[decodeURIComponent(req.url.split('?')[0])]
+    const requested = decodeURIComponent(req.url.split('?')[0])
+    const counted = /^\/__installer-requests\/([^/]+)$/.exec(requested)
+    if (counted) return void res.writeHead(200).end(String(installerRequests[counted[1]] ?? 0))
+    const [, name, file] = requested.split('/')
+    if (Object.values(NAMES).includes(file)) installerRequests[name] = (installerRequests[name] ?? 0) + 1
+    const body = routes[requested]
     if (!body) return void res.writeHead(404).end()
     res.writeHead(200, { 'content-length': body.length }).end(body)
   })
@@ -143,11 +152,12 @@ const check = async (base, publicKeyFile, platform = process.platform === 'win32
         installerPath: updater.installerPath ?? null,
       }
     }
-    let ok = outcome.kind === spec.expect
+    const fetched = Number(await (await fetch(`${base}/__installer-requests/${name}`)).text()) > 0
+    let ok = outcome.kind === spec.expect && fetched === spec.fetched
     if (ok && spec.error) ok = spec.error.test(outcome.error)
     if (ok && spec.expect === 'rejected') ok = outcome.installerPath === null
     if (ok && spec.expect === 'downloaded') ok = fs.existsSync(outcome.file)
-    results.push({ name, platform, expect: spec.expect, got: outcome.kind, detail: outcome.error || null, ok })
+    results.push({ name, platform, expect: spec.expect, got: outcome.kind, fetched, detail: outcome.error || null, ok })
   }
   for (const [name, spec] of Object.entries(CASES)) await run(name, spec)
 

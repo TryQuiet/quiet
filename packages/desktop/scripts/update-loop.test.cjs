@@ -37,7 +37,8 @@ test(
         env: { ...process.env, QUIET_LOOP_TMP: dir },
       })
       const results = JSON.parse(run.stdout.slice(run.stdout.indexOf('[\n')))
-      for (const r of results) assert.ok(r.ok, `${r.name}: expected ${r.expect}, got ${r.got} (${r.detail})`)
+      for (const r of results)
+        assert.ok(r.ok, `${r.name}: expected ${r.expect}, got ${r.got}, installer fetched: ${r.fetched} (${r.detail})`)
       assert.deepStrictEqual(results.map(r => r.name).sort(), [
         'control',
         'downgrade',

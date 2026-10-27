@@ -280,11 +280,6 @@ describe('hardenUpdater', () => {
 describe('verifyUpdateSignature', () => {
   const name = 'Quiet-Setup-99.0.0.exe'
   const bytes = Buffer.from('MZ pretend installer '.repeat(100))
-  const file = () => {
-    const filePath = path.join(fs.mkdtempSync(path.join(workDir, 'verify-')), name)
-    fs.writeFileSync(filePath, bytes)
-    return filePath
-  }
   const signatureUrl = new URL(`http://feed.test/${name}.sig`)
   const verify = (
     fetchSignature: () => Promise<string>,
@@ -292,7 +287,7 @@ describe('verifyUpdateSignature', () => {
     version: string | null = VERSION
   ) =>
     verifyUpdateSignature(
-      { filePath: file(), fileName: name, version: version ?? undefined, signatureUrl },
+      { sha512: sha512(bytes), fileName: name, version: version ?? undefined, signatureUrl },
       keys,
       fetchSignature
     )
@@ -344,14 +339,17 @@ describe('verifyUpdateSignature', () => {
   })
 
   it.each([
-    ['a version with a newline', '99.0.0\nfile:evil', name],
-    ['a version that is not semver', 'latest', name],
-    ['a file name with a newline', VERSION, 'Quiet\nsha512:x.exe'],
-  ])('rejects %s before verifying anything', async (_label, version, fileName) => {
+    ['a version with a newline', '99.0.0\nfile:evil', name, sha512(bytes)],
+    ['a version that is not semver', 'latest', name, sha512(bytes)],
+    ['a file name with a newline', VERSION, 'Quiet\nsha512:x.exe', sha512(bytes)],
+    ['a missing sha512', VERSION, name, undefined],
+    ['a sha512 with a newline', VERSION, name, `${sha512(bytes)}\nx`],
+    ['a sha512 that is not 64 bytes', VERSION, name, crypto.createHash('sha256').update(bytes).digest('base64')],
+  ])('rejects %s before verifying anything', async (_label, version, fileName, announced) => {
     const fetchSignature = jest.fn(async () => genuine())
     await expect(
       verifyUpdateSignature(
-        { filePath: file(), fileName, version, signatureUrl },
+        { sha512: announced, fileName, version, signatureUrl },
         [releaseKey.publicKey],
         fetchSignature
       )
@@ -363,7 +361,7 @@ describe('verifyUpdateSignature', () => {
     await expect(verify(async () => `\n  ${genuine().trim()} \r\n`)).resolves.toBeNull()
   })
 
-  it('rejects a signature made for another version, file name or content', async () => {
+  it('rejects a signature made for another version, file name or sha512', async () => {
     await expect(verify(async () => signedAs(name, bytes, '98.0.0').toString())).resolves.toMatch(/does not match/)
     await expect(verify(async () => signedAs('Other.exe', bytes).toString())).resolves.toMatch(/does not match/)
     await expect(verify(async () => signedAs(name, Buffer.from('other bytes')).toString())).resolves.toMatch(
@@ -468,13 +466,69 @@ describe('update feed served from a local HTTP server', () => {
         await expect(download(makeUpdater())).rejects.toThrow(/malformed/)
       })
 
-      it('still rejects a hash mismatch before any signature is considered', async () => {
+      it('a genuine signature over the announced hash does not let other bytes through', async () => {
         const fetchSignature = jest.fn(async () => signedAs(name, genuine).toString())
         serve(Buffer.concat([genuine, Buffer.from('x')]), null, genuine)
         const updater = configure(create(makeAdapter(platform, updateConfig())))
         hardenUpdater(updater, platform, { publicKeys: [releaseKey.publicKey], fetchSignature })
-        await expect(download(updater)).rejects.toThrow(/sha512 checksum mismatch|size/i)
-        expect(fetchSignature).not.toHaveBeenCalled()
+        await expect(download(updater)).rejects.toThrow(/sha512 checksum mismatch|size|signed sha512/i)
+        expect(fetchSignature).toHaveBeenCalledTimes(1)
+        expect(installerOf(updater)).toBeNull()
+      })
+
+      it('binds the downloaded bytes to the signed sha512 even if a download route skips its own hash check', async () => {
+        // An executor that drops electron-updater's sha512 check, as a download route that does not
+        // forward it would: the app's own re-hash of the finished file must still refuse the bytes.
+        class UncheckedExecutor extends TestHttpExecutor {
+          download(url: URL, destination: string, options: any): Promise<string> {
+            return super.download(url, destination, { ...options, sha512: undefined, sha2: undefined })
+          }
+        }
+        serve(Buffer.from('malicious payload '.repeat(500)), signedAs(name, genuine), genuine)
+        const updater = configure(create(makeAdapter(platform, updateConfig())))
+        ;(updater as unknown as { httpExecutor: TestHttpExecutor }).httpExecutor = new UncheckedExecutor()
+        hardenUpdater(updater, platform, { publicKeys: [releaseKey.publicKey] })
+        await expect(download(updater)).rejects.toThrow(/does not match its signed sha512/)
+        expect(installerOf(updater)).toBeNull()
+      })
+
+      describe('a bad signature is refused before the installer is downloaded', () => {
+        const installerRequests = () =>
+          requests.filter(r => r.startsWith(`GET /${name}`) && !r.startsWith(`GET /${name}.sig`))
+        const signatureRequests = () => requests.filter(r => r === `GET /${name}.sig`)
+        const malicious = Buffer.from('malicious payload '.repeat(500))
+
+        it.each([
+          ['missing', () => serve(genuine, null), /could not fetch the signature.*404/],
+          ['malformed', () => serve(genuine, Buffer.from('<html>not a signature</html>')), /malformed/],
+          ['from another key', () => serve(genuine, signedAs(name, genuine, VERSION, newKey())), /does not match/],
+          ['replayed from an older version', () => serve(genuine, signedAs(name, genuine, '98.0.0')), /does not match/],
+          [
+            'for other bytes than the feed announces',
+            () => serve(malicious, signedAs(name, genuine)),
+            /does not match/,
+          ],
+        ])('%s: no installer byte is requested, on any check', async (_label, setUp, error) => {
+          setUp()
+          const updater = makeUpdater()
+          // the periodic check runs again and again against the same bad feed
+          for (let check = 0; check < 3; check++) {
+            await expect(download(updater)).rejects.toThrow(error)
+          }
+          expect(signatureRequests()).toHaveLength(3)
+          expect(installerRequests()).toEqual([])
+          expect(installerOf(updater)).toBeNull()
+        })
+
+        it('the same feed with a good signature downloads the installer (control)', async () => {
+          serve(genuine, signedAs(name, genuine))
+          const updater = makeUpdater()
+          await download(updater)
+          expect(signatureRequests()).toHaveLength(1)
+          expect(installerRequests()).toEqual([`GET /${name}`])
+          // the signature is checked first
+          expect(requests.indexOf(`GET /${name}.sig`)).toBeLessThan(requests.indexOf(`GET /${name}`))
+        })
       })
 
       it('does not reuse an update cached by an earlier launch without verifying it against the new announcement', async () => {
@@ -716,7 +770,37 @@ describe('update feed served from a local HTTP server', () => {
           serveDifferential(malicious, withBlockMap(genuine).file)
           const updater = differentialUpdater()
           await expect(download(updater)).rejects.toThrow(/not signed by the Quiet release key.*does not match/)
-          expect(usedRanges().length).toBeGreaterThan(0)
+          // refused on the announcement: not a single range is fetched
+          expect(usedRanges()).toEqual([])
+          expect(installerOf(updater)).toBeNull()
+        })
+
+        it('rejects differentially delivered bytes that differ from the signed, announced file', async () => {
+          // The feed announces the genuine file and carries its genuine signature, but the block map and the
+          // served ranges describe other bytes of the same length.
+          const tampered = Buffer.from(genuine)
+          tampered.fill(0x6d, BLOCK * 4, BLOCK * 4 + 64)
+          const announced = withBlockMap(genuine).file
+          const { file, blockMapSize } = withBlockMap(tampered)
+          // the signed statement binds the sha512, not the size: announce the size of what is served
+          let feed = feedFile(name, file).split(sha512(file)).join(sha512(announced))
+          if (blockMapSize != null)
+            feed = feed.replace(
+              `    size: ${file.length}\n`,
+              `    size: ${file.length}\n    blockMapSize: ${blockMapSize}\n`
+            )
+          serveFeed(Buffer.from(feed), {
+            [`/${name}`]: file,
+            ...(embedded
+              ? {}
+              : {
+                  [`/${name}.blockmap`]: zlib.gzipSync(blockMapJson(tampered)),
+                  [`/${oldName}.blockmap`]: zlib.gzipSync(blockMapJson(installedPayload)),
+                }),
+            [`/${name}.sig`]: signedAs(name, announced),
+          })
+          const updater = differentialUpdater()
+          await expect(download(updater)).rejects.toThrow(/sha512|checksum|size/i)
           expect(installerOf(updater)).toBeNull()
         })
 

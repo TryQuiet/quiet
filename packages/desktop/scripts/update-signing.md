@@ -7,26 +7,36 @@ is verified by Squirrel.Mac against the app's Developer ID signature.
 - `src/main/update-signing-keys.json` holds the Ed25519 **public** keys compiled into the app
   (`src/main/updaterSecurity.ts`). The app accepts a download only if `<file>.sig` next to it carries a
   valid signature, from any listed key, over `version`, file name and the file's sha512.
-- `scripts/updateSigning.cjs` is run by electron-builder (`afterAllArtifactBuild`) in the release jobs.
-  It signs each `.exe` and `.AppImage` with the private key from the `QUIET_UPDATE_SIGNING_KEY`
-  secret (PEM, or base64 of the PEM) and publishes the `.sig` files with the release.
-- `scripts/beforePack.cjs` stops a Windows or Linux build, before anything is packaged or uploaded, when the
-  key is missing or does not match a public key in `src/main/update-signing-keys.json`, **unless the build is
-  explicitly unpublished**: started from the electron-builder command line with exactly one `--publish never`
-  (`-p never`), as electron-builder's own yargs parser reads it. Everything else counts as a publish and needs
-  the key: electron-builder also publishes implicitly (CI, git tags, the `release` npm script), repeated
-  `--publish` flags reach it as an array, and the JS API's `publish` option is invisible to hooks, so none of
-  those can be told apart from a release. Event labels (`IS_LOCAL`, `IS_E2E`, pull request) excuse nothing.
-  The command line is recognised by file, not by name: only `node_modules/electron-builder/cli.js` (reached via the `.bin` shim or the Windows `.cmd` shim) counts as the CLI; a script of any name that drives the JS API never does.
-  Every local, e2e and test build script therefore passes `--publish never`; a JS API caller that builds
-  without publishing disables the hooks in its config (`beforePack: null, artifactBuildCompleted: null, afterAllArtifactBuild: null`).
-- `scripts/signArtifact.cjs` (electron-builder's `artifactBuildCompleted`, which runs before electron-builder
-  starts uploading that artifact) signs each `.exe` / `.AppImage` and verifies the signature against the
-  shipped keys, so a bad key stops the build before any object is written. `scripts/updateSigning.cjs`
-  (`afterAllArtifactBuild`) then returns the `.sig` files for upload and fails if one is missing or stale.
-  A key that does not match the shipped keys is refused even for unpublished builds.
+- **Signing.** Whenever `QUIET_UPDATE_SIGNING_KEY` (PEM, or base64 of the PEM) is set, every Windows or Linux
+  build signs with it, published or not, and a key that does not match `src/main/update-signing-keys.json` stops
+  the build. `scripts/signArtifact.cjs` (electron-builder's `artifactBuildCompleted`, which runs before
+  electron-builder starts uploading that artifact) signs each `.exe` / `.AppImage` and verifies the signature
+  against the shipped keys, so a bad key stops the build before any object is written.
+  `scripts/updateSigning.cjs` (`afterAllArtifactBuild`) then returns the `.sig` files for upload and fails if
+  one is missing or stale.
+- **Requiring a signature.** A Windows or Linux build must be signed when `QUIET_REQUIRE_UPDATE_SIGNING=1`
+  is set, which the release jobs in `.github/workflows/desktop-build.yml` do, or when S3 publishing credentials
+  are within reach, so a publish nobody flagged is still signed: any AWS credential variable (including the
+  legacy `AWS_ACCESS_KEY` / `AWS_SECRET_KEY` that electron-builder's S3 signer falls back to, and the
+  `AWS_PROFILE` / `AWS_*_FILE` overrides), or a `~/.aws/credentials` or `~/.aws/config` file in the default
+  location, which electron-builder reads whatever an override variable says. A test checks the detector against
+  the locked publisher's own credential lookup. In that case
+  `scripts/beforePack.cjs` stops the build before anything is packaged or uploaded unless the key is present and
+  accepted, and the release jobs run `scripts/verifyUpdateSignatures.cjs` after the build. Any other non-empty
+  value of the flag is an error. Only the environment is read, never electron-builder's own internals.
+  A build with neither (local, pull-request and e2e builds, CLI or JS API) is left unsigned and needs nothing
+  else. `updater-security.test.cjs` checks that every workflow step that runs electron-builder with a publish
+  flag or AWS credentials (as `run:` or as an action's `with:` command) sets the flag, has the key and is followed
+  by `verifyUpdateSignatures`.
+  Not detected: credentials from an instance role (EC2 metadata). A build that publishes that way without a key
+  would ship installers that hardened clients refuse (they stay on their version), while clients older than
+  the hardening, which never checked signatures, would take them on the feed's sha512 alone, as before.
 - Run **Actions > Check update signing key** (or `QUIET_UPDATE_SIGNING_KEY=... node scripts/checkUpdateSigningKey.cjs`)
   to prove the secret matches the pinned key without building or publishing anything.
+- **Before the download.** The app fetches `<file>.sig` and checks it against the version, file name and
+  sha512 that the feed announces before it downloads the installer, so a missing or wrong signature costs a
+  4 KB request, not a full download on every check. electron-updater's own sha512 check (and a re-hash of the
+  finished file, which also covers differential downloads) then ties the downloaded bytes to that signed hash.
 - At install time (both `quitAndInstall` and install-on-quit) the app copies the verified file into a fresh
   private directory under its own cache (`<cache>/quiet-verified-installers/v-XXXXXX`, created exclusively,
   mode 0700), re-hashes the copy, re-checks its signature and runs the installer from that copy; the user-cache
@@ -87,11 +97,9 @@ the signature adds nothing over the feed's own sha512.
   cannot be pushed onto it.
 - The `.sig` is streamed and the request is aborted at 4096 bytes (or an oversized `Content-Length`), so a
   hostile feed cannot make the app buffer it.
-- Quiet's packaged `app-update.yml` has no `publisherName`, so electron-updater's own Windows Authenticode
-  check (and the CVE-2024-39698 fix in it) is not active. The Windows installers are signed with a
-  certificate that has expired, so pinning a publisher now would make Windows updates fail closed. Once a
-  valid certificate is in use, set `win.signtoolOptions.publisherName`; `updaterSecurity.test.ts` shows the
-  release-key check and that check together.
+- The Windows installers are no longer Authenticode-signed (since #3716; the certificate expired in 2023), and
+  the packaged `app-update.yml` has no `publisherName`, so electron-updater's own Windows signature check is
+  not active. The release-key signature is the only check of an installer's origin.
 
 ## Local update loop
 
