@@ -221,8 +221,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
+          QUIET_UPDATE_SIGNING_KEY: ${{ secrets.QUIET_UPDATE_SIGNING_KEY }}
           ARCH: x86_64
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: "Check update signatures"
+        shell: bash
+        run: cd packages/desktop && node scripts/verifyUpdateSignatures.cjs dist
 
       # afterPack customizes the launcher before electron-builder hashes and
       # publishes the artifact. Verify those final bytes without rewriting them.
@@ -653,10 +658,15 @@ jobs:
           CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+          QUIET_UPDATE_SIGNING_KEY: ${{ secrets.QUIET_UPDATE_SIGNING_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: "Check update signatures"
+        shell: bash
+        run: cd packages/desktop && node scripts/verifyUpdateSignatures.cjs dist
 
       - name: Get release
         id: get_release
