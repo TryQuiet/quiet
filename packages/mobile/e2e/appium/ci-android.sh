@@ -149,7 +149,7 @@ export QUIET_NOTIFICATION_WINDOW_MANAGER_ALIVE="$window_manager_alive"
 # Keep screenshots, invitations, device tokens and raw service logs private.
 # CI publishes only these deliberately selected non-secret proof fields.
 python3 - <<'PY'
-import json, os
+import json, os, re
 from pathlib import Path
 source = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'ui.json'
 proof = json.loads(source.read_text()) if source.exists() else {}
@@ -190,7 +190,9 @@ if not passed and report['lastStage'] == 'desktop-open':
     log = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'test.log'
     if log.exists():
         print('--- desktop startup log (tail) ---')
-        print('\n'.join(log.read_text(errors='replace').splitlines()[-80:]))
+        lines = log.read_text(errors='replace').splitlines()
+        hits = [l for l in lines[:-40] if re.search(r'error|fatal|crash|exit|fail|SEVERE|tor|backend', l, re.I)]
+        print('\n'.join(hits[:120] + ['--- last 40 lines ---'] + lines[-40:]))
 if not passed:
     raise SystemExit('The selected Android Appium journey did not pass. No alternate lane was substituted.')
 PY
