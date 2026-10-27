@@ -193,10 +193,33 @@ const installCopiesParent = (baseCachePath: unknown) =>
     ? path.join(baseCachePath, INSTALL_COPIES_DIR)
     : null
 
+/**
+ * The app-owned parent must be a real directory directly inside the cache: a symlink or junction there
+ * would send both the copies and their cleanup somewhere else. Creates it when missing; throws otherwise.
+ */
+const ensureRealDirectory = (parent: string, create: boolean) => {
+  let stat: fs.Stats | null = null
+  try {
+    stat = fs.lstatSync(parent)
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || !create) throw error
+  }
+  if (stat == null) {
+    fs.mkdirSync(path.dirname(parent), { recursive: true, mode: 0o700 })
+    fs.mkdirSync(parent, { mode: 0o700 })
+    stat = fs.lstatSync(parent)
+  }
+  if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error(`${parent} is not a plain directory`)
+  if (fs.realpathSync(parent) !== path.join(fs.realpathSync(path.dirname(parent)), path.basename(parent))) {
+    throw new Error(`${parent} resolves outside the app cache`)
+  }
+}
+
 /** Copies an earlier launch ran its installer from are not needed after the installer is done. */
 const removeStaleInstallCopies = (parent: string | null) => {
   if (parent == null) return
   try {
+    ensureRealDirectory(parent, false)
     for (const entry of fs.readdirSync(parent)) {
       if (!INSTALL_COPY_NAME.test(entry)) continue
       const dir = path.join(parent, entry)
@@ -342,12 +365,19 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
   // an installer through elevate.exe when the feed says it needs them, or when starting it directly fails;
   // that would hand a file path across an elevation boundary, where a same-user process could swap the
   // bytes after they were checked. Refuse that path outright rather than defend it.
+  // The same goes for electron.shell.openPath, which NsisUpdater reaches when the direct start fails with
+  // ENOENT and which can raise a UAC prompt for the file at that path. So a failure to start anything is
+  // final: it is rethrown under a code upstream does not special-case, and only reported.
   const spawnLog = internals.spawnLog.bind(internals)
   internals.spawnLog = (command, ...rest) => {
     if (path.basename(String(command).replace(/\\/g, '/')).toLowerCase() === 'elevate.exe') {
       return Promise.reject(new Error('Refusing to run the update installer elevated: Quiet updates install per user'))
     }
-    return spawnLog(command, ...rest)
+    return Promise.resolve(spawnLog(command, ...rest)).catch((error: NodeJS.ErrnoException) => {
+      throw Object.assign(new Error(`Cannot start the update installer: ${error?.message}`), {
+        code: 'QUIET_INSTALLER_START_FAILED',
+      })
+    })
   }
 
   // electron-updater installs whatever file the path it remembers points to, with no further check,
@@ -375,7 +405,7 @@ const requireSignedDownloads = (updater: AppUpdater, publicKeys: readonly string
     if (copiesParent == null) return refuse('the app has no cache directory to verify the file in')
     let privateDir: string | null = null
     try {
-      fs.mkdirSync(copiesParent, { recursive: true, mode: 0o700 })
+      ensureRealDirectory(copiesParent, true)
       privateDir = fs.mkdtempSync(path.join(copiesParent, INSTALL_COPY_PREFIX))
       fs.chmodSync(privateDir, 0o700)
       const copy = path.join(privateDir, path.basename(accepted.filePath))

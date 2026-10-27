@@ -12,6 +12,9 @@ import { AppImageUpdater, NsisUpdater, AppUpdater } from 'electron-updater'
 import type { AppAdapter } from 'electron-updater/out/AppAdapter'
 import { configureRequestOptions, configureRequestUrl } from 'builder-util-runtime'
 import { NodeHttpExecutor } from 'builder-util/out/nodeHttpExecutor'
+const mockOpenPath = jest.fn()
+jest.mock('electron', () => ({ shell: { openPath: (...args: unknown[]) => mockOpenPath(...args) } }))
+
 import { hardenUpdater, updateStatement, verifyUpdateSignature, UPDATE_SIGNING_PUBLIC_KEYS } from './updaterSecurity'
 
 /**
@@ -208,6 +211,23 @@ describe('hardenUpdater', () => {
     for (const kept of [recent, lookalike, unrelated, file]) expect(fs.existsSync(kept)).toBe(true)
     expect(fs.lstatSync(link).isSymbolicLink()).toBe(true) // never followed
     expect(fs.existsSync(path.join(outside, 'precious'))).toBe(true)
+  })
+
+  it('does not follow a symlinked app-owned parent, for cleanup or for the install copy', () => {
+    const baseCachePath = fs.mkdtempSync(path.join(workDir, 'parentlink-'))
+    const outside = fs.mkdtempSync(path.join(workDir, 'outside-'))
+    const victim = path.join(outside, 'v-abc123')
+    fs.mkdirSync(victim)
+    fs.writeFileSync(path.join(victim, 'precious'), 'x')
+    const longAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    fs.utimesSync(victim, longAgo, longAgo)
+    // 'junction' is what Windows uses without privileges; on POSIX it is an ordinary directory symlink
+    fs.symlinkSync(outside, path.join(baseCachePath, 'quiet-verified-installers'), 'junction')
+
+    hardenUpdater({ ...hooks(), app: { baseCachePath } } as unknown as AppUpdater, 'linux', {
+      publicKeys: [releaseKey.publicKey],
+    })
+    expect(fs.existsSync(path.join(victim, 'precious'))).toBe(true)
   })
 
   it('refuses downgrades and web installers on every platform', () => {
@@ -585,6 +605,19 @@ describe('update feed served from a local HTTP server', () => {
           expect(errors.map(e => e.message).join()).toMatch(/administrator rights/)
         })
 
+        it('refuses to install through a symlinked or junctioned app-owned copies directory', async () => {
+          const { updater, doInstall, errors, file } = await prepare(false)
+          const base = (updater as any).app.baseCachePath as string
+          const outside = fs.mkdtempSync(path.join(workDir, 'redirect-'))
+          const parent = path.join(base, 'quiet-verified-installers')
+          fs.rmSync(parent, { recursive: true, force: true })
+          fs.symlinkSync(outside, parent, 'junction')
+          updater.quitAndInstall(true)
+          expect(doInstall).not.toHaveBeenCalled()
+          expect(errors.map(e => e.message).join()).toMatch(/could not be checked/)
+          expect(fs.readdirSync(outside)).toEqual([])
+        })
+
         it('refuses to install a file that was overwritten in place', async () => {
           const { updater, doInstall, file } = await prepare(false)
           fs.appendFileSync(file, 'x')
@@ -904,10 +937,34 @@ describe('update feed served from a local HTTP server', () => {
         expect(started).toHaveLength(1)
         expect(started[0]).toMatch(/quiet-verified-installers/)
         expect(started.some(command => /elevate\.exe$/i.test(command))).toBe(false)
-        expect(errors.map(e => e.message).join()).toMatch(/Refusing to run the update installer elevated/)
+        expect(errors.map(e => e.message).join()).toMatch(/Cannot start the update installer/)
       } finally {
         ;(process as any).resourcesPath = resourcesPath
       }
     })
+
+    it.each(['ENOENT', 'EACCES', 'UNKNOWN', 'EPERM'])(
+      'a failure to start the installer (%s) is final: neither elevate.exe nor shell.openPath is reached',
+      async code => {
+        const resourcesPath = (process as any).resourcesPath
+        ;(process as any).resourcesPath = 'C:\\Quiet\\resources'
+        mockOpenPath.mockReset().mockResolvedValue('')
+        try {
+          const spawn = jest.fn().mockRejectedValue(Object.assign(new Error(code), { code }))
+          const updater = harden(spawn)
+          const errors: Error[] = []
+          updater.on('error', error => errors.push(error))
+          await download(updater)
+          expect((updater as any).install(true, false)).toBe(true)
+          await new Promise(resolve => setTimeout(resolve, 50))
+          expect(spawn).toHaveBeenCalledTimes(1)
+          expect(String(spawn.mock.calls[0][0])).not.toMatch(/elevate\.exe$/i)
+          expect(mockOpenPath).not.toHaveBeenCalled()
+          expect(errors.map(e => e.message).join()).toMatch(/Cannot start the update installer/)
+        } finally {
+          ;(process as any).resourcesPath = resourcesPath
+        }
+      }
+    )
   })
 })

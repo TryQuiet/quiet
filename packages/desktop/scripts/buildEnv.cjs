@@ -32,7 +32,7 @@ const inBuild = async (env, argv, fn) => {
   const savedArgv = process.argv
   for (const name of CLEAN_ENV) delete process.env[name]
   Object.assign(process.env, env)
-  process.argv = [savedArgv[0], 'electron-builder', ...argv]
+  process.argv = [savedArgv[0], require.resolve('electron-builder/cli.js'), ...argv]
   try {
     return await fn()
   } finally {

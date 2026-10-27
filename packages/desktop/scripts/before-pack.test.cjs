@@ -1,5 +1,8 @@
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
+const fs = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
 const test = require('node:test')
 const beforePack = require('./beforePack.cjs').default
 const signing = require('./updateSigning.cjs')
@@ -33,29 +36,47 @@ test('packaging needs the key unless the build is explicitly --publish never; la
   }
 })
 
-test('the JS API is never "explicitly unpublished", whatever its own command line says', async () => {
+test('the CLI is identified by the real electron-builder entry point, not by a name', async () => {
   const { explicitlyUnpublished } = signing
   const argv = ['--linux', '--publish', 'never']
-  assert.equal(explicitlyUnpublished(['node', '/usr/bin/electron-builder', ...argv]), true)
-  assert.equal(
-    explicitlyUnpublished(['node', 'C:\\app\\node_modules\\electron-builder\\out\\cli\\cli.js', ...argv]),
-    true
-  )
-  assert.equal(explicitlyUnpublished(['node', 'release-script.js', ...argv]), false)
-  assert.equal(explicitlyUnpublished(['node']), false)
-  // a script that calls require('electron-builder').build({ publish: 'always' }) and happens to carry the flags
-  await inBuild({}, argv, () => {
-    process.argv[1] = 'release.js'
-    return assert.rejects(
-      beforePack({ electronPlatformName: 'linux', packager: {}, arch: 1 }, async () => s3),
-      /is not set/
-    )
-  })
+  const cli = require.resolve('electron-builder/cli.js')
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-id-'))
+  try {
+    // how the npm .bin shim, a relative path and a differently-cased path reach it
+    const shim = path.join(dir, 'electron-builder')
+    fs.symlinkSync(cli, shim)
+    assert.equal(explicitlyUnpublished(['node', cli, ...argv]), true)
+    assert.equal(explicitlyUnpublished(['node', shim, ...argv]), true)
+    assert.equal(explicitlyUnpublished(['node', path.relative(process.cwd(), cli), ...argv]), true)
+    if (process.platform === 'win32') {
+      assert.equal(explicitlyUnpublished(['node', cli.toUpperCase(), ...argv]), true)
+    }
+    // scripts of the same names that drive the JS API are not the CLI
+    for (const name of ['electron-builder', 'electron-builder.js', 'electron-builder.cmd', 'cli.js']) {
+      const script = path.join(dir, 'js-api', name)
+      fs.mkdirSync(path.dirname(script), { recursive: true })
+      fs.writeFileSync(script, "require('electron-builder').build({ publish: 'always' })\n")
+      assert.equal(explicitlyUnpublished(['node', script, ...argv]), false, name)
+    }
+    assert.equal(explicitlyUnpublished(['node', '/usr/bin/electron-builder', ...argv]), false)
+    assert.equal(explicitlyUnpublished(['node', 'release-script.js', ...argv]), false)
+    assert.equal(explicitlyUnpublished(['node']), false)
+    // and the hook refuses such a script, carrying the flags, without a key
+    await inBuild({}, argv, () => {
+      process.argv[1] = path.join(dir, 'js-api', 'electron-builder.js')
+      return assert.rejects(
+        beforePack({ electronPlatformName: 'linux', packager: {}, arch: 1 }, async () => s3),
+        /is not set/
+      )
+    })
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
 })
 
 // The answer comes from electron-builder's own yargs definition of its build command.
 test("explicitlyUnpublished agrees with electron-builder's own parse of the command line", () => {
-  const cli = ['node', '/app/node_modules/.bin/electron-builder']
+  const cli = ['node', require.resolve('electron-builder/cli.js')]
   const cases = [
     [['--linux', '-p', 'never'], true],
     [['--linux', '--publish', 'never'], true],

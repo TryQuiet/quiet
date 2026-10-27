@@ -29,8 +29,28 @@ const parsePrivateKey = value => {
   return key
 }
 
-const BUILDER_CLI =
-  /(?:^|[\\/])electron-builder(?:\.cmd|\.js|\.exe)?$|[\\/]electron-builder[\\/]out[\\/]cli[\\/]cli\.js$/
+// The same file whichever way it was reached: .bin symlink, Windows .cmd shim, relative path, letter case.
+const canonical = file => {
+  try {
+    return fs.realpathSync.native(file)
+  } catch {
+    return null
+  }
+}
+
+// The electron-builder command line entry point, node_modules/electron-builder/cli.js. Identified by the
+// file itself, not by a name: a script of another name (or the same name elsewhere) that drives the JS API
+// is not the CLI, whatever flags it carries.
+const isBuilderCli = argv => {
+  const entry = argv[1] == null ? null : canonical(argv[1])
+  let cli = null
+  try {
+    cli = canonical(require.resolve('electron-builder/cli.js'))
+  } catch {
+    // electron-builder is not installed: nothing can be the CLI
+  }
+  return entry != null && entry === cli
+}
 
 /**
  * Whether this build is EXPLICITLY not published: it was started by the electron-builder command
@@ -42,7 +62,7 @@ const BUILDER_CLI =
  * qualifies; callers disable these hooks in their config when they build without publishing.
  */
 const explicitlyUnpublished = (argv = process.argv) => {
-  if (!BUILDER_CLI.test(argv[1] ?? '')) return false
+  if (!isBuilderCli(argv)) return false
   try {
     const builderDir = path.dirname(require.resolve('electron-builder/package.json'))
     const yargs = require(require.resolve('yargs/yargs', { paths: [builderDir] }))

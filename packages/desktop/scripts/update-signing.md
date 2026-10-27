@@ -17,8 +17,9 @@ is verified by Squirrel.Mac against the app's Developer ID signature.
   the key: electron-builder also publishes implicitly (CI, git tags, the `release` npm script), repeated
   `--publish` flags reach it as an array, and the JS API's `publish` option is invisible to hooks, so none of
   those can be told apart from a release. Event labels (`IS_LOCAL`, `IS_E2E`, pull request) excuse nothing.
+  The command line is recognised by file, not by name: only `node_modules/electron-builder/cli.js` (reached via the `.bin` shim or the Windows `.cmd` shim) counts as the CLI; a script of any name that drives the JS API never does.
   Every local, e2e and test build script therefore passes `--publish never`; a JS API caller that builds
-  without publishing disables the hooks in its config (`beforePack: null, afterAllArtifactBuild: null`).
+  without publishing disables the hooks in its config (`beforePack: null, artifactBuildCompleted: null, afterAllArtifactBuild: null`).
 - `scripts/signArtifact.cjs` (electron-builder's `artifactBuildCompleted`, which runs before electron-builder
   starts uploading that artifact) signs each `.exe` / `.AppImage` and verifies the signature against the
   shipped keys, so a bad key stops the build before any object is written. `scripts/updateSigning.cjs`
@@ -33,7 +34,7 @@ is verified by Squirrel.Mac against the app's Developer ID signature.
   earlier launches are removed after a day, matching only those exact names (never following symlinks), and
   cleanup failures never replace the refusal.
 - **No elevation.** Quiet's NSIS install is per user and never needs administrator rights, so the app refuses
-  an update whose feed asks for them (`isAdminRightsRequired`) and refuses the `elevate.exe` fallback that
+  an update whose feed asks for them (`isAdminRightsRequired`) and refuses the `elevate.exe` fallback (and `electron.shell.openPath`, which upstream reaches on ENOENT and which can raise a UAC prompt: every failure to start the installer is a final error) that
   electron-updater takes when starting the installer directly fails. Elevating would hand a file path across
   an elevation boundary, where a same-user process could swap the bytes after they were checked.
 
