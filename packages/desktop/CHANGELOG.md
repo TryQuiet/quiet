@@ -1,21 +1,15 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [11.3.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@11.3.0...@quiet/desktop@11.3.1-alpha.0) (2026-10-27)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [11.1.0]
 
 ### Chores
+
+* chore(security): update Tor to 0.4.9.14, built against OpenSSL 3.5.9, on desktop (Linux, macOS, Windows) and Android (arm64-v8a and x86_64), and the iOS `Tor.framework` pod to 409.14.1 (Tor 0.4.9.14, OpenSSL 3.6.5). See Tor's [0.4.9.13](https://forum.torproject.org/t/security-release-0-4-9-13/22178/1) and [0.4.9.14](https://forum.torproject.org/t/security-release-0-4-9-14/22241) security releases. Stop shipping the unused OpenSSL 1.1 libraries (and the AppImage `LD_PRELOAD` of one), and add `npm run check:tor-binaries`, which CI runs to fail the build on a stale Tor, an older OpenSSL, or a vendored OpenSSL 1.1 library
+
+* Dependency security upgrade: `ws` to 8.21+ and `socket.io`, `socket.io-client` and `socket.io-parser` to 4.8.4 / 4.2.7+ in the backend, desktop and mobile apps, resolving [GHSA-96hv-2xvq-fx4p](https://github.com/websockets/ws/security/advisories/GHSA-96hv-2xvq-fx4p) (CVE-2026-48779), [CVE-2026-33151](https://github.com/socketio/socket.io/security/advisories/GHSA-677m-j7p3-52f9) and [CVE-2026-69185](https://github.com/advisories/GHSA-2m8v-j782-fhvr), and add a CI check (`npm run check:runtime-deps`) that fails if a vulnerable runtime copy returns [#3707](https://github.com/TryQuiet/quiet/issues/3707) [#3708](https://github.com/TryQuiet/quiet/issues/3708)
+* chore(desktop): stop Authenticode-signing the Windows installer. The certificate it was signed with (Zbay LLC, DigiCert) expired in July 2023 and will not be renewed, so every installer since has carried a signature Windows reports as invalid. The `jsign` signing hook (`scripts/sign.js`), its `signtoolOptions` entry, and the certificate/password/alias secrets and download step in the release and Windows e2e workflows are removed. Fresh downloads now show SmartScreen's "unknown publisher" prompt as they effectively already did; installed apps update exactly as before, because their updater never checked the Authenticode signature
+
+* chore(deps): upgrade Electron (and the e2e ChromeDriver) from 44.3.0 to 44.9.3 (Chromium 152.0.7977.167, Node 24.22.0), a dependency security update that picks up Electron's mitigation for the compromised eMudhra intermediate CA certificates ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)). A test now fails if Electron drops below the patched release
 
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
 
@@ -79,6 +73,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
 * Let a released Mac build open the camera when you scan a QR code, by granting the signed app the camera entitlement its hardened runtime requires, and ask for the camera in Quiet's own words rather than Electron's placeholder ones
 * Point a refused camera at the setting that would allow it when scanning a QR code on desktop, naming the macOS or Windows page, opening it, and asking the camera again when you come back, instead of only saying access was denied
+* fix(desktop): harden how the desktop app verifies updates. Upgrade `electron-updater` 5.0.1 → 6.8.11, which fixes a Windows code-signature verification bypass (CVE-2024-39698). Windows installers and Linux AppImages must now carry a detached signature from Quiet's own release key (the public key ships in the app; CI signs each release and publishes `<file>.sig`), bound to the update's version and file name, so an update that was swapped or replayed is refused and no certificate authority is involved; downgrades and web installers are refused, an update cached by an earlier launch is never reused unverified, the updater stops entirely if these settings cannot be applied, and Windows and Linux release builds refuse to package without a signing key the app accepts
 
 ### Tests
 
