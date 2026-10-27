@@ -7,6 +7,7 @@
 // in src/main/updaterSecurity.ts (updater-security.test.cjs and updaterSecurity.test.ts check it).
 const crypto = require('crypto')
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
 const KEY_ENV = 'QUIET_UPDATE_SIGNING_KEY'
@@ -30,17 +31,41 @@ const parsePrivateKey = value => {
   return key
 }
 
+// Where electron-builder's S3 publisher (the AWS SDK) can find credentials. A build that has any of them
+// could upload, so it must be signed whether or not anyone remembered QUIET_REQUIRE_UPDATE_SIGNING.
+const PUBLISH_CREDENTIAL_ENV = [
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_SESSION_TOKEN',
+  'AWS_PROFILE',
+  'AWS_WEB_IDENTITY_TOKEN_FILE',
+  'AWS_CONTAINER_CREDENTIALS_RELATIVE_URI',
+  'AWS_CONTAINER_CREDENTIALS_FULL_URI',
+]
+const awsFiles = env => [
+  env.AWS_SHARED_CREDENTIALS_FILE || path.join(os.homedir(), '.aws', 'credentials'),
+  env.AWS_CONFIG_FILE || path.join(os.homedir(), '.aws', 'config'),
+]
+
 /**
- * Whether this build must carry signatures: `QUIET_REQUIRE_UPDATE_SIGNING=1`, which the release jobs set
- * (they are the only builds that publish). Any other non-empty value is a mistake and stops the build
- * rather than silently turning the requirement off.
+ * Why this build must carry signatures, or null when it need not: `QUIET_REQUIRE_UPDATE_SIGNING=1`, which
+ * the release jobs set, or S3 publishing credentials within reach, so that a publish nobody flagged is
+ * still signed. Reads only the environment, never electron-builder's internals. Any other non-empty value
+ * of the flag is a mistake and stops the build rather than silently turning the requirement off.
  */
-const signingRequired = (env = process.env) => {
+const signingRequirement = (env = process.env) => {
   const value = env[REQUIRE_ENV]
-  if (value == null || value === '') return false
-  if (value === '1') return true
-  throw new Error(`${REQUIRE_ENV} must be 1 or unset, not ${JSON.stringify(value)}`)
+  if (value != null && value !== '' && value !== '1') {
+    throw new Error(`${REQUIRE_ENV} must be 1 or unset, not ${JSON.stringify(value)}`)
+  }
+  if (value === '1') return `${REQUIRE_ENV}=1`
+  const credential = PUBLISH_CREDENTIAL_ENV.find(name => env[name])
+  if (credential) return `${credential} is set, so this build could publish`
+  const file = awsFiles(env).find(candidate => fs.existsSync(candidate))
+  if (file) return `${file} exists, so this build could publish`
+  return null
 }
+const signingRequired = (env = process.env) => signingRequirement(env) != null
 
 /**
  * Why a build of `platform` ("win32" | "linux" | ...) cannot be signed with the configured key. Event
@@ -109,14 +134,18 @@ const checkVersionedName = file => {
  * fires before electron-builder starts uploading that artifact, so a bad key or signature stops the
  * build before any object is written. Returns the `.sig` path, or null when nothing is signed.
  * Whenever a key is set it is used, and it must match a shipped public key, published build or not.
- * Without one the artifact is left unsigned unless the build requires signing (QUIET_REQUIRE_UPDATE_SIGNING=1).
+ * Without one the artifact is left unsigned unless the build requires signing (see signingRequirement).
  */
 const signArtifactWith = (file, publicKeys, env = process.env) => {
   if (!SIGNED_EXTENSIONS.includes(path.extname(file))) return null
-  const required = signingRequired(env)
-  if (!env[KEY_ENV] && !required) return null
+  const required = signingRequirement(env)
+  if (!env[KEY_ENV] && required == null) return null
   const wrong = signingProblems('linux', env, publicKeys)
-  if (wrong.length > 0) throw new Error(`Refusing to sign updates: ${wrong.join('; ')}`)
+  if (wrong.length > 0) {
+    throw new Error(
+      `Refusing to sign updates: ${wrong.join('; ')}${required ? ` (signing is required: ${required})` : ''}`
+    )
+  }
   const version = checkVersionedName(file)
   const signatureFile = signFile(file, version, parsePrivateKey(env[KEY_ENV]))
   if (!verifySignatureFile(file, version, publicKeys)) {
@@ -153,6 +182,8 @@ Object.assign(exports, {
   KEY_ENV,
   REQUIRE_ENV,
   signingRequired,
+  signingRequirement,
+  PUBLISH_CREDENTIAL_ENV,
   updateStatement,
   loadPublicKeys,
   publicKeyOf,

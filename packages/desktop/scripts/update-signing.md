@@ -14,13 +14,19 @@ is verified by Squirrel.Mac against the app's Developer ID signature.
   against the shipped keys, so a bad key stops the build before any object is written.
   `scripts/updateSigning.cjs` (`afterAllArtifactBuild`) then returns the `.sig` files for upload and fails if
   one is missing or stale.
-- **Requiring a signature.** The release jobs in `.github/workflows/desktop-build.yml`, the only builds that
-  publish, set `QUIET_REQUIRE_UPDATE_SIGNING=1`. With it, `scripts/beforePack.cjs` stops the build before anything
-  is packaged or uploaded unless the key is present and accepted, and `scripts/verifyUpdateSignatures.cjs` checks
-  every `.sig` after the build. Any other non-empty value of the variable is an error. Without it and without a key
-  (local, pull-request and e2e builds, CLI or JS API) nothing is signed and nothing else is needed; such a build
-  would be refused by the app if it were ever published, so a forgotten flag fails closed for users.
-  `updater-security.test.cjs` checks that every publishing Windows/Linux step in that workflow sets it.
+- **Requiring a signature.** A Windows or Linux build must be signed when `QUIET_REQUIRE_UPDATE_SIGNING=1`
+  is set, which the release jobs in `.github/workflows/desktop-build.yml` do, or when S3 publishing credentials
+  are within reach (`AWS_ACCESS_KEY_ID`, `AWS_PROFILE` and the other variables the AWS SDK reads, or an
+  `~/.aws/credentials` / `~/.aws/config` file), so a publish nobody flagged is still signed. In that case
+  `scripts/beforePack.cjs` stops the build before anything is packaged or uploaded unless the key is present and
+  accepted, and the release jobs run `scripts/verifyUpdateSignatures.cjs` after the build. Any other non-empty
+  value of the flag is an error. Only the environment is read, never electron-builder's own internals.
+  A build with neither (local, pull-request and e2e builds, CLI or JS API) is left unsigned and needs nothing
+  else. `updater-security.test.cjs` checks that every workflow step that runs electron-builder with a publish
+  flag or AWS credentials sets the flag, has the key and is followed by `verifyUpdateSignatures`.
+  Not detected: credentials from an instance role (EC2 metadata). A build that publishes that way without a key
+  would ship installers that hardened clients refuse (they stay on their version), while clients older than
+  the hardening, which never checked signatures, would take them on the feed's sha512 alone, as before.
 - Run **Actions > Check update signing key** (or `QUIET_UPDATE_SIGNING_KEY=... node scripts/checkUpdateSigningKey.cjs`)
   to prove the secret matches the pinned key without building or publishing anything.
 - **Before the download.** The app fetches `<file>.sig` and checks it against the version, file name and

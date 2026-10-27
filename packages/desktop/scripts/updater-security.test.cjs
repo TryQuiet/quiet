@@ -200,36 +200,47 @@ test('without a key an artifact stays unsigned unless signing is required; CI an
       )
     })
   }
+  for (const name of signing.PUBLISH_CREDENTIAL_ENV) {
+    await inBuild({ [name]: 'x' }, async () =>
+      assert.throws(() => signing.signArtifactWith(file, accepted), /is not set.*signing is required/, name)
+    )
+  }
   assert.ok(!fs.existsSync(`${file}.sig`))
   await inBuild({ [signing.REQUIRE_ENV]: 'true' }, async () =>
     assert.throws(() => signing.signArtifactWith(file, accepted), /must be 1 or unset/)
   )
 })
 
-// Only the release jobs publish, so they are the ones that must require signing. Checked on the workflow
-// itself so a new or renamed publishing step cannot drop the requirement unnoticed.
-test('every desktop release step that publishes Windows or Linux requires signing and is followed by a signature check', () => {
+// Only the release jobs publish, so they are the ones that must require signing. Checked on the workflows
+// themselves so a new or renamed publishing step cannot drop the requirement unnoticed: a step counts as
+// publishing if it runs electron-builder with a publish flag other than never, or with AWS credentials.
+test('every CI step that can publish a Windows or Linux build requires signing and is followed by a signature check', () => {
   const yaml = require('js-yaml')
-  const workflow = yaml.load(
-    fs.readFileSync(path.join(__dirname, '../../../.github/workflows/desktop-build.yml'), 'utf8')
-  )
+  const dir = path.join(__dirname, '../../../.github/workflows')
   const publishing = []
-  for (const [name, job] of Object.entries(workflow.jobs)) {
-    const steps = job.steps ?? []
-    steps.forEach((step, index) => {
-      const run = step.run ?? ''
-      if (!/electron-builder/.test(run) || !/(^|\s)(-p|--publish)[ =](always|onTag|onTagOrDraft)\b/.test(run)) return
-      if (!/--(win|linux)\b/.test(run)) return
-      publishing.push(name)
-      assert.equal(step.env?.[signing.REQUIRE_ENV], '1', `${name}: ${step.name}`)
-      assert.match(String(step.env?.[signing.KEY_ENV]), /secrets\.QUIET_UPDATE_SIGNING_KEY/, `${name}: ${step.name}`)
-      assert.ok(
-        steps.slice(index + 1).some(later => /verifyUpdateSignatures\.cjs/.test(later.run ?? '')),
-        `${name}: no verifyUpdateSignatures step after ${step.name}`
-      )
-    })
+  for (const file of fs.readdirSync(dir).filter(name => /\.ya?ml$/.test(name))) {
+    const workflow = yaml.load(fs.readFileSync(path.join(dir, file), 'utf8'))
+    for (const [name, job] of Object.entries(workflow.jobs ?? {})) {
+      const steps = job.steps ?? []
+      steps.forEach((step, index) => {
+        const run = step.run ?? ''
+        if (!/electron-builder/.test(run) || /--mac\b/.test(run)) return
+        const env = { ...workflow.env, ...job.env, ...step.env }
+        const flag = /(^|\s)(-p|--publish)[ =](\S+)/.exec(run)?.[3]
+        const credentials = signing.PUBLISH_CREDENTIAL_ENV.some(variable => env[variable] != null)
+        if ((flag == null || flag === 'never') && !credentials) return
+        const where = `${file} ${name}: ${step.name}`
+        publishing.push(where)
+        assert.equal(env[signing.REQUIRE_ENV], '1', where)
+        assert.match(String(env[signing.KEY_ENV]), /secrets\.QUIET_UPDATE_SIGNING_KEY/, where)
+        assert.ok(
+          steps.slice(index + 1).some(later => /verifyUpdateSignatures\.cjs/.test(later.run ?? '')),
+          `${where}: no verifyUpdateSignatures step after it`
+        )
+      })
+    }
   }
-  assert.equal(publishing.length, 2, `expected the Linux and Windows release steps, found ${publishing}`)
+  assert.ok(publishing.length >= 2, `expected at least the Linux and Windows release steps, found ${publishing}`)
 })
 
 test('verifyUpdateSignatures accepts signed builds and flags missing, stale or foreign signatures', () => {

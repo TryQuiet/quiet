@@ -1,5 +1,8 @@
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
+const fs = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
 const test = require('node:test')
 const beforePack = require('./beforePack.cjs').default
 const signing = require('./updateSigning.cjs')
@@ -36,6 +39,26 @@ test('without the requirement a keyless build packages, whatever CI or event lab
   ]) {
     await assert.doesNotReject(run('linux', s3, env), JSON.stringify(env))
     await assert.doesNotReject(run('win32', s3, env), JSON.stringify(env))
+  }
+})
+
+test('a build with S3 publishing credentials must be signed even without the flag', async () => {
+  for (const name of signing.PUBLISH_CREDENTIAL_ENV) {
+    await assert.rejects(
+      run('linux', s3, { [name]: 'x' }),
+      new RegExp(`is not set.*signing is required: ${name} is set`),
+      name
+    )
+  }
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aws-'))
+  try {
+    for (const variable of ['AWS_SHARED_CREDENTIALS_FILE', 'AWS_CONFIG_FILE']) {
+      const file = path.join(dir, variable)
+      fs.writeFileSync(file, '[default]\n')
+      await assert.rejects(run('win32', s3, { [variable]: file }), /signing is required: .* exists/, variable)
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
   }
 })
 

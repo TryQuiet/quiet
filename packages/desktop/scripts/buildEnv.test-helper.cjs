@@ -18,12 +18,18 @@ const CLEAN_ENV = [
   'npm_lifecycle_event',
   signing.KEY_ENV,
   signing.REQUIRE_ENV,
+  ...signing.PUBLISH_CREDENTIAL_ENV,
 ]
+// and no AWS credential or config file from the machine running the tests
+const NO_AWS_FILES = {
+  AWS_SHARED_CREDENTIALS_FILE: '/nonexistent/aws-credentials',
+  AWS_CONFIG_FILE: '/nonexistent/aws-config',
+}
 // Runs `fn` with a clean build environment plus `env`.
 const inBuild = async (env, fn) => {
   const saved = { ...process.env }
   for (const name of CLEAN_ENV) delete process.env[name]
-  Object.assign(process.env, env)
+  Object.assign(process.env, NO_AWS_FILES, env)
   try {
     return await fn()
   } finally {
