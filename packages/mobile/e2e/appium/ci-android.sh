@@ -185,6 +185,12 @@ passed = report['testExitCode'] == 0 and journey_passed and report['displayAlive
 report['status'] = 'passed' if passed else 'failed'
 Path(os.environ['RUNNER_TEMP'], 'notification-result.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
+if not passed and report['lastStage'] == 'desktop-open':
+    # Before the app is open there is no invitation, token or username in the log, so its tail is safe to print.
+    log = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'test.log'
+    if log.exists():
+        print('--- desktop startup log (tail) ---')
+        print('\n'.join(log.read_text(errors='replace').splitlines()[-80:]))
 if not passed:
     raise SystemExit('The selected Android Appium journey did not pass. No alternate lane was substituted.')
 PY
