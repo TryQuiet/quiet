@@ -1,0 +1,20 @@
+name: Check update signing key
+
+# Confirms the QUIET_UPDATE_SIGNING_KEY secret is set and matches the public key pinned in
+# packages/desktop/src/main/update-signing-keys.json, without building or publishing anything.
+# Run it before cutting a release (Actions > Check update signing key > Run workflow).
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Check signing key against the pinned public key
+        env:
+          QUIET_UPDATE_SIGNING_KEY: ${{ secrets.QUIET_UPDATE_SIGNING_KEY }}
+        run: node packages/desktop/scripts/checkUpdateSigningKey.cjs
