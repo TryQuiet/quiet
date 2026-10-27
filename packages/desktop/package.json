@@ -51,18 +51,6 @@
       ],
       "extraFiles": [
         {
-          "from": "tor/libssl.so",
-          "to": "usr/lib/libssl.so"
-        },
-        {
-          "from": "resources/libcrypto.so.1.1",
-          "to": "usr/lib/libcrypto.so.1.1"
-        },
-        {
-          "from": "resources/libssl.so.1.1",
-          "to": "usr/lib/libssl.so.1.1"
-        },
-        {
           "from": "resources/quiet.desktop",
           "to": "resources/quiet.desktop"
         }
@@ -102,12 +90,11 @@
     "copyBinaries": "cp -R ../../3rd-party/tor/linux/ ./tor/ && chmod 775 ./tor/tor",
     "copyBinariesDarwin": "cp -R ../../3rd-party/tor/darwin/ ./tor/ && chmod 775 ./tor/tor",
     "copyBinariesWin": "xcopy /E /I /Y ..\\..\\3rd-party\\tor\\win32 .\\tor\\",
-    "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "distMac:local": "npm run rmDist && export SOURCE_PATH=darwin IS_LOCAL=true && npm run copyBinariesDarwin && npm run build:dev:dist && electron-builder --mac -p never -c.mac.type=development -c.mac.identity=null",
     "dist": "npm run distMac",
     "distMac": "npm run rmDist && export SOURCE_PATH=darwin && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
-    "distUbuntu": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux --publish never",
-    "distUbuntu:qss": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux --publish never",
+    "distUbuntu": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run build:prod && electron-builder --linux --publish never",
+    "distUbuntu:qss": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run build:prod && electron-builder --linux --publish never",
     "distwin": "npm run rmDist && export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win --publish never",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js --fix",
@@ -177,7 +164,7 @@
     "react-qr-code": "^2.0.11",
     "react-select": "^5.10.2",
     "remark-gfm": "^1.0.0",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -300,6 +287,16 @@
       "asn1js": "3.0.5",
       "pvtsutils": "1.3.2",
       "pvutils": "1.1.3"
+    },
+    "socket.io-parser": "^4.2.7",
+    "engine.io": {
+      "ws": "^8.21.3"
+    },
+    "engine.io-client": {
+      "ws": "^8.21.3"
+    },
+    "socket.io-adapter": {
+      "ws": "^8.21.3"
     }
   },
   "jest": {

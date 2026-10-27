@@ -172,7 +172,7 @@ The earlier Apple native and multiplayer evidence above was not repeated here;
 provider delivery still requires the explicitly configured full-loop lane.
 
 After the iOS Tor/Electron updates landed, refreshed the notification workflows to
-build the installed Tor 409.11.2 XCFramework from locked pods. The provider and
+build the installed Tor 409.14.1 XCFramework from locked pods. The provider and
 onboarding shell lanes use the current guarded builder, preserve their selected
 environment, and stop before signing if the native build fails (three workflow
 regressions pass). All 58 current/fallback builder tests pass with one platform

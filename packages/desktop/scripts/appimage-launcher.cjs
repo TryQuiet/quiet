@@ -12,7 +12,7 @@ function configureAppRun(source, executableName) {
   // Let Electron enforce its sandbox requirements. A failed namespace probe
   // must not silently weaken the launch policy. Explicit CLI flags still pass through.
   source = source.slice(0, start) + '\nNO_SANDBOX=()\n' + source.slice(end)
-  return source.replace(binary, `export LD_PRELOAD="\${APPDIR}/usr/lib/libssl.so"\n${binary}`)
+  return source
 }
 
 module.exports = { configureAppRun }

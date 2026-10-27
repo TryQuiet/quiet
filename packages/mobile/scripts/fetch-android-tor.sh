@@ -19,9 +19,10 @@ TOR_GPG_FINGERPRINT="EF6E286DDA85EA2A4BA7DE684E2C6E8793298290"
 TOR_PROJECT_BASE_URL="https://archive.torproject.org/tor-package-archive/torbrowser"
 
 ABI="x86_64"
-# Tor Browser 15.0.22 ships Tor 0.4.9.12. The vendored arm64-v8a binary came from
-# 15.0.21 (Tor 0.4.9.11), which dist.torproject.org no longer serves.
-VERSION="15.0.22"
+# Tor Browser 15.0.26 ships Tor 0.4.9.14 with OpenSSL 3.5.9. Keep this equal to the
+# Tor Browser release scripts/update-tor-binaries-desktop.sh took the vendored
+# arm64-v8a binary from, so both ABIs run the same Tor.
+VERSION="15.0.26"
 CACHE="${TMPDIR:-/tmp}/quiet-tor-downloads"
 while [[ $# -gt 0 ]]; do
     case "$1" in

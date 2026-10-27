@@ -129,7 +129,6 @@ jobs:
           SOURCE_PATH: linux
         run: |
           npm run copyBinaries
-          npm run pullLibs
           npm run build:prod
           node -e 'const b = require("electron-builder"); b.build({targets: b.Platform.LINUX.createTarget("dir"), publish: "never", config: {beforePack: null, artifactBuildCompleted: null, afterAllArtifactBuild: null}}).catch(error => {console.error(error); process.exitCode = 1})'
           sudo chown root:root dist/linux-unpacked/chrome-sandbox

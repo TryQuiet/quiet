@@ -1,6 +1,6 @@
 # Pinned Tor.framework 405.9.1: isolated arm64 iOS Simulator preparation
 
-**Historical recipe.** Current builds use Tor.framework 409.11.2's upstream
+**Historical recipe.** Current builds use Tor.framework 409.14.1's upstream
 XCFramework through `build-ios.py`, with no replacement framework. See
 [the current upgrade and regression instructions](../../docs/ios-tor-upgrade.md).
 The 405.9.1 recipe below is retained for old-branch comparisons; its wrapper

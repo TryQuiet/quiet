@@ -15,7 +15,7 @@ import uuid
 spec = importlib.util.spec_from_file_location('build_guards', Path(__file__).with_name('build-storybook.py'))
 guards = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guards)
-TOR_VERSION = '409.11.2'
+TOR_VERSION = '409.14.1'
 TOR_PODSPEC_URL = f'https://raw.githubusercontent.com/iCepa/Tor.framework/v{TOR_VERSION}/Tor.podspec'
 
 
@@ -84,8 +84,8 @@ def build(args):
             # shipped wrapper too; native tests query its live GETINFO version.
             embedded = app / 'Frameworks/Tor.framework/Tor'
             strings = guards.command(['strings', str(embedded)], env)
-            guards.require(any(line.split(' ')[0] == '0.4.9.11' for line in strings.splitlines()),
-                           'Linked app is missing Tor 0.4.9.11')
+            guards.require(any(line.split(' ')[0] == '0.4.9.14' for line in strings.splitlines()),
+                           'Linked app is missing Tor 0.4.9.14')
             platform = guards.command(['xcrun', 'vtool', '-show-build', str(embedded)], env)
             guards.require('platform IOSSIMULATOR' in platform, 'App must target iOS Simulator')
             guards.command(['codesign', '--force', '--sign', '-',

@@ -45,9 +45,8 @@ The backend is up when logcat shows the Nest modules initialising, Tor (or the
 
 ## Notes
 
-- The Tor Browser x86_64 APK is 15.0.22 (Tor 0.4.9.12); the vendored arm64
-  binary is Tor 0.4.9.11 from 15.0.21, which dist.torproject.org no longer
-  serves. Both are 16 KB page aligned.
+- The Tor Browser x86_64 APK and the vendored arm64 binary both come from
+  Tor Browser 15.0.26 (Tor 0.4.9.14, OpenSSL 3.5.9). Both are 16 KB page aligned.
 - The x86_64 `libnode.so` is unstripped in the archive (85 MB); Gradle strips
   it at packaging, as it does for arm64.
 - The addon is built with the vendored Android Node headers and links against

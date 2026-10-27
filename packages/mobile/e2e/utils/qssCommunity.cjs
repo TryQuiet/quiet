@@ -52,7 +52,7 @@ function validateBuild(output) {
   requireCondition(
     build.status === 'passed' &&
       build.torPodUnchanged === true &&
-      build.torVersion === '409.11.2' &&
+      build.torVersion === '409.14.1' &&
       build.scheme === 'Quiet' &&
       build.configuration === 'Debug' &&
       build.envFile === '.env.e2e.qss' &&

@@ -6,16 +6,22 @@ Branch: `upgrade/ios-tor-latest`, based on the published Node 24 / React Native
 
 ## Dependency and integration
 
-The pin is [Tor.framework v409.11.2](https://github.com/iCepa/Tor.framework/releases/tag/v409.11.2),
-the latest upstream release checked on September 15, 2026. It contains Tor
-0.4.9.11, libevent 2.1.13, OpenSSL 3.6.3 and liblzma 5.8.3. Its source tag resolves
-to `727f628a15dd1bd83e0e171deb0aba7ab18be09e`. The upstream podspec verifies the
-downloaded XCFramework archive's SHA-256:
+The pin is [Tor.framework v409.14.1](https://github.com/iCepa/Tor.framework/releases/tag/v409.14.1),
+the latest upstream release checked on October 25, 2026. Its release notes list Tor
+0.4.9.14, libevent 2.1.13, OpenSSL 3.6.5 and liblzma 5.8.4 (Tor 0.4.9.14 is the
+fix release for the 0.4.9.13/0.4.9.14 security advisories). Its source tag resolves
+to `2b1192c81fc359bcf1c21a16526b76a2a2c1f419`. The upstream podspec verifies the
+downloaded XCFramework archive's SHA-256, which equals the hash of the archive
+fetched from the release page:
 
 ```text
 tor.xcframework.zip
-a72b44b96e1205bedc29796cb77a84088cfdc41f1093db6ca0a27c802e16d7c4
+823d98fcafd8eba089f31b32989ad70e15a0e8a1b5709bc0d5941fb09ef1b625
 ```
+
+The release notes are not the only evidence: the strings `tor 0.4.9.14` and
+`OpenSSL 3.6.5` are present in the binaries of all three slices of that archive
+(`ios-arm64`, `ios-arm64_x86_64-simulator`, `macos-arm64_x86_64`).
 
 The lockfile changes only Tor and the Podfile checksum. Tor's wrapper is dynamic;
 the vendored C library is static. `tor-pod-linkage.rb` links that archive by path
@@ -118,7 +124,7 @@ Validation on September 15, 2026:
 | Forced incremental wrapper relink | Passed through the final runner, changing linker version from 1 to 2 |
 | Native iOS device build | ARM64 device slice and production handler compile/link passed; no signing or physical-device run |
 | App pod resolution | `pod update Tor --no-repo-update` produced exactly the committed lockfile; subsequent `pod install --deployment` passed |
-| Full Quiet simulator app | Debug/staging ARM64 build passed; embedded Tor 0.4.9.11, simulator platform, app signature and unchanged installed XCFramework verified |
+| Full Quiet simulator app | Debug/staging ARM64 build passed; embedded Tor 0.4.9.11 (recorded for the earlier 409.11.2 pin), simulator platform, app signature and unchanged installed XCFramework verified |
 | Full app community persistence | Existing `native-community.test.js` passed in 92.107 seconds: created community, stored message with backend acknowledgment, restarted process and recovered message; normal Detox synchronization |
 | Current XCFramework builder | 8 portable tests passed |
 | Real Detox CLI / workflow routing | 11 tests passed |
@@ -179,3 +185,13 @@ dependency (15 assertions). The app plist tests also pass (4 tests/32 assertions
 Portable validation passes: 20 workflow/QSS helpers, 50 guarded builder tests,
 and 16 QSS fixture/CI helper tests with one existing platform skip. Native Apple
 builds and control cycles above were not repeated on this Linux host.
+
+### Tor.framework 409.14.1 (October 25, 2026)
+
+| Check | Result |
+| --- | --- |
+| Podfile.lock | Tor lines, Podfile checksum and the Tor spec checksum (`2ea07874…`) edited by hand; the spec checksum method (SHA-1 of the evaluated podspec JSON) was first shown to reproduce the committed 409.11.2 value, and the checksum `pod install` computed for 409.14.1 in the regression project matched. A full `pod update Tor` of the app workspace was not run |
+| XCFramework contents | `tor 0.4.9.14` and `OpenSSL 3.6.5` strings found in all three slices of the archive whose SHA-256 matches the podspec |
+| Native iOS 18.5 simulator regression (`tor-regression/run.sh`, Xcode 26.3, Mac host) | Passed: asserts live `GETINFO version` is 0.4.9.14, 100% bootstrap and the 20 leave/foreground/rejoin cycles; the test took 28.6 seconds, run total about 3 minutes |
+| iOS device build | `TorRegression` scheme built for `generic/platform=iOS` unsigned; embedded `Tor.framework` is arm64, platform iOS, with `tor 0.4.9.14` and `OpenSSL 3.6.5` |
+| Not done | Full Quiet app build, Detox/simulator app suites, physical-device run |
