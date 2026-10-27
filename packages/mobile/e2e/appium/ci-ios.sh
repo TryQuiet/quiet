@@ -71,7 +71,7 @@ archive.unlink()
 PY
 stage=qss-fixture
 python3 packages/mobile/scripts/qss-e2e/fixture.py up --runtime native \
-  --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003 \
+  --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port "${QUIET_QSS_PORT:-3003}" \
   --node "$RUNNER_TEMP/notification-qss-node/node-v22.14.0-darwin-arm64/bin/node" \
   --corepack "$RUNNER_TEMP/notification-qss-node/node-v22.14.0-darwin-arm64/bin/corepack" \
   --postgres-bin "$(brew --prefix postgresql@18)/bin" \
@@ -129,7 +129,7 @@ test_exit=0
 ) > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || test_exit=$?
 export QUIET_NOTIFICATION_TEST_EXIT="$test_exit"
 python3 - <<'PY'
-import json, os
+import json, os, re
 from pathlib import Path
 directory = Path(os.environ['QUIET_QSS_E2E_RUN_DIR'])
 proof = json.loads((directory / 'ui.json').read_text()) if (directory / 'ui.json').exists() else {}
@@ -154,6 +154,14 @@ passed = report['testExitCode'] == 0 and (report['onboardingPassed'] if lane == 
 report['status'] = 'passed' if passed else 'failed'
 Path(os.environ['RUNNER_TEMP'], 'notification-ios-result.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
+if not passed and report['lastStage'] == 'desktop-open':
+    # Before the app is open there is no invitation, token or username in the log, so its tail is safe to print.
+    log = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'test.log'
+    if log.exists():
+        print('--- desktop startup log (tail) ---')
+        lines = log.read_text(errors='replace').splitlines()
+        hits = [l for l in lines[:-40] if re.search(r'error|fatal|crash|exit|fail|SEVERE|tor|backend', l, re.I)]
+        print('\n'.join(hits[:120] + ['--- last 40 lines ---'] + lines[-40:]))
 if not passed:
     raise SystemExit('The selected iOS Appium journey did not pass. No alternate lane was substituted.')
 PY

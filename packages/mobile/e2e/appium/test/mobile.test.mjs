@@ -102,7 +102,7 @@ test('fresh join follows the redesigned onboarding before entering the invitatio
   mobile.tapId = async id => events.push(['tapId', id])
   mobile.tapText = async text => events.push(['tapText', text])
   mobile.input = async (placeholder, value) => events.push(['input', placeholder, value])
-  mobile.visible = async selector => events.push(['visible', selector])
+  mobile.screen = async id => events.push(['screen', id])
   mobile.allowNotifications = async () => events.push(['notifications'])
   await mobile.join('test-invitation', 'test-user')
   assert.deepEqual(events, [
@@ -111,15 +111,50 @@ test('fresh join follows the redesigned onboarding before entering the invitatio
     ['tapId', 'paste-a-link'],
     ['input', 'Link', 'test-invitation'],
     ['tapText', 'Continue'],
-    ['visible', '~username-registration-component'],
+    ['screen', 'username-registration-component'],
     ['input', 'Username', 'test-user'],
     ['tapText', 'Continue'],
-    ['visible', '~terms-of-service-component'],
+    ['screen', 'terms-of-service-component'],
     ['tapId', 'terms-of-service-agree'],
-    ['visible', '~channels_list'],
+    ['screen', 'channels_list'],
     ['notifications'],
     ['tapId', 'channel_tile_general'],
-    ['visible', '~chat_general'],
+    ['screen', 'chat_general'],
   ])
   assert.equal(mobile.onboarding, false)
+})
+
+test('iOS screens are found by wrapper existence because WebDriverAgent reports React Native wrappers as not visible', async () => {
+  const mobile = new Mobile(base, { directory: process.cwd() })
+  const asked = []
+  mobile.driver = {
+    waitUntil: async condition => assert.equal(await condition(), true),
+    $: async selector => {
+      asked.push(selector)
+      return { isExisting: async () => true, isDisplayed: async () => false }
+    },
+  }
+  mobile.allowNotifications = async () => {}
+  await mobile.screen('get-started-component')
+  assert.deepEqual(asked, ['~get-started-component'])
+})
+
+test('Android screens still have to be displayed', async () => {
+  const mobile = new Mobile({ ...base, platform: 'android', bundleId: 'com.quietmobile.debug' }, { directory: process.cwd() })
+  const asked = []
+  mobile.driver = {
+    waitUntil: async condition => assert.equal(await condition(), true),
+    $: async selector => {
+      asked.push(selector)
+      return { isExisting: async () => true, isDisplayed: async () => true }
+    },
+  }
+  await mobile.screen('get-started-component')
+  assert.equal(asked.length, 1)
+})
+
+test('a remote Appium host and its device-side app path are validated', () => {
+  assert.doesNotThrow(() => validateConfig({ ...base, appiumHost: '127.0.0.1', deviceApp: '/Users/ci/Quiet.app' }))
+  assert.throws(() => validateConfig({ ...base, appiumHost: 'bad host' }), /appiumHost/)
+  assert.throws(() => validateConfig({ ...base, deviceApp: 'Quiet.app' }), /deviceApp/)
 })

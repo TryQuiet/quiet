@@ -8,6 +8,7 @@ import { NestFactory } from '@nestjs/core'
 import { multiaddr } from '@multiformats/multiaddr'
 import { ConnectionProcessInfo, SocketEvents } from '@quiet/types'
 import ts from 'typescript'
+import vm from 'node:vm'
 import { createLibp2p } from './libp2p.js'
 import tor from './tor.service.cjs'
 import module from './tor.module.cjs'
@@ -39,6 +40,14 @@ test('the fixture accepts staging but cannot initialize for a shipping or arbitr
     { ...environment, QSS_ENDPOINT: 'wss://qss-prod.quiet-services.app' },
     { ...environment, QSS_ENDPOINT: 'ws://10.0.2.2:3003' },
   ]) assert.throws(() => mode.requireQssOnlyEnvironment(invalid), /QSS-only E2E backend requires/)
+})
+
+test('the bundle startup guard is self-contained and enforces the same environment', () => {
+  const run = env => vm.runInNewContext(mode.startupGuardSource(), { process: { env } })
+  run(environment)
+  run({ ...environment, QSS_ENDPOINT: 'ws://localhost:3077' })
+  assert.throws(() => run({ ...environment, QSS_ENDPOINT: 'wss://qss-prod.quiet-services.app' }), /QSS-only E2E backend requires/)
+  assert.throws(() => run({}), /QSS-only E2E backend requires/)
 })
 
 test('Nest initializes and restarts the Tor replacement without any child process or control connection', async t => {

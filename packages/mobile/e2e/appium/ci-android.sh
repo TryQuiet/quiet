@@ -92,7 +92,7 @@ stage=qss-fixture
 if [[ "$QUIET_NOTIFICATION_LANE" == provider ]]; then
   node packages/mobile/e2e/appium/staging.mjs --prepare "$QUIET_QSS_E2E_RUN_DIR"
 else
-  python3 packages/mobile/scripts/qss-e2e/fixture.py up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003 > "$RUNNER_TEMP/notification-fixture.log" 2>&1
+  python3 packages/mobile/scripts/qss-e2e/fixture.py up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port "${QUIET_QSS_PORT:-3003}" > "$RUNNER_TEMP/notification-fixture.log" 2>&1
   python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
     --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
 fi
@@ -149,7 +149,7 @@ export QUIET_NOTIFICATION_WINDOW_MANAGER_ALIVE="$window_manager_alive"
 # Keep screenshots, invitations, device tokens and raw service logs private.
 # CI publishes only these deliberately selected non-secret proof fields.
 python3 - <<'PY'
-import json, os
+import json, os, re
 from pathlib import Path
 source = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'ui.json'
 proof = json.loads(source.read_text()) if source.exists() else {}
@@ -185,6 +185,14 @@ passed = report['testExitCode'] == 0 and journey_passed and report['displayAlive
 report['status'] = 'passed' if passed else 'failed'
 Path(os.environ['RUNNER_TEMP'], 'notification-result.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
+if not passed and report['lastStage'] == 'desktop-open':
+    # Before the app is open there is no invitation, token or username in the log, so its tail is safe to print.
+    log = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'test.log'
+    if log.exists():
+        print('--- desktop startup log (tail) ---')
+        lines = log.read_text(errors='replace').splitlines()
+        hits = [l for l in lines[:-40] if re.search(r'error|fatal|crash|exit|fail|SEVERE|tor|backend', l, re.I)]
+        print('\n'.join(hits[:120] + ['--- last 40 lines ---'] + lines[-40:]))
 if not passed:
     raise SystemExit('The selected Android Appium journey did not pass. No alternate lane was substituted.')
 PY

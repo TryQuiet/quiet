@@ -1,6 +1,6 @@
 import { execSync } from 'child_process'
 import assert from 'assert'
-import { getWindowsBackendPids } from './windowsBackendProcesses'
+import { getWindowsBackendPids } from './windowsBackendProcesses.js'
 import { DateTime } from 'luxon'
 import path from 'path'
 import { By, Key, error, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
