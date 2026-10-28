@@ -1,15 +1,25 @@
 # Changelog
 
-## [11.1.0]
+## [11.3.1]
+
+### Fixes
+
+* Check Windows and Linux desktop updates against Quiet's own release key before installing them. Each installer and AppImage now ships with a detached signature covering its version, file name and hash, made in CI with a key whose public half is built into the app, so an update that has been tampered with, swapped for another file or replayed from an older release is refused. Downgrades are refused, a file left over from an earlier launch is never installed unchecked, and the updater turns itself off rather than run without these checks. This also upgrades `electron-updater` from 5.0.1 to 6.8.11, which fixes a Windows signature-check bypass (CVE-2024-39698). macOS updates are still checked by Apple's code signing [#3705](https://github.com/TryQuiet/quiet/pull/3705)
 
 ### Chores
 
-* chore(security): update Tor to 0.4.9.14, built against OpenSSL 3.5.9, on desktop (Linux, macOS, Windows) and Android (arm64-v8a and x86_64), and the iOS `Tor.framework` pod to 409.14.1 (Tor 0.4.9.14, OpenSSL 3.6.5). See Tor's [0.4.9.13](https://forum.torproject.org/t/security-release-0-4-9-13/22178/1) and [0.4.9.14](https://forum.torproject.org/t/security-release-0-4-9-14/22241) security releases. Stop shipping the unused OpenSSL 1.1 libraries (and the AppImage `LD_PRELOAD` of one), and add `npm run check:tor-binaries`, which CI runs to fail the build on a stale Tor, an older OpenSSL, or a vendored OpenSSL 1.1 library
+* Update Electron from 44.3.0 to 44.9.3 (Chromium 152), which stops trusting the compromised eMudhra intermediate certificate authorities ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)) [#3706](https://github.com/TryQuiet/quiet/pull/3706)
+* Update Tor to 0.4.9.14 on desktop and Android, and the iOS `Tor.framework` to 409.14.1 (Tor 0.4.9.14), picking up Tor's [0.4.9.13](https://forum.torproject.org/t/security-release-0-4-9-13/22178/1) and [0.4.9.14](https://forum.torproject.org/t/security-release-0-4-9-14/22241) security fixes. Stop shipping the unused OpenSSL 1.1 libraries, and fail CI if a stale Tor or OpenSSL build is bundled [#3710](https://github.com/TryQuiet/quiet/pull/3710)
+* Update the websocket libraries `ws` (8.21+) and `socket.io` (4.8.4, parser 4.2.7+) in the backend, desktop and mobile apps to fix denial-of-service bugs ([GHSA-96hv-2xvq-fx4p](https://github.com/websockets/ws/security/advisories/GHSA-96hv-2xvq-fx4p), [GHSA-677m-j7p3-52f9](https://github.com/socketio/socket.io/security/advisories/GHSA-677m-j7p3-52f9), [GHSA-2m8v-j782-fhvr](https://github.com/advisories/GHSA-2m8v-j782-fhvr)), and fail CI if a vulnerable copy returns [#3707](https://github.com/TryQuiet/quiet/issues/3707) [#3708](https://github.com/TryQuiet/quiet/issues/3708)
+* Stop code-signing the Windows installer with an Authenticode certificate. Ours expired in July 2023 and will not be renewed, so installers since then have carried a signature Windows already treats as invalid [#3716](https://github.com/TryQuiet/quiet/pull/3716)
 
-* Dependency security upgrade: `ws` to 8.21+ and `socket.io`, `socket.io-client` and `socket.io-parser` to 4.8.4 / 4.2.7+ in the backend, desktop and mobile apps, resolving [GHSA-96hv-2xvq-fx4p](https://github.com/websockets/ws/security/advisories/GHSA-96hv-2xvq-fx4p) (CVE-2026-48779), [CVE-2026-33151](https://github.com/socketio/socket.io/security/advisories/GHSA-677m-j7p3-52f9) and [CVE-2026-69185](https://github.com/advisories/GHSA-2m8v-j782-fhvr), and add a CI check (`npm run check:runtime-deps`) that fails if a vulnerable runtime copy returns [#3707](https://github.com/TryQuiet/quiet/issues/3707) [#3708](https://github.com/TryQuiet/quiet/issues/3708)
-* chore(desktop): stop Authenticode-signing the Windows installer. The certificate it was signed with (Zbay LLC, DigiCert) expired in July 2023 and will not be renewed, so every installer since has carried a signature Windows reports as invalid. The `jsign` signing hook (`scripts/sign.js`), its `signtoolOptions` entry, and the certificate/password/alias secrets and download step in the release and Windows e2e workflows are removed. Fresh downloads now show SmartScreen's "unknown publisher" prompt as they effectively already did; installed apps update exactly as before, because their updater never checked the Authenticode signature
+### Notes
 
-* chore(deps): upgrade Electron (and the e2e ChromeDriver) from 44.3.0 to 44.9.3 (Chromium 152.0.7977.167, Node 24.22.0), a dependency security update that picks up Electron's mitigation for the compromised eMudhra intermediate CA certificates ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)). A test now fails if Electron drops below the patched release
+* A freshly downloaded Windows installer shows SmartScreen's "unknown publisher" warning (choose *More info*, then *Run anyway*). Installed copies update without it, and every update is checked against Quiet's release key.
+
+## [11.1.0]
+
+### Chores
 
 * chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
 
@@ -73,7 +83,6 @@
 * Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
 * Let a released Mac build open the camera when you scan a QR code, by granting the signed app the camera entitlement its hardened runtime requires, and ask for the camera in Quiet's own words rather than Electron's placeholder ones
 * Point a refused camera at the setting that would allow it when scanning a QR code on desktop, naming the macOS or Windows page, opening it, and asking the camera again when you come back, instead of only saying access was denied
-* fix(desktop): harden how the desktop app verifies updates. Upgrade `electron-updater` 5.0.1 → 6.8.11, which fixes a Windows code-signature verification bypass (CVE-2024-39698). Windows installers and Linux AppImages must now carry a detached signature from Quiet's own release key (the public key ships in the app; CI signs each release and publishes `<file>.sig`), bound to the update's version and file name, so an update that was swapped or replayed is refused and no certificate authority is involved; downgrades and web installers are refused, an update cached by an earlier launch is never reused unverified, the updater stops entirely if these settings cannot be applied, and Windows and Linux release builds refuse to package without a signing key the app accepts
 
 ### Tests
 
