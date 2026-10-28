@@ -1,5 +1,22 @@
 # Changelog
 
+## [11.3.1]
+
+### Fixes
+
+* Check Windows and Linux desktop updates against Quiet's own release key before installing them. Each installer and AppImage now ships with a detached signature covering its version, file name and hash, made in CI with a key whose public half is built into the app, so an update that has been tampered with, swapped for another file or replayed from an older release is refused. Downgrades are refused, a file left over from an earlier launch is never installed unchecked, and the updater turns itself off rather than run without these checks. The updater library, `electron-updater`, moves from 5.0.1 to 6.8.11. macOS updates are still checked by Apple's code signing [#3705](https://github.com/TryQuiet/quiet/pull/3705)
+
+### Chores
+
+* Update Electron from 44.3.0 to 44.9.3 (Chromium 152), which stops trusting the compromised eMudhra intermediate certificate authorities ([GHSA-jr5w-w6x2-84p9](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)) [#3706](https://github.com/TryQuiet/quiet/pull/3706)
+* Update Tor to 0.4.9.14 on desktop and Android, and the iOS `Tor.framework` to 409.14.1 (Tor 0.4.9.14), picking up Tor's [0.4.9.13](https://forum.torproject.org/t/security-release-0-4-9-13/22178/1) and [0.4.9.14](https://forum.torproject.org/t/security-release-0-4-9-14/22241) security fixes. Stop shipping the unused OpenSSL 1.1 libraries, and fail CI if a stale Tor or OpenSSL build is bundled [#3710](https://github.com/TryQuiet/quiet/pull/3710)
+* Update the websocket libraries `ws` (8.21+) and `socket.io` (4.8.4, parser 4.2.7+) in the backend, desktop and mobile apps to fix denial-of-service bugs ([GHSA-96hv-2xvq-fx4p](https://github.com/websockets/ws/security/advisories/GHSA-96hv-2xvq-fx4p), [GHSA-677m-j7p3-52f9](https://github.com/socketio/socket.io/security/advisories/GHSA-677m-j7p3-52f9), [GHSA-2m8v-j782-fhvr](https://github.com/advisories/GHSA-2m8v-j782-fhvr)), and fail CI if a vulnerable copy returns [#3707](https://github.com/TryQuiet/quiet/issues/3707) [#3708](https://github.com/TryQuiet/quiet/issues/3708)
+* Stop code-signing the Windows installer with an Authenticode certificate. Ours expired in July 2023 and will not be renewed, so installers since then have carried a signature Windows already treats as invalid [#3716](https://github.com/TryQuiet/quiet/pull/3716)
+
+### Notes
+
+* A freshly downloaded Windows installer shows SmartScreen's "unknown publisher" warning (choose *More info*, then *Run anyway*). Installed copies update without it, and every update is checked against Quiet's release key.
+
 ## [11.1.0]
 
 ### Chores
