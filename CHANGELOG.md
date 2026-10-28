@@ -4,7 +4,7 @@
 
 ### Fixes
 
-* Check Windows and Linux desktop updates against Quiet's own release key before installing them. Each installer and AppImage now ships with a detached signature covering its version, file name and hash, made in CI with a key whose public half is built into the app, so an update that has been tampered with, swapped for another file or replayed from an older release is refused. Downgrades are refused, a file left over from an earlier launch is never installed unchecked, and the updater turns itself off rather than run without these checks. This also upgrades `electron-updater` from 5.0.1 to 6.8.11, which fixes a Windows signature-check bypass (CVE-2024-39698). macOS updates are still checked by Apple's code signing [#3705](https://github.com/TryQuiet/quiet/pull/3705)
+* Check Windows and Linux desktop updates against Quiet's own release key before installing them. Each installer and AppImage now ships with a detached signature covering its version, file name and hash, made in CI with a key whose public half is built into the app, so an update that has been tampered with, swapped for another file or replayed from an older release is refused. Downgrades are refused, a file left over from an earlier launch is never installed unchecked, and the updater turns itself off rather than run without these checks. The updater library, `electron-updater`, moves from 5.0.1 to 6.8.11. macOS updates are still checked by Apple's code signing [#3705](https://github.com/TryQuiet/quiet/pull/3705)
 
 ### Chores
 
