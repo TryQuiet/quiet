@@ -92,7 +92,7 @@ stage=qss-fixture
 if [[ "$QUIET_NOTIFICATION_LANE" == provider ]]; then
   node packages/mobile/e2e/appium/staging.mjs --prepare "$QUIET_QSS_E2E_RUN_DIR"
 else
-  python3 packages/mobile/scripts/qss-e2e/fixture.py up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003 > "$RUNNER_TEMP/notification-fixture.log" 2>&1
+  python3 packages/mobile/scripts/qss-e2e/fixture.py up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port "${QUIET_QSS_PORT:-3003}" > "$RUNNER_TEMP/notification-fixture.log" 2>&1
   python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
     --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
 fi

@@ -71,7 +71,7 @@ archive.unlink()
 PY
 stage=qss-fixture
 python3 packages/mobile/scripts/qss-e2e/fixture.py up --runtime native \
-  --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003 \
+  --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port "${QUIET_QSS_PORT:-3003}" \
   --node "$RUNNER_TEMP/notification-qss-node/node-v22.14.0-darwin-arm64/bin/node" \
   --corepack "$RUNNER_TEMP/notification-qss-node/node-v22.14.0-darwin-arm64/bin/corepack" \
   --postgres-bin "$(brew --prefix postgresql@18)/bin" \

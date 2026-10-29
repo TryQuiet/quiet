@@ -31,6 +31,24 @@ The helper creates a unique Compose project. Only QSS port 3003 is published,
 bound to `127.0.0.1`; Postgres and Redis have no host ports. `--port` can change
 the host port. Existing stacks, app profiles, and host credential files are not
 used. Push delivery is disabled in this local server fixture.
+## Another port
+
+Sessions that share a host cannot all use 3003. Start your own fixture on a free port and
+export the same port to the harness:
+
+```sh
+export QUIET_QSS_PORT=3166
+python3 packages/mobile/scripts/qss-e2e/fixture.py up --output /tmp/quiet-qss-e2e-my-run --port "$QUIET_QSS_PORT"
+```
+
+`QUIET_QSS_PORT` (default 3003, 1024-65535) selects the fixture's loopback port for the Appium
+harness (`packages/mobile/e2e/appium`), its community helpers and Android's `adb reverse`.
+The QSS-only backend accepts `ws://localhost:<port>` for any such port. The endpoint is also
+compiled into the clients, so build them from copies of the env files with the port changed:
+the mobile `ENVFILE` (`QSS_ENDPOINT=ws://localhost:3166`) and, for the desktop peer, a copy of
+`packages/desktop/.env.e2e.qss` whose `QSS_ENDPOINT` and own `ENVFILE=` line are updated.
+For the `e2e-tests` package set `QSS_ENDPOINT` and, for device linking, `QSS_PORT`.
+
 The advertised endpoint is `ws://localhost:3003`, matching QSS's `localhost`
 auth identity in both development and production backend bundles. The actual
 listener stays bound to `127.0.0.1`. An IP-address invitation can produce a

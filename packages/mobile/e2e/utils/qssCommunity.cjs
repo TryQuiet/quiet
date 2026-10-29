@@ -8,7 +8,9 @@ const { createHash, randomUUID } = require('node:crypto')
 
 // Keep the advertised URL and QSS's LFA server identity identical in both
 // development and production backend bundles.
-const ENDPOINT = 'ws://localhost:3003'
+const { qssPort, qssEndpoint } = require('./qssPort.cjs')
+const QSS_PORT = qssPort()
+const ENDPOINT = qssEndpoint(QSS_PORT)
 const TEST_SITE_KEY = '10000000-ffff-ffff-ffff-000000000001'
 const requireCondition = (condition, message) => {
   if (!condition) throw new Error(message)
@@ -84,7 +86,7 @@ function validateFixture({ manifest, result }) {
     manifest.version === 1 &&
       /^quiet-qss-e2e-[a-f0-9]+$/.test(manifest.project) &&
       manifest.endpoint === ENDPOINT &&
-      manifest.port === 3003 &&
+      manifest.port === QSS_PORT &&
       manifest.productionQss === false &&
       manifest.pushNotifications === false,
     'Require the isolated loopback QSS fixture manifest'
@@ -103,7 +105,7 @@ function validateFixture({ manifest, result }) {
 
 function getHealth() {
   return new Promise((resolve, reject) => {
-    const request = http.get('http://localhost:3003/health', response => {
+    const request = http.get(`http://localhost:${QSS_PORT}/health`, response => {
       let body = ''
       response.on('data', data => {
         body += data
